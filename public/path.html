@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./js/path.js" defer></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlCOGi3PJsOwnwjWh_lO66Qrd98q60_4Q&callback=initMap"></script>
+    <title>Co-Car</title>
+</head>
+<body>
+    <header>
+        <a href="/"><img src="" id="logo"></a>
+        <nav class="tags">
+            <a href="#" class="tag tag-search-route">尋找路線</a>
+            <a href="#" class="tag tag-provide-route">提供路線</a>
+        </nav>
+        <a id="profile"></a>
+    </header>
+    <main>
+        <div class="route-info">
+            <h2>建議路線</h2>
+            <ul class="path-suggestion">
+                <li id="sg-1">suggestion1</li>
+                <li id="sg-2">suggestion2</li>
+                <li id="sg-3">suggestion3</li>
+            </ul>
+        </div>
+        <div id="map" style="width: 600px; height:480px;"></div>
+    </main>    
+</body>
+
+</html>
