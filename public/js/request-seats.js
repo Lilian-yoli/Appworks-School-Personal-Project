@@ -23,9 +23,8 @@ next.addEventListener("click", () => {
       "Content-Type": "application/json"
     })
   }).then((response) => {
-    console.log(response.json());
+    console.log(123);
     return response.json();
-  }).then(
-    console.log
-  );
+  }).catch(error => console.error("Error:", error))
+    .then(response => console.log("Success:", response));
 });

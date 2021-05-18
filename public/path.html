@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="./js/path.js" defer></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlCOGi3PJsOwnwjWh_lO66Qrd98q60_4Q&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper"></script>
     <title>Co-Car</title>
 </head>
 <body>
@@ -20,10 +20,8 @@
     <main>
         <div class="route-info">
             <h2>建議路線</h2>
-            <ul class="path-suggestion">
-                <li id="sg-1">suggestion1</li>
-                <li id="sg-2">suggestion2</li>
-                <li id="sg-3">suggestion3</li>
+            <ul id="path-suggestion">
+
             </ul>
         </div>
         <div id="map" style="width: 600px; height:480px;"></div>

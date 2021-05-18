@@ -8,7 +8,7 @@ const userRoutes = require("./server/routes/user_routes");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extend: true }));
-app.use(express.static("public"));
+app.use("/api/1.0", express.static("public"));
 app.use(pathRoutes);
 app.use(userRoutes);
 

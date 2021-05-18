@@ -1,5 +1,4 @@
 require("dotenv").config();
-const direction = require("google-maps-direction");
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const { GOOGLE_MAP, TOKEN_SECRET } = process.env;
@@ -16,10 +15,10 @@ const wrapAsync = (fn) => {
 const authentication = () => {
   return async function (req, res, next) {
     let accessToken = req.get("Authorization");
+
     if (!accessToken) {
       res.status(401).send({ error: "Unauthorized" });
     }
-
     accessToken = accessToken.replace("Bearer ", "");
     if (!accessToken) {
       res.status(401).send({ error: "Unauthoized" });
@@ -46,22 +45,20 @@ const transferToLatLng = async (location) => {
     console.log(null);
     return null;
   } else {
-    const latLonArr = [];
-    latLonArr.push(latLon.lat);
-    latLonArr.push(latLon.lon);
-    console.log(latLonArr);
-    return latLonArr;
+    const latLonObj = { lat: latLon.lat, lng: latLon.lng };
+    return JSON.stringify(latLonObj);
   }
 };
 
-function getDistanceFromLatLonInKm (start, destination) {
+function getDistanceFromLatLonInKm (lat1, lng1, lat2, lng2) {
   const R = 6371; // Radius of the earth in km
-  const dLat = deg2rad(destination[1] - start[1]); // deg2rad below
-  const dLon = deg2rad(destination[0] - start[0]);
+  const dLat = deg2rad(lat2 - lat1); // deg2rad below
+  const dLng = deg2rad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(start[1])) * Math.cos(deg2rad(destination[1])) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2)
+    ;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c; // Distance in km
   return d;
@@ -71,54 +68,72 @@ function deg2rad (deg) {
   return deg * (Math.PI / 180);
 }
 
-const getDirection = async (start, destination) => {
-  const startEncode = encodeURI(start);
-  const destinationEncode = encodeURI(destination);
-  const { data } = await axios.get(`https://maps.googleapis.com/maps/api/directions/json?language=zh-TW&origin=${startEncode}&destination=${destinationEncode}&key=${GOOGLE_MAP}`);
-  // console.log(data.routes[0].bounds);
-  const startArr = [];
-  const destinationArr = [];
-  const routes = data.routes[0];
-  startArr.push(routes.bounds.northeast.lat);
-  startArr.push(routes.bounds.northeast.lng);
-  destinationArr.push(routes.bounds.southwest.lat);
-  destinationArr.push(routes.bounds.southwest.lng);
-  // console.log(startArr, destinationArr);
+// const getDirection = async (start, destination) => {
+//   const { data } = await axios.get(`https://maps.googleapis.com/maps/api/directions/json?language=zh-TW&origin=${start}&destination=${destination}&key=${GOOGLE_MAP}`);
+//   // console.log(data.routes[0].bounds);
+//   const startArr = [];
+//   const destinationArr = [];
+//   const routes = data.routes[0];
+//   startArr.push(routes.bounds.northeast.lat);
+//   startArr.push(routes.bounds.northeast.lng);
+//   destinationArr.push(routes.bounds.southwest.lat);
+//   destinationArr.push(routes.bounds.southwest.lng);
+//   // console.log(startArr, destinationArr);
 
-  const waypointObj = { start: startArr, destination: destinationArr };
-  for (const i in routes.legs[0].steps) {
-    const stepArr = [];
-    const stepVariables = "step" + i;
-    stepArr.push(routes.legs[0].steps[i].start_location.lat);
-    stepArr.push(routes.legs[0].steps[i].start_location.lng);
-    waypointObj[stepVariables] = stepArr;
-  }
-  // console.log(waypointObj);
-  return waypointObj;
-};
+//   const waypointObj = { start: startArr, destination: destinationArr };
+//   for (const i in routes.legs[0].steps) {
+//     const stepArr = [];
+//     const stepVariables = "step" + i;
+//     stepArr.push(routes.legs[0].steps[i].start_location.lat);
+//     stepArr.push(routes.legs[0].steps[i].start_location.lng);
+//     waypointObj[stepVariables] = stepArr;
+//   }
+//   // console.log(waypointObj);
+//   return waypointObj;
+// };
 
-const sortAllPassengerByDistance = () => {
-  // eslint-disable-next-line max-len
-  const place = { passenger1: { route: [[24.518504, 121.831112], [25.044311, 121.58174]] }, passenger2: { route: [[24.748217, 121.748611], [24.467832, 121.747473]] }, passenger3: { route: [[24.463778, 121.800613], [23.982576, 121.613073]] } };
-  const allPassengerDistance = [];
-  for (const i in place) {
-    const distance = getDistanceFromLatLonInKm(place[i].route[0], place[i].route[1]);
-    const passengerInfo = [i, distance, place[i].route[0], place[i].route[1]];
-    allPassengerDistance.push(passengerInfo);
-  }
+// const filterRoutesIn5km = async (start, destination) => {
+//   const waypoints = await getDirection(start, destination);
+//   const allPlaces = await Path.getAllplacesByPassengers();
+//   console.log("waypoints", waypoints);
+//   console.log("allPlaces", allPlaces);
+//   const onRoadPassenger = [];
+//   const onRoadLocation = {};
+//   for (const i in allPlaces) {
+//     for (const j in waypoints) {
+//       const distance = getDistanceFromLatLonInKm(waypoints[j], allPlaces[i].route[0]);
+//       if (distance <= 5) {
+//         if (!onRoadLocation[i]) {
+//           onRoadLocation[i] = allPlaces[i].route;
+//         }
+//       }
+//     }
+//   }
+//   onRoadPassenger.push(onRoadLocation);
+//   console.log("onRoadPassenger", onRoadPassenger);
+//   return onRoadPassenger;
+// };
 
-  allPassengerDistance.sort((a, b) => {
-    return a[1] - b[1];
-  });
-  allPassengerDistance.reverse();
-  return allPassengerDistance;
-};
+// const sortAllPassengerByDistance = (place) => {
+//   // eslint-disable-next-line max-len
+//   // const place = { passenger1: { route: [[24.518504, 121.831112], [25.044311, 121.58174]] }, passenger2: { route: [[24.748217, 121.748611], [24.467832, 121.747473]] }, passenger3: { route: [[24.463778, 121.800613], [23.982576, 121.613073]] } };
+//   const allPassengerDistance = [];
+//   for (const i in place[0]) {
+//     const distance = getDistanceFromLatLonInKm(place[0][i][0], place[0][i][1]);
+//     const passengerInfo = [i, distance, place[0][i][0], place[0][i][1]];
+//     allPassengerDistance.push(passengerInfo);
+//   }
+
+//   allPassengerDistance.sort((a, b) => {
+//     return a[1] - b[1];
+//   });
+//   allPassengerDistance.reverse();
+//   return allPassengerDistance;
+// };
 
 module.exports = {
   wrapAsync,
   authentication,
   transferToLatLng,
-  getDistanceFromLatLonInKm,
-  getDirection,
-  sortAllPassengerByDistance
+  getDistanceFromLatLonInKm
 };
