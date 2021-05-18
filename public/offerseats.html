@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Car</title>
+</head>
+<body>
+    <header>
+        <a href="/"><img src="" id="logo"></a>
+        <nav class="tags">
+            <a href="#" class="tag tag-search-route">尋找路線</a>
+            <a href="#" class="tag tag-provide-route">提供路線</a>
+        </nav>
+        <a id="profile"></a>
+    </header>
+    <main>
+        <div class="route-info">
+            <h2>路線資訊</h2>
+            <div class="route-form">
+                <div class="departure">
+                    <div>出發地</div>
+                    <input type="text" id="departure_place">
+                </div>
+                <div class="arrival">
+                    <div>目的地</div>
+                    <input type="text" id="arrival_place">
+                </div>
+            </div>
+            <button class="next">下一步</button>
+        </div>
+    </main>    
+</body>
+<script>
+    const pathInfo = {}
+    const next = document.querySelector('.next')
+    next.addEventListener("click", () => {
+        pathInfo.departure = document.getElementById('departure_place').value
+        pathInfo.arrival = document.getElementById('arrival_place').value
+        console.log(pathInfo)
+    })
+    
+</script>
+</html>

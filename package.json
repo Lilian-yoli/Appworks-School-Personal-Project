@@ -1,0 +1,44 @@
+{
+  "name": "appworks-school-personal-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint . --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lilian-yoli/Appworks-School-Personal-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lilian-yoli/Appworks-School-Personal-Project/issues"
+  },
+  "homepage": "https://github.com/Lilian-yoli/Appworks-School-Personal-Project#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "dotenv": "^9.0.2",
+    "express": "^4.17.1",
+    "google-maps-direction": "^1.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.7",
+    "openrouteservice-js": "^0.1.18",
+    "r": "^0.0.5",
+    "rei": "^1.0.4",
+    "request": "^2.88.2",
+    "require": "^2.4.20",
+    "validator": "^13.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.26.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1"
+  }
+}
