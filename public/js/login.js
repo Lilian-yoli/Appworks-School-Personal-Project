@@ -48,6 +48,7 @@ singinSubmit.addEventListener("click", () => {
     if (!data.error) {
       console.log("signin:", data);
       window.localStorage.setItem("access_token", data.access_token);
+      document.location.href = "http://localhost:3000/api/1.0/index.html";
     } else {
       alert(data.error);
     }

@@ -1,0 +1,277 @@
+/* Universal selector */
+*{
+  box-sizing: border-box;
+}
+  /* =================================
+    Base Element Styles
+  ==================================== */
+  body {
+    font-family: Helvetica, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    height: 100%;
+    margin-bottom: 115px;
+  }
+
+  /* =================================
+    header Styles
+  ==================================== */  
+header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  top: 0px;
+  z-index: 60;
+  height: 80px;
+  margin: 0 15px 0 15px;
+}
+
+#logo-car {
+  width: 60px;
+  margin-left: 15px;
+}
+#logo {
+  width: 120px;
+
+}
+
+.logo {
+  margin-right: auto;
+}
+
+.tags {
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+  align-items: center;
+  margin-right: 30px;
+}
+
+.tag {
+  margin:0;
+  padding-right: 20px;
+  width: 125px;
+  align-items: center;
+  vertical-align: text-top;
+}
+
+.icon {
+  width: 25%;
+}
+
+#member {
+  width: auto;
+  margin-right:15px;
+} 
+
+a,a:link,a:visited, a:hover {
+  color:#FE646F;
+  text-decoration: none;
+  font-weight: 400;
+  align-items: center;
+}
+
+.searchbar {
+  width: 100%;
+  margin: 0;
+  margin-top: 7%;
+}
+
+.wrapper {
+  width: 80%;
+  
+  margin-right: auto;
+  margin-left: auto;
+  box-sizing: border-box;
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
+  padding: 8px 0px 8px 8px;
+  border-radius: 16px;
+  height: 56px;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  position: relative;
+}
+
+#destination {
+  display: flex;
+  cursor: pointer;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  color: #FE646F;
+  background: none;
+  height: 40px;
+  box-sizing: border-box;
+  line-height: 24px;
+  width: 40%;
+  min-width: 0px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-box-align: center;
+  align-items: center;
+}
+
+#date {
+  display: flex;
+  cursor: pointer;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  color: #FE646F;
+  background: none;
+  height: 40px;
+  box-sizing: border-box;
+  line-height: 24px;
+  width: 30%;
+  min-width: 0px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-box-align: center;
+  align-items: center;
+  padding-right: 2px;
+}
+
+#persons {
+  display: flex;
+  cursor: pointer;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  color: #FE646F;
+  background: none;
+  height: 40px;
+  box-sizing: border-box;
+  line-height: 24px;
+  width: 20%;
+  min-width: 0px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-box-align: center;
+  align-items: center;
+  
+}
+
+#persons-words {
+  padding-right: 2px;
+  width: 5%;
+  text-align: center;
+}
+
+#btn {
+  cursor: pointer;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  color: #FE646F;
+  background: none;
+  height: 40px;
+  box-sizing: border-box;
+  line-height: 24px;
+  width: 5%;
+  min-width: 0px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-box-align: center;
+  align-items: center;
+}
+
+.interval {
+  width: 0.5%;
+  border-left: solid rgb(203, 200, 200);
+  height: 40px;
+  border-width: 0.5px;
+}
+
+.main-picture {
+  width: 100%;
+  margin-top: 80px;
+  padding: 0;
+  height: 720px;
+  background: url(../uploads/images/mainpic.jpeg) center repeat;
+  text-align: center;
+  background-size: cover;
+}
+
+.slogan {
+  margin-top: 10%;
+  text-align: center;
+  margin-bottom: 0;
+  color: #fff;
+  text-shadow: 5px 5px 8px #222;
+  font-size: 54px;
+}
+/* =================================
+    main Styles
+  ==================================== */ 
+
+main {
+  margin: 80px 0 115px 0;
+  display: flex;
+}
+
+
+
+
+
+/* =================================
+    footer Styles
+  ==================================== */ 
+footer {
+    background-color:#FE646F;
+    position:fixed;
+    bottom: 0;
+    width: 100%;
+    height: 115px;
+    display: flex;
+    align-items: center;
+    justify-content:  center;
+    z-index: 1;
+}
+
+.footer_link {
+    width: 130px;
+    padding: 0 20px;
+    text-align: center;
+    line-height: 16px;
+    font-size: 16px;
+    border-right: 1px solid #f5f5f5;
+}
+
+a.footer_link:link, a.footer_link:visited {
+    color: white;
+    text-decoration: none;
+}
+
+#footer-ul {
+    display: flex;
+    margin-right: 80px;
+}
+
+.link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 160px;
+    margin-right: 30px;    
+}
+
+.rights {
+    color: rgb(173, 169, 169);
+}

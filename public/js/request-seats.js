@@ -3,7 +3,6 @@ const origin = document.getElementById("origin");
 const destination = document.getElementById("destination");
 const persons = document.getElementById("persons");
 const date = document.getElementById("date");
-const time = document.getElementById("time");
 const next = document.querySelector(".next");
 
 const seatsRequestInfo = {};
@@ -12,7 +11,6 @@ next.addEventListener("click", () => {
   seatsRequestInfo.destination = destination.value;
   seatsRequestInfo.persons = persons.value;
   seatsRequestInfo.date = date.value;
-  seatsRequestInfo.time = time.value;
 
   const verifyToken = localStorage.getItem("access_token");
   fetch("/api/1.0/request-seats-info", {

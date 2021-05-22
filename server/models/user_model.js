@@ -71,6 +71,7 @@ const signIn = async (email, password) => {
   user.login_at = loginAt;
   user.token_expired = TOKEN_EXPIRE;
   const queryStr = "UPDATE users SET access_token = ?, token_expired = ?, login_at = ? WHERE user_id = ?";
+  // eslint-disable-next-line no-unused-vars
   const updateUser = connection.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, user.id]);
 
   await connection.query("COMMIT");
