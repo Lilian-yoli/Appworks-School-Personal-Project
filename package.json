@@ -32,6 +32,7 @@
     "rei": "^1.0.4",
     "request": "^2.88.2",
     "require": "^2.4.20",
+    "socket.io": "^4.1.2",
     "validator": "^13.6.0"
   },
   "devDependencies": {

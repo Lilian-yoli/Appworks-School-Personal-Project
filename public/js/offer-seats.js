@@ -4,6 +4,7 @@ const destination = document.getElementById("destination");
 const persons = document.getElementById("persons");
 const date = document.getElementById("date");
 const time = document.getElementById("time");
+const fee = document.getElementById("fee");
 const next = document.querySelector(".next");
 
 window.addEventListener("load", () => {
@@ -16,16 +17,20 @@ window.addEventListener("load", () => {
 
 const seatsOfferedInfo = {};
 next.addEventListener("click", () => {
-  if (origin.value == "" || destination.value == "" || persons.value == "" || date.value == "") {
-    return alert("出發地、目的地、乘載人數、日期為必填");
+  if (origin.value === "" || destination.value === "" || persons.value === "" || date.value === "" || date.value === "") {
+    return alert("出發地、目的地、乘載人數、日期、費用為必填");
   }
   seatsOfferedInfo.origin = origin.value;
   seatsOfferedInfo.destination = destination.value;
   seatsOfferedInfo.persons = persons.value;
   seatsOfferedInfo.date = date.value;
   seatsOfferedInfo.time = time.value;
+  seatsOfferedInfo.fee = fee.value;
 
   const verifyToken = localStorage.getItem("access_token");
+  if (!verifyToken) {
+    document.location.href = "./login.html";
+  }
   fetch("/api/1.0/offer-seats-info", {
     method: "POST",
     body: JSON.stringify(seatsOfferedInfo),
@@ -45,9 +50,9 @@ next.addEventListener("click", () => {
       const data = response.route;
       console.log("data46:", data);
       window.localStorage.setItem("route", JSON.stringify(response.route));
-      const url = new URL("http://localhost:3000/api/1.0/path.html");
+      const url = new URL("http://localhost:3000/path.html");
       const searchParams = new URLSearchParams({
-        id: response.route.id
+        id: data[0].route_id
       });
       url.search = searchParams;
       console.log(url.href);

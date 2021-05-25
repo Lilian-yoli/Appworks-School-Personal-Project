@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-expressions
 require("dotenv").config;
 const validator = require("validator");
 const User = require("../models/user_model.js");
@@ -58,7 +59,22 @@ const signinInfo = async (req, res) => {
   }
 };
 
+const chatInfo = async (req, res) => {
+  console.log("req.user", req.user);
+  const info = req.user;
+  const { id } = req.query;
+  const chatInfo = await User.chatInfo(req.user.email, id);
+  console.log("info", chatInfo);
+  res.status(200).send(chatInfo);
+};
+
+const tokenVerify = async (req, res) => {
+  res.status(200).send({ status: "OK" });
+};
+
 module.exports = {
   signupInfo,
-  signinInfo
+  signinInfo,
+  chatInfo,
+  tokenVerify
 };
