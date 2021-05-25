@@ -20,6 +20,7 @@ const authentication = () => {
       res.status(401).send({ error: "Unauthorized" });
     }
     accessToken = accessToken.replace("Bearer ", "");
+    console.log("!accessToken", accessToken, (!accessToken));
     if (!accessToken) {
       res.status(401).send({ error: "Unauthoized" });
     }
@@ -27,6 +28,7 @@ const authentication = () => {
     console.log("jwt.verify:", user);
     req.user = user;
     const result = await User.getUserDetail(user.email);
+    console.log("result", result);
     if (!result) {
       res.status(403).send({ error: "Forbidden" });
     } else {
@@ -55,6 +57,7 @@ function deg2rad (deg) {
 }
 
 const toTimestamp = async (date) => {
+  console.log(date);
   const dateArr = date.split("-");
   const datum = new Date(Date.UTC(dateArr[0], dateArr[1] - 1, dateArr[2]));
   return datum.getTime() / 1000;

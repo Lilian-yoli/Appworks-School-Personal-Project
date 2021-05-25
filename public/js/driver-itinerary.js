@@ -20,7 +20,7 @@ fetch("/api/1.0/driver-itinerary", {
 }).then((data) => {
   console.log(data);
   for (const i in data) {
-    const driverItinerary = document.getElementById("driver-itinerary");
+    const driverItinerary = document.getElementById("itinerary");
     const locations = document.createElement("div");
     const details = document.createElement("details");
     const origin = document.createElement("h4");
@@ -30,7 +30,7 @@ fetch("/api/1.0/driver-itinerary", {
     const time = document.createElement("h5");
     const fee = document.createElement("h5");
     const link = document.createElement("a");
-    link.href = `http://localhost:3000/api/1.0/driver-itinerary-detail.html?id=${data[i].route_id}`;
+    link.href = `http://localhost:3000/driver-itinerary-detail.html?id=${data[i].route_id}`;
     origin.textContent = "起點：" + data[i].origin;
     destination.textContent = "終點：" + data[i].destination;
     date.textContent = "日期：" + data[i].date;
@@ -50,3 +50,10 @@ fetch("/api/1.0/driver-itinerary", {
 }).catch((error) => {
   console.error("Error:", error);
 });
+
+window.onload = function () {
+  const homePage = document.getElementById("homePage");
+  homePage.addEventListener("click", () => {
+    document.location.href = "./";
+  });
+};

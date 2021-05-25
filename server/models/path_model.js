@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { transferToLatLng, toDateFormat } = require("../../util/util");
+const { transferToLatLng, toDateFormat, toTimestamp } = require("../../util/util");
 
 const insertRouteInfo = async (origin, destination, persons, date, time, email, fee, mySQLTable) => {
   const connection = await mysql.connection();
@@ -31,10 +31,10 @@ const insertRouteInfo = async (origin, destination, persons, date, time, email, 
   let columns, setValue;
   if (mySQLTable === "requested_routes") {
     columns = `(origin, destination, persons, date, email, origin_coordinate, 
-      destination_coordinate, offered_routes_id)`;
+      destination_coordinate, passenger_type, offered_routes_id)`;
     setValue = `("${origin}", "${destination}", "${persons}",
     UNIX_TIMESTAMP("${date}"), "${email}", Point("${originLatLng.lat}", "${originLatLng.lng}"),
-  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), 0)`;
+  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0)`;
   } else if (mySQLTable === "offered_routes") {
     columns = `(origin, destination, available_seats, date, time, driver_email, origin_coordinate, 
       destination_coordinate, fee, requested_routes_id, seats_left, routeTS)`;
@@ -56,8 +56,8 @@ const insertRouteInfo = async (origin, destination, persons, date, time, email, 
 const getAllplacesByPassengers = async (date) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
-  const queryStr = "SELECT * FROM requested_routes WHERE date = ? AND offered_routes_id = 0 FOR UPDATE";
-  const allPlaces = await query(queryStr, [date]);
+  const queryStr = `SELECT * FROM requested_routes WHERE date = "${date}" AND offered_routes_id = 0 FOR UPDATE`;
+  const allPlaces = await query(queryStr);
   await connection.query("COMMIT");
   console.log(allPlaces);
 
@@ -98,15 +98,20 @@ const setMatchedPassengers = async (allToursArr, personsCounter) => {
 
 const getDriverItineraryDetail = async (id) => {
   const timestamp = Math.floor(Date.now() / 1000);
-  const driverInfo = await query(`SELECT origin, destination, FROM_UNIXTIME(date) AS date, time, available_seats FROM offered_routes WHERE route_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${now}`);
+  const driverInfo = await query(`SELECT origin, destination, FROM_UNIXTIME(date) AS date, time, available_seats FROM offered_routes WHERE route_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp}`);
   console.log("DriversItinerary", driverInfo);
+  if (driverInfo.length < 1) {
+    return { error: "Itnerary is in the past" };
+  }
   driverInfo[0].date = await toDateFormat(driverInfo[0].date);
   const passengerInfo = await query(`SELECT passenger_routes_id FROM tour WHERE offered_routes_id = ${id} GROUP BY passenger_routes_id`);
   console.log(passengerInfo);
   const passengerInfoArr = [];
   if (passengerInfo.length > 0) {
     for (const i in passengerInfo) {
-      const qryStr = `SELECT u.name, u.email, u.phone, u.picture, r.route_id FROM requested_routes r JOIN users u ON r.email = u.email WHERE route_id = ${passengerInfo[i].passenger_routes_id} AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp}`;
+      const qryStr = `SELECT u.name, u.email, u.phone, u.picture, r.route_id, r.persons FROM requested_routes r 
+      INNER JOIN users u ON r.email = u.email 
+      WHERE route_id = ${passengerInfo[i].passenger_routes_id}`;
       const result = await query(qryStr);
       passengerInfoArr.push(result[0]);
     }

@@ -81,6 +81,17 @@
     font-weight: 400;
     align-items: center;
   }
+  main {
+    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .homePage {
+    width:75px;
+  }
+  
+
   /* =================================
     footer Styles
   ==================================== */ 
@@ -105,9 +116,13 @@ footer {
     border-right: 1px solid #f5f5f5;
 }
 
+li {
+  list-style-type: none;
+}
+
 a.footer_link:link, a.footer_link:visited {
     color: white;
-    text-decoration: none;
+    text-decoration: none;    
 }
 
 #footer-ul {

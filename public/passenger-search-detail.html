@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/header.css">
-    <link rel="stylesheet" href="./css/itinerary.css">
-    <script src="./js/driver-itinerary-detail.js" defer></script>
-    <title>Cocar</title>
+    <title>Co-Car</title>
 </head>
 <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/passenger-search-detail.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -33,21 +34,31 @@
               </a>
             </nav>
         </div> 
-    
       </header>
     <main>
-        <div class="route-info">
-           <div class="driver-itinerary">
-               <h2>你的行程</h2>
-               <div class="locations"></div>
-               <div class="details"></div>
-           </div> 
-           <div class="passengers">
+        <div class="driverRouteDetail">
+            <div class="driverRoute">
+                <h2>行程細節</h2>
+                <div class="location">
+                    
+                </div>
+                <div class="detail">
 
-
-           </div>
-           <button type="submit" id="back">下一步</button>
+                </div>
+                <div class="driver">
+                    <h3>車主資訊</h3>
+        
+                </div>
+            </div>
+            <br>
+            <button class="homePage" id="book">預約乘車</button>
+            <button class="homePage" id="back">回上一頁</button>
         </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        
     </main>
     <footer>
         <ul id="footer-ul">
@@ -63,6 +74,11 @@
             <img src="./uploads/images/facebook.png">
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
-    </footer>    
+    </footer>
+    <style>
+        main {
+            text-align: center;
+        }
+    </style>
 </body>
 </html>

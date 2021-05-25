@@ -105,6 +105,26 @@ a,a:link,a:visited, a:hover {
   position: relative;
 }
 
+#origin {
+  display: flex;
+  cursor: pointer;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+  color: #FE646F;
+  background: none;
+  height: 40px;
+  box-sizing: border-box;
+  line-height: 24px;
+  width: 40%;
+  min-width: 0px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-box-align: center;
+  align-items: center;
+}
+
 #destination {
   display: flex;
   cursor: pointer;
@@ -252,6 +272,10 @@ footer {
     line-height: 16px;
     font-size: 16px;
     border-right: 1px solid #f5f5f5;
+}
+
+li {
+  list-style-type: none;
 }
 
 a.footer_link:link, a.footer_link:visited {

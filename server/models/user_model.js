@@ -1,6 +1,7 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const mysql = require("./mysqlcon");
+const { query } = require("./mysqlcon");
 const salt = parseInt(process.env.BCRYPT_SALT);
 const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env;
 const jwt = require("jsonwebtoken");
@@ -32,7 +33,7 @@ const signUp = async (name, email, password, phone) => {
       email: user.email,
       phone: user.phone,
       picture: user.picture
-    }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE * 1000 });
+    }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE });
     user.access_token = accessToken;
 
     const queryStr = "INSERT INTO users SET ?";
@@ -51,7 +52,10 @@ const signUp = async (name, email, password, phone) => {
 const signIn = async (email, password) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
-  const users = await connection.query("SELECT email, password FROM users WHERE email = ?", [email]);
+  const users = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
+  if (users.length < 1) {
+    return { error: "Email not yet registered" };
+  }
   const user = users[0];
   console.log(!bcrypt.compareSync(password, user.password));
   if (!bcrypt.compareSync(password, user.password)) {
@@ -86,8 +90,19 @@ const getUserDetail = async (email) => {
   return result;
 };
 
+const chatInfo = async (email, id) => {
+  const senderId = await query(`SELECT user_id FROM users WHERE email = "${email}"`);
+  const receiverId = await query(`SELECT u.user_id FROM offered_routes o
+  INNER JOIN users u ON driver_email = email
+  WHERE o.route_id = ${id}`);
+  console.log("senderID", senderId);
+  console.log("receiverID", receiverId);
+  const result = { senderId: senderId[0].user_id, receiverId: receiverId[0].user_id };
+  return result;
+};
 module.exports = {
   signUp,
   signIn,
-  getUserDetail
+  getUserDetail,
+  chatInfo
 };

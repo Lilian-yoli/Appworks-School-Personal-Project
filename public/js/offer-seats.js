@@ -28,6 +28,9 @@ next.addEventListener("click", () => {
   seatsOfferedInfo.fee = fee.value;
 
   const verifyToken = localStorage.getItem("access_token");
+  if (!verifyToken) {
+    document.location.href = "./login.html";
+  }
   fetch("/api/1.0/offer-seats-info", {
     method: "POST",
     body: JSON.stringify(seatsOfferedInfo),
@@ -47,7 +50,7 @@ next.addEventListener("click", () => {
       const data = response.route;
       console.log("data46:", data);
       window.localStorage.setItem("route", JSON.stringify(response.route));
-      const url = new URL("http://localhost:3000/api/1.0/path.html");
+      const url = new URL("http://localhost:3000/path.html");
       const searchParams = new URLSearchParams({
         id: data[0].route_id
       });

@@ -41,7 +41,7 @@ function wrapper () {
       waypArr.push(originObj);
       waypArr.push(destinationObj);
       console.log(data[i][1]);
-      passengerArr.push({ id: data[i][1].route_id, persons: data[i][1].persons});
+      passengerArr.push({ id: data[i][1].route_id, persons: data[i][1].persons });
       const pathSuggestion = document.getElementById("path-suggestion");
       pathSuggestion.innerHTML += `<li>乘客${i + 1}: ${data[i][1].origin} 到 ${data[i][1].destination} ｜ 人數：${data[i][1].persons}人</li>`;
     };
@@ -54,7 +54,7 @@ function wrapper () {
     destinationCoordinate = data[data.length - 1].destination;
     console.log(originCoordinate, destinationCoordinate);
 
-    // initMap();
+    initMap();
     clickButton();
   });
   function clickButton () {
@@ -76,15 +76,13 @@ function wrapper () {
         console.error("Error:", error);
       }).then(response => {
         console.log("Success:", response);
-        function notify
-        // document.location.href = `drivers-itinerary.html${query}`;
+        document.location.href = `driver-itinerary-detail.html${query}`;
       });
     });
     skipRoute.addEventListener("click", () => {
-      document.location.href = `drivers-itinerary.html${query}`;
+      document.location.href = `driver-itinerary.html${query}`;
     });
   }
-
 
   // const xhr = new XMLHttpRequest();
   // xhr.open("GET", `/api/1.0/path-suggestion${query}`);
@@ -109,30 +107,30 @@ function wrapper () {
   //       { lat: 25.017200, lng: 121.550756 }
   //     ];
   //   });
-  // const initMap = () => {
-  //   const directionsService = new google.maps.DirectionsService();
-  //   const directionsRenderer = new google.maps.DirectionsRenderer();
-  //   const map = new google.maps.Map(document.getElementById("map"), {
-  //     zoom: 8,
-  //     center: { lat: 25.0, lng: 121.585 }
-  //   });
-  //   directionsRenderer.setMap(map);
+  const initMap = () => {
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer();
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 8,
+      center: { lat: 25.0, lng: 121.585 }
+    });
+    directionsRenderer.setMap(map);
 
-  //   const request = {
-  //     origin: `${originCoordinate}`,
-  //     destination: `${destinationCoordinate}`,
-  //     waypoints: waypts,
-  //     optimizeWaypoints: true,
-  //     travelMode: "DRIVING"
-  //   };
+    const request = {
+      origin: `${originCoordinate}`,
+      destination: `${destinationCoordinate}`,
+      waypoints: waypts,
+      optimizeWaypoints: true,
+      travelMode: "DRIVING"
+    };
 
-  //   // 繪製兩點的路線
-  //   directionsService.route(request, function (result, status) {
-  //     if (status == "OK") {
-  //       directionsRenderer.setDirections(result);
-  //     } else {
-  //       console.log(status);
-  //     }
-  //   });
-  // };
+    // 繪製兩點的路線
+    directionsService.route(request, function (result, status) {
+      if (status == "OK") {
+        directionsRenderer.setDirections(result);
+      } else {
+        console.log(status);
+      }
+    });
+  };
 }

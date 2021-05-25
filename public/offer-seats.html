@@ -4,48 +4,81 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/header.css">
     <script src="./js/offer-seats.js" defer></script>
     <title>We Car</title>
 </head>
 <body>
     <header>
-        <a href="/"><img src="" id="logo"></a>
-        <nav class="tags">
-            <a href="./request-seats.html" class="tag tag-search-route">尋找路線</a>
-            <a href="./offer-seats.html" class="tag tag-provide-route">提供路線</a>
-        </nav>
-        <a id="profile"></a>
-    </header>
+        <div class="navbar">
+            <a href="/" class="logo">
+                <img src="./uploads/images/caravan.png" id="logo-car">
+                <img src="./uploads/images/logo.png" id="logo"></a>
+            <nav class="tags">
+              <a href="./request-seats.html" class="tag tag-search-route">
+                <img src="./uploads/images/search.png" class="icon">尋找路線
+            </a>
+              <a href="/?tag=men" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">徵尋車主
+            </a>
+              <!-- <a href="/?tag=accessories" class="tag tag-search-passenger">
+                <img src="./uploads/images/search.png" class="icon" >尋找乘客
+            </a> -->
+            <a href="./offer-seats.html" class="tag tag-offer">
+                <img src="./uploads/images/add.png" class="icon">提供路線
+            </a>
+            <a id="profile">
+                <img src="./uploads/images/member.png" id="member">
+              </a>
+            </nav>
+        </div> 
+    
+      </header>
     <main>
         <div class="route-info">
             <h2>提供路線資訊</h2>
             <label>出發地</label>
-            <input type="text" name='origin' id='origin'>
+            <input type="text" name='origin' id='origin' value="台北車站">
             <br>
             <br>
             <label>目的地</label>
-            <input type="text" name='destination' id='destination'>
+            <input type="text" name='destination' id='destination' value="玉山塔塔加">
             <br>
             <br>
             <label>乘載人數</label>
-            <input type="text" name='persons' id='persons'>
+            <input type="text" name='persons' id='persons' value="3">
             <br>
             <br>
             <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()">
+            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-05-28">
             <br>
             <br>
             <label>時間</label>
-            <input type="text" name='time' id='time'>
+            <input type="text" name='time' id='time' value="08:00">
             <br>
             <br>
             <label>費用</label>
-            <input type="text" name='fee' id='fee'>
+            <input type="text" name='fee' id='fee' value="400">
             <br>
             <br>
             <button class="next">下一步</button>            
         </div>
     </main>
+    <footer>
+        <ul id="footer-ul">
+            <li><a href="#" class="footer_link">關於 Cocar</a></li>
+            <li><a href="#" class="footer_link">服務條款</a></li>
+            <li><a href="#" class="footer_link">隱私政策</a></li>
+            <li><a href="#" class="footer_link">聯絡我們</a></li>
+            <li><a href="#" class="footer_link">FAQ</a></li>
+        </ul>
+        <div class="link">
+            <img src="./uploads/images/line.png">
+            <img src="./uploads/images/twitter.png">
+            <img src="./uploads/images/facebook.png">
+        </div>
+        <div class="rights">© 2021. All rights reserved.</div>      
+    </footer>
     <script>
         function formatDate() {
             let today =  new Date(Date.now())
@@ -63,6 +96,11 @@
             today = [year, month, day].join('-');
             document.getElementById("date").setAttribute("min", today)
         }     
-    </script>    
+    </script>
+    <style>
+        .route-info {
+            text-align: center;
+        }
+    </style>    
 </body>
 </html>

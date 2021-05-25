@@ -16,7 +16,7 @@ fetch(`/api/1.0/passenger-search${query}`, {
     const time = document.createElement("h5");
     const fee = document.createElement("h5");
     const link = document.createElement("a");
-    link.href = `http://localhost:3000/api/1.0/driver-itinerary-detail.html?id=${data[i].route_id}`;
+    link.href = `http://localhost:3000/passenger-search-detail.html${query}&id=${data[i].route_id}`;
     origin.textContent = "起點：" + data[i].origin;
     destination.textContent = "終點：" + data[i].destination;
     date.textContent = "日期：" + data[i].date;
@@ -33,6 +33,6 @@ fetch(`/api/1.0/passenger-search${query}`, {
     link.appendChild(details);
     driverItinerary.appendChild(link);
   }
-}).catch((error) => {
-  console.error("Error:", error);
+// }).catch((error) => {
+//   console.error("Error:", error);
 });

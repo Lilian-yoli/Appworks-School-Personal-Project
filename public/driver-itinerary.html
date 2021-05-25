@@ -4,25 +4,64 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/header.css">
     <script src="./js/driver-itinerary.js"></script>
     <title>Cocar</title>
 </head>
 <body>
     <header>
-        <a href="/"><img src="" id="logo"></a>
-        <nav class="tags">
-            <a href="./request-seats.html" class="tag tag-search-route">尋找路線</a>
-            <a href="./request-seats.html" class="tag tag-search-route">發出路線需求</a>
-            <a href="./offer-seats.html" class="tag tag-provide-route">提供路線</a>
-        </nav>
-        <a id="profile"></a>
-    </header>
+        <div class="navbar">
+            <a href="/" class="logo">
+                <img src="./uploads/images/caravan.png" id="logo-car">
+                <img src="./uploads/images/logo.png" id="logo"></a>
+            <nav class="tags">
+              <a href="./request-seats.html" class="tag tag-search-route">
+                <img src="./uploads/images/search.png" class="icon">尋找路線
+            </a>
+              <a href="/?tag=men" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">徵尋車主
+            </a>
+              <!-- <a href="/?tag=accessories" class="tag tag-search-passenger">
+                <img src="./uploads/images/search.png" class="icon" >尋找乘客
+            </a> -->
+            <a href="./offer-seats.html" class="tag tag-offer">
+                <img src="./uploads/images/add.png" class="icon">提供路線
+            </a>
+            <a id="profile">
+                <img src="./uploads/images/member.png" id="member">
+              </a>
+            </nav>
+        </div> 
+    
+      </header>
     <main>
         <div class="route-info">
-           <div id="driver-itinerary">
-           </div> 
-
+            <h2>你的行程</h2>
+           <div id="itinerary">
+           </div>
+           <br> 
+           <button id="homePage">回首頁</button>
         </div>
-    </main>    
+    </main>
+    <footer>
+        <ul id="footer-ul">
+            <li><a href="#" class="footer_link">關於 Cocar</a></li>
+            <li><a href="#" class="footer_link">服務條款</a></li>
+            <li><a href="#" class="footer_link">隱私政策</a></li>
+            <li><a href="#" class="footer_link">聯絡我們</a></li>
+            <li><a href="#" class="footer_link">FAQ</a></li>
+        </ul>
+        <div class="link">
+            <img src="./uploads/images/line.png">
+            <img src="./uploads/images/twitter.png">
+            <img src="./uploads/images/facebook.png">
+        </div>
+        <div class="rights">© 2021. All rights reserved.</div>      
+    </footer> 
+    <style>
+        .route-info {
+            text-align: center;
+        }
+    </style>    
 </body>
 </html>

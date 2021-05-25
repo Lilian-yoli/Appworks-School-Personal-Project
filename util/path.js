@@ -61,7 +61,7 @@ const matchWaypoints = async (passengerLocations, waypoints, latLng) => {
     for (const j in waypoints) {
       const distance = await Util.getDistanceFromLatLonInKm(waypoints[j].lat, waypoints[j].lng, locationLatLng.x, locationLatLng.y);
       console.log("distance", distance);
-      if (distance <= 10) {
+      if (distance <= 20) {
         const id = passengerLocations[i].route_id;
         if (!onRoadPassengerObj[id]) {
           onRoadPassengerObj[id] = passengerLocations[i];
