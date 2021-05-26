@@ -13,7 +13,7 @@ fetch("/api/1.0/passenger-itinerary", {
   console.log(document);
   for (const i in data) {
     itinerary.innerHTML +=
-    `<h4>路線ID：${data[i].tour_id}</h4>
+    `<h4>路線ID：${data[i].id}</h4>
     <h4>起點：${data[i].origin}</h4>
     <h4>終點：${data[i].destination}</h4>
     <h5>日期：${data[i].date}</h5>

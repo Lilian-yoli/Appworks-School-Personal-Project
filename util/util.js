@@ -28,7 +28,8 @@ const authentication = () => {
     console.log("jwt.verify:", user);
     req.user = user;
     const result = await User.getUserDetail(user.email);
-    console.log("result", result);
+    req.user.id = result[0].id;
+    console.log("req.user", req.user);
     if (!result) {
       res.status(403).send({ error: "Forbidden" });
     } else {

@@ -1,15 +1,12 @@
 const query = window.location.search;
 const socket = io();
-let driverEmail;
-let driverName;
+
 fetch(`/api/1.0/passenger-search-detail${query}`, {
   method: "GET"
 }).then((response) => {
   return response.json();
 }).then((data) => {
   console.log(data);
-  driverEmail = data[0].driver_email;
-  driverName = data[0].name;
   document.querySelector(".location").innerHTML =
     `<h4>起點：${data[0].origin}</h4>
     <h4>終點：${data[0].destination}</h4>`;
@@ -32,6 +29,9 @@ const contact = () => {
 };
 
 const verifytoken = localStorage.getItem("access_token");
+if (!verifytoken) {
+  document.location.href = "./login.html";
+}
 window.onload = function () {
   const back = document.getElementById("back");
   back.addEventListener("click", () => {

@@ -1,7 +1,46 @@
 // eslint-disable-next-line no-unused-vars
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { toDateFormat, toTimestamp } = require("../../util/util");
+const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm } = require("../../util/util");
+
+const requestSeatsInfo = async (origin, destination, persons, date, id) => {
+  const connection = await mysql.connection();
+  await connection.query("START TRANSACTION");
+  const queryStr = `SELECT * FROM requested_routes WHERE origin = "${origin}" AND destination = "${destination}" AND persons = ${persons} AND date = UNIX_TIMESTAMP("${date}") AND user_id = ${id} FOR UPDATE`;
+
+  const checkDuplicatedRoute = await query(queryStr);
+  console.log("checkDuplicatedRoute", checkDuplicatedRoute);
+  if (checkDuplicatedRoute.length > 0) {
+    await connection.query("COMMIT");
+    return { error: "Routes had already been created, please check your itinerary" };
+  }
+  const originLatLng = await transferToLatLng(origin);
+  const destinationLatLng = await transferToLatLng(destination);
+  const now = new Date();
+  console.log("originLatLng", originLatLng.lat, originLatLng.lng);
+  if (!originLatLng || !destinationLatLng) {
+    return { error: "Couldn't find the origin. Try to type the address." };
+  } else if (!destinationLatLng) {
+    return { error: "Couldn't find the destination. Try to type the address." };
+  }
+  const distance = getDistanceFromLatLonInKm(originLatLng.lat, originLatLng.lng, destinationLatLng.lat, destinationLatLng.lng);
+
+  const columns = `(origin, destination, persons, date, user_id, origin_coordinate, 
+      destination_coordinate, passenger_type, isMatched, createdAt, updatedAt, distance)`;
+
+  const setValue = `("${origin}", "${destination}", "${persons}",
+    UNIX_TIMESTAMP("${date}"), ${id}, Point("${originLatLng.lat}", "${originLatLng.lng}"),
+  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0, "${now}", "${now}", ${distance})`;
+
+  const insertRoute = await query(`INSERT INTO requested_routes ${columns} VALUES ${setValue}`);
+  console.log("insertRoute", insertRoute);
+  const routeId = insertRoute.insertId;
+  const route = await query(`SELECT * FROM requested_routes WHERE route_id = ${routeId}`);
+  await connection.query("COMMIT");
+  console.log("MAKE COMPARISON", route);
+  console.log("route[0].origin_coordinate.x", route[0].origin_coordinate.x);
+  return { route };
+};
 
 const passengerSearch = async (origin, destination, date, persons) => {
   // const timestamp = await toTimestamp(date);
@@ -19,7 +58,8 @@ const passengerSearch = async (origin, destination, date, persons) => {
 };
 
 const passengerSearchDetail = async (id) => {
-  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.time, o.available_seats, o.fee, u.name, u.picture, o.driver_email FROM offered_routes o INNER JOIN users u ON o.driver_email = u.email WHERE o.route_id = ${id}`;
+  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.time, o.available_seats, o.fee, u.name, u.picture 
+  FROM offered_routes o INNER JOIN users u ON o.user_id = u.id WHERE o.route_id = ${id}`;
   const result = await query(qryStr);
   console.log("passengerSearchDetail", result);
   result[0].date = await toDateFormat(result[0].date);
@@ -72,10 +112,10 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
 
 const getPassengerItinerary = async (email) => {
   const timestamp = Math.floor(Date.now() / 1000);
-  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.fee, t.tour_id, r.persons, u.name, u.picture FROM requested_routes r
+  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.fee, t.id, r.persons, u.name, u.picture FROM requested_routes r
   INNER JOIN tour t ON r.route_id = t.passenger_routes_id
   INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id
-  INNER JOIN users u ON u.email = o.driver_email
+  INNER JOIN users u ON u.id = o.user_id
   WHERE r.email = "${email}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp}`;
   const result = await query(qryStr);
   for (const i in result) {
@@ -85,9 +125,9 @@ const getPassengerItinerary = async (email) => {
   return result;
 };
 
-const passengerRequestDetail = async (email) => {
+const passengerRequestDetail = async (id) => {
   const timestamp = Math.floor(Date.now() / 1000);
-  const result = await query(`SELECT origin, destination, persons, FROM_UNIXTIME(date + 28800) AS date FROM requested_routes WHERE offered_routes_id = 0 AND email = "${email}"`);
+  const result = await query(`SELECT origin, destination, persons, FROM_UNIXTIME(date + 28800) AS date FROM requested_routes WHERE isMatched = 0 AND user_id = ${id}`);
   for (const i in result) {
     result[i].date = await toDateFormat(result[i].date);
   }
@@ -96,6 +136,7 @@ const passengerRequestDetail = async (email) => {
 };
 
 module.exports = {
+  requestSeatsInfo,
   passengerSearch,
   passengerSearchDetail,
   setMatchedDriver,

@@ -2,22 +2,6 @@ require("dotenv").config();
 const Path = require("../models/path_model");
 const Util = require("../../util/path");
 
-const requestSeatsInfo = async (req, res) => {
-  console.log("controller_req.user:", req.user);
-  const { origin, destination, persons, date } = req.body;
-  if (!origin || !destination || !persons || !date) {
-    res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
-    return;
-  }
-  const result = await Path.insertRouteInfo(origin, destination, persons, date, "", req.user.email, "", "requested_routes");
-  if (!result) {
-    res.status(500).send({ error: "Internal server error" });
-    return;
-  }
-  console.log("path_controller:", result);
-  return res.status(200).send(result);
-};
-
 const offerSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
   const { origin, destination, persons, date, time, fee } = req.body;
@@ -25,7 +9,7 @@ const offerSeatsInfo = async (req, res) => {
     res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
     return;
   }
-  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.email, fee, "offered_routes");
+  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id, fee);
   if (!result) {
     res.status(500).send({ error: "Internal server error" });
     return;
@@ -36,8 +20,8 @@ const offerSeatsInfo = async (req, res) => {
 
 const routeSuggestion = async (req, res) => {
   console.log("routeSuggestion", (req.query));
-  const { id } = req.query;
-  const getDriverDetail = await Path.getDriverDetail(id);
+  const routeId = req.query.id;
+  const getDriverDetail = await Path.getDriverDetail(routeId);
   console.log("getDriverDetail", getDriverDetail);
 
   const { date, origin, destination } = getDriverDetail;
@@ -47,17 +31,24 @@ const routeSuggestion = async (req, res) => {
   console.log("originLatLon", originLatLon);
 
   const filterRoutesIn5km = await Util.filterRoutesIn5km(originLatLon, destinationLatLon, date, availableSeats);
-  const sortAllPassengerByDistance = await Util.sortAllPassengerByDistance(filterRoutesIn5km);
-
-  sortAllPassengerByDistance.push({
+  // const sortAllPassengerByDistance = await Util.sortAllPassengerByDistance(filterRoutesIn5km);
+  const filterRoutesByPersons = [];
+  let persons = 0;
+  for (const i in filterRoutesIn5km) {
+    persons += filterRoutesIn5km[i].persons;
+    if (persons <= availableSeats) {
+      filterRoutesByPersons.push(filterRoutesIn5km[i]);
+    }
+  }
+  filterRoutesByPersons.push({
     originLatLon: originLatLon,
     destinationLatLon: destinationLatLon,
     origin: origin,
     destination: destination,
-    available_seats: availableSeats
+    seats_left: availableSeats
   });
-  console.log("sortAllPassengerByDistance", sortAllPassengerByDistance);
-  res.status(200).send(sortAllPassengerByDistance);
+  console.log("sortAllPassengerByDistance", filterRoutesByPersons);
+  res.status(200).send(filterRoutesByPersons);
 };
 
 const setMatchedPassengers = async (req, res) => {
@@ -88,11 +79,10 @@ const getDriverItineraryDetail = async (req, res) => {
 
 const getDriverItinerary = async (req, res) => {
   console.log("req.user123", req.user);
-  const result = await Path.getDriverItinerary(req.user.email);
+  const result = await Path.getDriverItinerary(req.user.id);
   res.status(200).send(result);
 };
 module.exports = {
-  requestSeatsInfo,
   offerSeatsInfo,
   routeSuggestion,
   setMatchedPassengers,

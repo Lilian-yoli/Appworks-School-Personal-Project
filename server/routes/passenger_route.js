@@ -1,7 +1,17 @@
 const router = require("express").Router();
-const { passengerSearch, passengerSearchDetail, setMatchedDriver, getPassengerItinerary, passengerRequestDetail } = require("../controllers/passenger_controller");
+const {
+  requestSeatsInfo,
+  passengerSearch,
+  passengerSearchDetail,
+  setMatchedDriver,
+  getPassengerItinerary,
+  passengerRequestDetail
+} = require("../controllers/passenger_controller");
 // eslint-disable-next-line no-unused-vars
 const { wrapAsync, authentication } = require("../../util/util");
+
+router.route("/api/1.0/request-seats-info")
+  .post(authentication(), wrapAsync(requestSeatsInfo));
 
 router.route("/api/1.0/passenger-search")
   .get(wrapAsync(passengerSearch));

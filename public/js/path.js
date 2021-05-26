@@ -36,14 +36,14 @@ function wrapper () {
     `<h3>起點：${data[data.length - 1].origin}</h3><h3>終點：${data[data.length - 1].destination}</h3>`;
 
     for (let i = 0; i < data.length - 1; i++) {
-      const originObj = { lat: data[i][1].origin_coordinate.x, lng: data[i][1].origin_coordinate.y };
-      const destinationObj = { lat: data[i][1].destination_coordinate.x, lng: data[i][1].destination_coordinate.y };
+      const originObj = { lat: data[i].origin_coordinate.x, lng: data[i].origin_coordinate.y };
+      const destinationObj = { lat: data[i].destination_coordinate.x, lng: data[i].destination_coordinate.y };
       waypArr.push(originObj);
       waypArr.push(destinationObj);
       console.log(data[i][1]);
-      passengerArr.push({ id: data[i][1].route_id, persons: data[i][1].persons });
+      passengerArr.push({ id: data[i].route_id, persons: data[i].persons });
       const pathSuggestion = document.getElementById("path-suggestion");
-      pathSuggestion.innerHTML += `<li>乘客${i + 1}: ${data[i][1].origin} 到 ${data[i][1].destination} ｜ 人數：${data[i][1].persons}人</li>`;
+      pathSuggestion.innerHTML += `<li>乘客${i + 1}: ${data[i].origin} 到 ${data[i].destination} ｜ 人數：${data[i].persons}人</li>`;
     };
     console.log(data);
     waypArr.forEach((loc) => {

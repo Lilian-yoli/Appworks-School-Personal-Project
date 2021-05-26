@@ -40,7 +40,11 @@ window.onload = function () {
     }).catch(error => console.error("Error:", error))
       .then(response => {
         console.log("Success:", response);
-        document.location.href = "./passenger-request-detail.html";
+        if (!response.error) {
+          document.location.href = "./passenger-request-detail.html";
+        } else {
+          alert("行程重複輸入");
+        }
       });
   });
 };
