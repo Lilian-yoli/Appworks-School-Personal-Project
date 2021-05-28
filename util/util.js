@@ -15,14 +15,15 @@ const wrapAsync = (fn) => {
 const authentication = () => {
   return async function (req, res, next) {
     let accessToken = req.get("Authorization");
-
+    
+    console.log("accessToken:", accessToken, typeof(accessToken))
     if (!accessToken) {
-      res.status(401).send({ error: "Unauthorized" });
+      return res.status(401).send({ error: "Unauthorized" });
     }
     accessToken = accessToken.replace("Bearer ", "");
     console.log("!accessToken", accessToken, (!accessToken));
-    if (!accessToken) {
-      res.status(401).send({ error: "Unauthoized" });
+    if (accessToken == "null") {
+      return res.status(401).send({ error: "Unauthoized" });
     }
     const user = jwt.verify(accessToken, TOKEN_SECRET);
     console.log("jwt.verify:", user);

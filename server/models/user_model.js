@@ -98,9 +98,15 @@ const chatInfo = async (email, id) => {
   const result = { senderId: senderId[0].user_id, receiverId: receiverId[0].user_id };
   return result;
 };
+
+const tokenVerify = async (driverId) => {
+  const result = await query(`SELECT name FROM users WHERE id = ${driverId}`);
+  return result[0];
+};
 module.exports = {
   signUp,
   signIn,
   getUserDetail,
-  chatInfo
+  chatInfo,
+  tokenVerify
 };

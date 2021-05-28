@@ -8,10 +8,10 @@ router.route("/api/1.0/user/signup")
 router.route("/api/1.0/user/signin")
   .post(wrapAsync(signinInfo));
 
-router.route("/api/1.0/get-email")
+router.route("/api/1.0/get-id")
   .get(authentication(), wrapAsync(chatInfo));
 
 router.route("/api/1.0/verify")
-  .get(authentication(), wrapAsync(tokenVerify));
+  .post(authentication(), wrapAsync(tokenVerify));
 
 module.exports = router;

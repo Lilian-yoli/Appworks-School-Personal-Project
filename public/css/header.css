@@ -13,6 +13,7 @@
       flex-direction: column;
       height: 100%;
       margin-bottom: 115px;
+
     }
   
     /* =================================
@@ -34,7 +35,7 @@
     top: 0px;
     z-index: 60;
     height: 80px;
-    margin: 0;
+    margin: 0 0 1 0;
   }
   
   #logo-car {
@@ -85,6 +86,9 @@
     margin-top: 80px;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    margin-bottom: 115px;
+    max-height: 1500px
   }
 
   .homePage {

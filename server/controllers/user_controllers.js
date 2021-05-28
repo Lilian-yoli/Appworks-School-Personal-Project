@@ -69,7 +69,21 @@ const chatInfo = async (req, res) => {
 };
 
 const tokenVerify = async (req, res) => {
-  res.status(200).send({ status: "OK" });
+  console.log("req.user.name", req.user.name);
+  const usersInfo = {
+    userId: req.user.id,
+    username: req.user.name,
+    receiverId: null,
+    receiverName: null
+  };
+  console.log(req.body.receiverId);
+  if (req.body.receiverId) {
+    const result = await User.tokenVerify(req.body.receiverId);
+    usersInfo.receiverId = req.body.receiverId;
+    usersInfo.receiverName = result.name;
+  }
+  console.log("usersInfo", usersInfo);
+  res.status(200).send(usersInfo);
 };
 
 module.exports = {

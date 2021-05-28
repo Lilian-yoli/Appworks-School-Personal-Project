@@ -1,12 +1,13 @@
 const query = window.location.search;
 const socket = io();
-
+let id = "";
 fetch(`/api/1.0/passenger-search-detail${query}`, {
   method: "GET"
 }).then((response) => {
   return response.json();
 }).then((data) => {
   console.log(data);
+  id = data[0].id;
   document.querySelector(".location").innerHTML =
     `<h4>起點：${data[0].origin}</h4>
     <h4>終點：${data[0].destination}</h4>`;
@@ -20,14 +21,22 @@ fetch(`/api/1.0/passenger-search-detail${query}`, {
     `<div><img src="../uploads/images/member.png"></div>
     <div>${data[0].name}</div>
     <button id="contact" type="button" onclick="contact()">聯繫車主</button>`;
+  localStorage.setItem("driverId", id);
 });
+const verifyToken = localStorage.getItem("access_token");
 const contact = () => {
-  const button = document.getElementById("contact");
-  button.addEventListener("click", () => {
-    document.location.href = "./chat.html";
+  fetch("/api/1.0/verify", {
+    method: "GET",
+    headers: new Headers({
+      Authorization: "Bearer " + verifyToken
+    })
+  }).then((response) => {
+    return response.json();
+  }).then((data) => {
+    console.log(data);
+    localStorage.setItem("userId", data.id);
   });
 };
-
 const verifytoken = localStorage.getItem("access_token");
 if (!verifytoken) {
   document.location.href = "./login.html";
@@ -53,6 +62,12 @@ window.onload = function () {
   });
 };
 
+// const contact = () => {
+//   const button = document.getElementById("contact");
+//   button.addEventListener("click", () => {
+//     fetch(`/api/1.0/get-id${query}`)
+//   })
+// };
 // const contact = () => {
 //   const button = document.getElementById("contact");
 //   button.addEventListener("click", () => {

@@ -16,7 +16,7 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   }
   const originLatLng = await transferToLatLng(origin);
   const destinationLatLng = await transferToLatLng(destination);
-  const now = new Date();
+  const now = Math.floor(Date.now() / 1000);
   console.log("originLatLng", originLatLng.lat, originLatLng.lng);
   if (!originLatLng || !destinationLatLng) {
     return { error: "Couldn't find the origin. Try to type the address." };
@@ -30,7 +30,7 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
 
   const setValue = `("${origin}", "${destination}", "${persons}",
     UNIX_TIMESTAMP("${date}"), ${id}, Point("${originLatLng.lat}", "${originLatLng.lng}"),
-  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0, "${now}", "${now}", ${distance})`;
+  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0, UNIX_TIMESTAMP("${now}"), UNIX_TIMESTAMP("${now}"), ${distance})`;
 
   const insertRoute = await query(`INSERT INTO requested_routes ${columns} VALUES ${setValue}`);
   console.log("insertRoute", insertRoute);
@@ -58,7 +58,7 @@ const passengerSearch = async (origin, destination, date, persons) => {
 };
 
 const passengerSearchDetail = async (id) => {
-  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.time, o.available_seats, o.fee, u.name, u.picture 
+  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.time, o.available_seats, o.fee, u.name, u.picture, u.id 
   FROM offered_routes o INNER JOIN users u ON o.user_id = u.id WHERE o.route_id = ${id}`;
   const result = await query(qryStr);
   console.log("passengerSearchDetail", result);
@@ -66,27 +66,33 @@ const passengerSearchDetail = async (id) => {
   return result;
 };
 
-const setMatchedDriver = async (id, persons, email, date) => {
+const setMatchedDriver = async (driverRouteId, persons, date, userId) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
-  const driverRoute = await query(`SELECT * FROM offered_routes WHERE route_id = ${id}`);
+  const driverRoute = await query(`SELECT * FROM offered_routes WHERE route_id = ${driverRouteId}`);
 
   console.log("driverRoute", driverRoute);
-  const route = {
-    origin: driverRoute[0].origin,
-    destination: driverRoute[0].destination,
-    persons: persons,
-    email: email,
-    date: date,
-    origin_coordinate: driverRoute[0].origin_coordination,
-    destination_coordinate: driverRoute[0].destination_coordination,
-    passenger_type: "search"
-  };
-  console.log(route);
-  const column = "(origin, destination, persons, date, email, origin_coordinate, destination_coordinate, passenger_type)";
+  // const route = {
+  //   origin: driverRoute[0].origin,
+  //   destination: driverRoute[0].destination,
+  //   persons: persons,
+  //   email: email,
+  //   date: date,
+  //   origin_coordinate: driverRoute[0].origin_coordination,
+  //   destination_coordinate: driverRoute[0].destination_coordination,
+  //   passenger_type: "search"
+  // };
+  // console.log(route);
+  const now = Math.floor(Date.now() / 1000);
+  // distance update for search type passengers
+  const distance = getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
+    driverRoute[0].destination_coordinate.x, driverRoute[0].destination_coordinate.y);
+  const column = `(origin, destination, persons, date, origin_coordinate, destination_coordinate, 
+    passenger_type, user_id, createdAt, updatedAt, distance)`;
   const setValue = `("${driverRoute[0].origin}", "${driverRoute[0].destination}", ${persons},
-  UNIX_TIMESTAMP("${date}"), "${email}", Point("${driverRoute[0].origin_coordinate.x}", "${driverRoute[0].origin_coordinate.y}"),
-Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destination_coordinate.y}"), "search")`;
+  UNIX_TIMESTAMP("${date}"), Point("${driverRoute[0].origin_coordinate.x}", "${driverRoute[0].origin_coordinate.y}"),
+Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destination_coordinate.y}"), 
+"search", ${userId}, "${now}", "${now}", ${distance})`;
 
   const insertRouteTable = await query(`INSERT INTO requested_routes ${column} VALUES ${setValue}`);
   console.log(insertRouteTable);
@@ -95,17 +101,19 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
 
   await connection.query("START TRANSACTION");
   const tour = {
-    offered_routes_id: id,
+    offered_routes_id: driverRouteId,
     passenger_routes_id: passengerId,
     finished: 0,
     passenger_type: "search"
   };
   const insertInfo = await query("INSERT INTO tour SET ?", tour);
   const updateSeats = await query(`UPDATE offered_routes SET seats_left = 
-  (SELECT v2.seats_left FROM (SELECT v1.seats_left FROM offered_routes v1 WHERE route_id = ${id}) v2) - ${persons} WHERE route_id = ${id}`);
+  (SELECT v2.seats_left FROM (SELECT v1.seats_left FROM offered_routes v1 WHERE route_id = ${driverRouteId}) v2) - ${persons} WHERE route_id = ${driverRouteId}`);
+  const updateMatched = await query(`UPDATE requested_routes SET isMatched = 1 WHERE user_id = ${userId}`);
   await connection.query("COMMIT");
   console.log("insertInfo", insertInfo);
   console.log("insertInfo", updateSeats);
+  console.log(updateMatched);
   const insertId = insertInfo.insertId;
   return insertId;
 };
@@ -126,7 +134,6 @@ const getPassengerItinerary = async (email) => {
 };
 
 const passengerRequestDetail = async (id) => {
-  const timestamp = Math.floor(Date.now() / 1000);
   const result = await query(`SELECT origin, destination, persons, FROM_UNIXTIME(date + 28800) AS date FROM requested_routes WHERE isMatched = 0 AND user_id = ${id}`);
   for (const i in result) {
     result[i].date = await toDateFormat(result[i].date);

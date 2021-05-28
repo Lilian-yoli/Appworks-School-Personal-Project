@@ -36,9 +36,10 @@ const passengerSearchDetail = async (req, res) => {
 
 const setMatchedDriver = async (req, res) => {
   console.log(req.query);
-  const { email } = req.user;
-  const { id, persons, date } = req.query;
-  const result = await Passenger.setMatchedDriver(id, persons, email, date);
+  const userId = req.user.id;
+  const driverRouteId = req.query.id;
+  const { persons, date } = req.query;
+  const result = await Passenger.setMatchedDriver(driverRouteId, persons, date, userId);
   console.log("result", result);
   res.status(200).send({ id: result });
 };
