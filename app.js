@@ -37,6 +37,7 @@ io.on("connection", socket => {
 
   socket.on("sendMsg", (data) => {
     console.log(data);
+    console.log(users[data.receiverId]);
     if (users[data.receiverId]) {
       data.unread = 0;
     } else {
