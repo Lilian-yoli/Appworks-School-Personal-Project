@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    <script src="./js/request-seats.js" defer></script>
+    <script src="./js/request-seats-location.js" defer></script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>
     <title>Co-Car</title>
 </head>
@@ -38,40 +38,14 @@
     <main>
         <div class="route-info">
             <h2>路線資訊</h2>
-            <label>人數</label>
-            <input type="text" name='persons' id='persons' value="2">
+            <label>出發地</label>
+            <input type="text" name='origin' id='autocomplete' value="appworks school">
             <br>
             <br>
-            <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-05-28">
-            <br>
-            <br>
-            <button id="next">發送需求</button>            
+            <button id="btn">確認</button>
         </div>
+           
         <div id="map" style="width: 600px; height:480px;"></div>
-        <script>
-            function formatDate() {
-                let today =  new Date(Date.now())
-                    month = (today.getMonth() + 1).toString()
-                    day = (today.getDate()).toString()
-                    year = (today.getFullYear()).toString();
-
-                if (month.length < 2) {
-                    month = '0' + month;
-                }          
-                if (day.length < 2){
-                    day = '0' + day;
-                } 
-
-                today = [year, month, day].join('-');
-                document.getElementById("date").setAttribute("min", today)
-            }     
-        </script>
-        <style>
-            .route-info {
-                text-align: center;
-            }
-        </style>
     </main>    
 </body>
 </html>

@@ -95,8 +95,18 @@ const sortAllPassengerByDistance = (place) => {
   return allPassengerDistance;
 };
 
+const getPlaceId = async (origin, destination) => {
+  const originEncode = encodeURI(origin);
+  const destinationEncode = encodeURI(destination);
+  const originId = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${GOOGLE_MAP}&input=${originEncode}&inputtype=textquery`);
+  const destinationId = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${GOOGLE_MAP}&input=${destinationEncode}&inputtype=textquery`);
+  const result = { origin: originId.data.candidates[0].place_id, destination: destinationId.data.candidates[0].place_id };
+  return result;
+};
+
 module.exports = {
   getDirection,
   sortAllPassengerByDistance,
-  filterRoutesIn5km
+  filterRoutesIn5km,
+  getPlaceId
 };

@@ -82,10 +82,22 @@ const getDriverItinerary = async (req, res) => {
   const result = await Path.getDriverItinerary(req.user.id);
   res.status(200).send(result);
 };
+
+const getPlaceId = async (req, res) => {
+  console.log(req.body);
+  const { origin, destination } = req.body;
+  const result = await Util.getPlaceId(origin, destination);
+  if (!result) {
+    return res.status(500).send({ error: "Internal server error" });
+  }
+  console.log(result);
+  res.status(200).send(result);
+};
 module.exports = {
   offerSeatsInfo,
   routeSuggestion,
   setMatchedPassengers,
   getDriverItineraryDetail,
-  getDriverItinerary
+  getDriverItinerary,
+  getPlaceId
 };
