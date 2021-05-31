@@ -82,8 +82,7 @@ const signIn = async (email, password) => {
 };
 
 const getUserDetail = async (email) => {
-  const connection = await mysql.connection();
-  const result = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
+  const result = await query("SELECT * FROM users WHERE email = ?", [email]);
   console.log("getUserDetail:", result);
   return result;
 };

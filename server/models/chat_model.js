@@ -27,7 +27,7 @@ const getChatRecord = async (receiverId, id, name, room) => {
   const qryStr = `SELECT* FROM (SELECT * FROM
     (SELECT receiver_id, sender_id, msg, room, unread, FROM_UNIXTIME(send_at) AS time,
       RANK() OVER (PARTITION BY room ORDER BY send_at DESC) ran FROM chat_msg) a
-      CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg) b
+      CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg WHERE receiver_id = ${id}) b
       WHERE sender_id = ${id} OR receiver_id = ${id}) c
       WHERE ran = 1 ORDER BY time DESC;`;
   const chatInfo = await query(qryStr);
@@ -36,7 +36,7 @@ const getChatRecord = async (receiverId, id, name, room) => {
 
   if (receiverId) {
     const updateUnread = await query(`UPDATE chat_msg SET unread = 0 WHERE room = "${room}"`);
-    const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, b.unread, FROM_UNIXTIME(a.send_at + 28800) AS time FROM chat_msg a
+    const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, FROM_UNIXTIME(a.send_at + 28800) AS time FROM chat_msg a
             CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg) b 
             WHERE a.room = "${room}" ORDER BY time DESC LIMIT 1`);
     const getTheChat = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at + 28800) AS time FROM chat_msg

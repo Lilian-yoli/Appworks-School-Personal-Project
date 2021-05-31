@@ -44,12 +44,12 @@ const filterRoutesIn5km = async (start, destination, date, seats) => {
     const destinationLatLng = filterByDestination[i].destination_coordinate;
     const originDistance = await Util.getDistanceFromLatLonInKm(driverOrigin[0], driverOrigin[1], originLatLng.x, originLatLng.y);
     const destinationDistance = await Util.getDistanceFromLatLonInKm(driverOrigin[0], driverOrigin[1], destinationLatLng.x, destinationLatLng.y);
+    console.log("*******", originDistance, destinationDistance);
     if (destinationDistance > originDistance) {
-      let persons = 0;
-      persons += filterByDestination[i].persons;
-      if (persons <= seats) { filterResultArr.push(filterByDestination[i]); }
+      filterResultArr.push(filterByDestination[i]);
     }
   }
+  console.log(filterResultArr);
   return filterResultArr;
 };
 

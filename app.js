@@ -62,6 +62,11 @@ io.on("connection", socket => {
     console.log(users, rusers);
     console.log(`There are ${usersNum} users connected...`);
   });
+
+  socket.on("matchedPassenger", (data) => {
+    console.log(data);
+    // io.in(users[data.])
+  });
   //   // socket.emit("message", "Welcome to chatbox");
 
   //   // // broadcast when a user connects

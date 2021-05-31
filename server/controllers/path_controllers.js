@@ -21,6 +21,7 @@ const offerSeatsInfo = async (req, res) => {
 const routeSuggestion = async (req, res) => {
   console.log("routeSuggestion", (req.query));
   const routeId = req.query.id;
+  const { name, picture, id } = req.user;
   const getDriverDetail = await Path.getDriverDetail(routeId);
   console.log("getDriverDetail", getDriverDetail);
 
@@ -32,23 +33,24 @@ const routeSuggestion = async (req, res) => {
 
   const filterRoutesIn5km = await Util.filterRoutesIn5km(originLatLon, destinationLatLon, date, availableSeats);
   // const sortAllPassengerByDistance = await Util.sortAllPassengerByDistance(filterRoutesIn5km);
-  const filterRoutesByPersons = [];
-  let persons = 0;
-  for (const i in filterRoutesIn5km) {
-    persons += filterRoutesIn5km[i].persons;
-    if (persons <= availableSeats) {
-      filterRoutesByPersons.push(filterRoutesIn5km[i]);
-    }
-  }
-  filterRoutesByPersons.push({
+  const result = { passengerInfo: filterRoutesIn5km };
+  result.driverInfo = {
     originLatLon: originLatLon,
     destinationLatLon: destinationLatLon,
     origin: origin,
     destination: destination,
-    seats_left: availableSeats
-  });
-  console.log("sortAllPassengerByDistance", filterRoutesByPersons);
-  res.status(200).send(filterRoutesByPersons);
+    seats_left: availableSeats,
+    fee: getDriverDetail.fee,
+    date: date,
+    time: getDriverDetail.time,
+    name: name,
+    picture: picture,
+    id: id
+  };
+
+  filterRoutesIn5km.push();
+  console.log("sortAllPassengerByDistance", result);
+  res.status(200).send(result);
 };
 
 const setMatchedPassengers = async (req, res) => {
@@ -93,11 +95,33 @@ const getPlaceId = async (req, res) => {
   console.log(result);
   res.status(200).send(result);
 };
+
+const driverSearch = async (req, res) => {
+  console.log(req.query);
+  const { origin, destination, date } = req.query;
+  console.log(origin, destination, date);
+  const result = await Path.driverSearch(origin, destination, date);
+  console.log(result);
+  if (!result) {
+    res.status(200).send({ error: "Not Found" });
+  }
+  res.status(200).send(result);
+};
+
+const driverSearchDetail = async (req, res) => {
+  console.log(req.query);
+  const { id } = req.query;
+  const result = await Path.driverSearchDetail(id);
+  res.status(200).send(result);
+};
+
 module.exports = {
   offerSeatsInfo,
   routeSuggestion,
   setMatchedPassengers,
   getDriverItineraryDetail,
   getDriverItinerary,
-  getPlaceId
+  getPlaceId,
+  driverSearch,
+  driverSearchDetail
 };

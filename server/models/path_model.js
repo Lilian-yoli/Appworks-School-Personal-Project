@@ -43,19 +43,21 @@ const insertRouteInfo = async (origin, destination, persons, date, time, id, fee
 const getAllplacesByPassengers = async (date) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
-  const queryStr = `SELECT * FROM requested_routes WHERE date = "${date}" AND isMatched= 0 ORDER BY distance DESC, persons DESC FOR UPDATE`;
+  const queryStr = `SELECT * FROM requested_routes WHERE date = UNIX_TIMESTAMP("${date}") AND isMatched= 0 ORDER BY distance DESC, persons DESC FOR UPDATE`;
   const allPlaces = await query(queryStr);
   await connection.query("COMMIT");
-  console.log(allPlaces);
+  console.log("allPlaces", allPlaces);
 
   return allPlaces;
 };
 
 const getDriverDetail = async (id) => {
-  const driverDetail = await query(`SELECT * FROM offered_routes WHERE route_id = ${id}`);
+  const driverDetail = await query(`SELECT origin, destination, seats_left, time, origin_coordinate, destination_coordinate, fee, FROM_UNIXTIME(date) AS date 
+  FROM offered_routes WHERE route_id = ${id}`);
   if (!driverDetail) {
     return { error: "No such route offered" };
   }
+  driverDetail[0].date = await toDateFormat(driverDetail[0].date);
   return driverDetail[0];
 };
 
@@ -113,11 +115,39 @@ const getDriverItinerary = async (id) => {
   return result;
 };
 
+const driverSearch = async (origin, destination, date) => {
+  console.log(234);
+  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date + 28800) AS date, persons, route_id FROM requested_routes 
+  WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND isMatched = 0`;
+  const result = await query(qryStr);
+  for (const i in result) {
+    result[i].date = await toDateFormat(result[i].date);
+  }
+  console.log("driverSearch", result);
+  if (result.length < 1) {
+    return null;
+  } else {
+    return result;
+  }
+};
+
+const driverSearchDetail = async (id) => {
+  console.log(id);
+  const qryStr = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons, u.name, u.picture, u.id 
+  FROM requested_routes r INNER JOIN users u ON r.user_id = u.id WHERE r.route_id = ${id}`;
+  const result = await query(qryStr);
+  console.log("passengerSearchDetail", result);
+  result[0].date = await toDateFormat(result[0].date);
+  return result;
+};
+
 module.exports = {
   insertRouteInfo,
   getAllplacesByPassengers,
   getDriverDetail,
   setMatchedPassengers,
   getDriverItineraryDetail,
-  getDriverItinerary
+  getDriverItinerary,
+  driverSearch,
+  driverSearchDetail
 };

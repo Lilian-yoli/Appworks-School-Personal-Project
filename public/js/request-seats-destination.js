@@ -66,6 +66,7 @@ function placeMarker (autocomplete) {
       });
 
       const bounds = new google.maps.LatLngBounds();
+      console.log(searchCenter);
       bounds.extend(searchCenter);
       if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
         const extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);

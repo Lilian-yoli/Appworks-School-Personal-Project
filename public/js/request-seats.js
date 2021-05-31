@@ -12,7 +12,7 @@ const next = document.getElementById("next");
 
 const seatsRequestInfo = {};
 window.onload = function () {
-  initMap();
+  // initMap();
   next.addEventListener("click", () => {
     seatsRequestInfo.origin = origin;
     seatsRequestInfo.destination = destination;
@@ -46,7 +46,8 @@ let map;
 let service;
 let infowindow;
 const geometry = [];
-function initMap () {
+let counter = 0;
+async function initMap () {
   const taiwan = new google.maps.LatLng(23.69781, 120.960515);
 
   map = new google.maps.Map(document.getElementById("map"), {
@@ -63,16 +64,6 @@ function initMap () {
   };
   findPlace(originQuery);
   findPlace(destinationQuery);
-  const bounds = new google.maps.LatLngBounds();
-  bounds.extend(geometry[0]);
-  bounds.extend(geometry[1]);
-  if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-    const extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);
-    const extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01);
-    bounds.extend(extendPoint1);
-    bounds.extend(extendPoint2);
-  }
-  map.fitBounds(bounds);
 }
 
 function createMarker (place, address) {
@@ -82,19 +73,40 @@ function createMarker (place, address) {
     position: place.geometry.location
   });
 
-  const infowindow = new google.maps.InfoWindow({
+  infowindow = new google.maps.InfoWindow({
     content: address
   });
   infowindow.open(map, marker);
 }
 
 function findPlace (request) {
+  counter++;
   service = new google.maps.places.PlacesService(map);
   service.findPlaceFromQuery(request, (results, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+      console.log(counter);
       createMarker(results[0], request.query);
-      map.setCenter(results[0].geometry.location);
+      // map.setCenter(results[0].geometry.location);
+      console.log(results[0].geometry.location);
       geometry.push(results[0].geometry.location);
+      if (counter > 1) {
+        console.log(geometry[0], geometry[1]);
+        boundsFit(geometry[0], geometry[1]);
+      }
     }
   });
+}
+
+function boundsFit (geometry1, geometry2) {
+  const bounds = new google.maps.LatLngBounds();
+  console.log(geometry1, geometry2);
+  bounds.extend(geometry1);
+  bounds.extend(geometry2);
+  if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+    const extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);
+    const extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01);
+    bounds.extend(extendPoint1);
+    bounds.extend(extendPoint2);
+  }
+  map.fitBounds(bounds);
 }

@@ -30,7 +30,7 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
 
   const setValue = `("${origin}", "${destination}", "${persons}",
     UNIX_TIMESTAMP("${date}"), ${id}, Point("${originLatLng.lat}", "${originLatLng.lng}"),
-  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0, UNIX_TIMESTAMP("${now}"), UNIX_TIMESTAMP("${now}"), ${distance})`;
+  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0, "${now}", "${now}", ${distance})`;
 
   const insertRoute = await query(`INSERT INTO requested_routes ${columns} VALUES ${setValue}`);
   console.log("insertRoute", insertRoute);

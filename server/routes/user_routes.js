@@ -12,6 +12,6 @@ router.route("/api/1.0/get-id")
   .get(authentication(), wrapAsync(chatInfo));
 
 router.route("/api/1.0/verify")
-  .post(authentication(), wrapAsync(tokenVerify));
+  .get(authentication(), wrapAsync(tokenVerify));
 
 module.exports = router;
