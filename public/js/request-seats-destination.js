@@ -30,7 +30,11 @@ window.addEventListener("load", () => {
   const destination = document.getElementById("autocomplete");
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    document.location.href = "./request-seats.html";
+    if (localStorage.getItem("origin")) {
+      document.location.href = "./request-seats.html";
+    } else {
+      alert("尚未選擇地點");
+    }
   });
 });
 

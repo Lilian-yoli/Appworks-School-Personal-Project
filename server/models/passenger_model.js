@@ -134,7 +134,9 @@ const getPassengerItinerary = async (email) => {
 };
 
 const passengerRequestDetail = async (id) => {
-  const result = await query(`SELECT origin, destination, persons, FROM_UNIXTIME(date + 28800) AS date FROM requested_routes WHERE isMatched = 0 AND user_id = ${id}`);
+  const timestamp = Math.floor(Date.now() / 1000);
+  const result = await query(`SELECT origin, destination, persons, FROM_UNIXTIME(date + 28800) AS date 
+  FROM requested_routes WHERE isMatched = 0 AND user_id = ${id} AND date >= ${timestamp}`);
   for (const i in result) {
     result[i].date = await toDateFormat(result[i].date);
   }

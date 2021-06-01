@@ -65,6 +65,9 @@ const setMatchedPassengers = async (req, res) => {
   }
   // allToursArr looks like:[[DriveId, passengerRouteId1], [DriveId, passengerRouteId2]...]
   const result = await Path.setMatchedPassengers(allToursArr, personsCounter);
+  if (!result) {
+    res.status(500).send({ error: "no route provided" });
+  }
   console.log("setMatchedPassenger result:", result);
   res.status(200).send({ result });
 };
@@ -114,6 +117,13 @@ const driverSearchDetail = async (req, res) => {
   const result = await Path.driverSearchDetail(id);
   res.status(200).send(result);
 };
+
+// const matchSearchedPassengers = async (req, res) => {
+//   console.log(req.body);
+//   const {id}
+//   const {routeId, persons, userId, origin} =req.body
+//   const
+// };
 
 module.exports = {
   offerSeatsInfo,

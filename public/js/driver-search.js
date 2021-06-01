@@ -34,4 +34,5 @@ window.onload = function () {
       socket.emit("login", data.userId + "s");
       console.log(123);
     });
+  };
 };

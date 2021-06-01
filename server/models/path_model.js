@@ -65,6 +65,10 @@ const setMatchedPassengers = async (allToursArr, personsCounter) => {
   const connection = await mysql.connection();
   try {
     await connection.query("START TRANSACTION");
+    const checkRoute = await query(`SELECT route_id FROM offered_routes WHERE route_id = ${allToursArr[0][0]} FOR UPDATE`);
+    if (checkRoute.lenth > 1) {
+      return null;
+    }
     // 1. insert info to tour table
     const insertId = await connection.query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished) VALUES ? ", [allToursArr]);
     // 2. update seats to offered_routes table
@@ -133,7 +137,7 @@ const driverSearch = async (origin, destination, date) => {
 
 const driverSearchDetail = async (id) => {
   console.log(id);
-  const qryStr = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons, u.name, u.picture, u.id 
+  const qryStr = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons, r.route_id, u.name, u.picture, u.id 
   FROM requested_routes r INNER JOIN users u ON r.user_id = u.id WHERE r.route_id = ${id}`;
   const result = await query(qryStr);
   console.log("passengerSearchDetail", result);

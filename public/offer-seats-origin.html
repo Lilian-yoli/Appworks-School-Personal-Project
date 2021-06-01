@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    <script src="./js/offer-seats.js" defer></script>
+    <script src="./js/offer-seats-origin.js" defer></script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>
     <title>Co-Car</title>
 </head>
@@ -38,25 +38,16 @@
     <main>
         <div class="route-info">
             <h2>提供路線資訊</h2>
-            <label>乘載人數</label>
-            <input type="text" name='persons' id='persons' value="3">
+            <label>出發地</label>
+            <input type="text" name='origin' id='autocomplete' value="appworks school">
             <br>
             <br>
-            <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-06">
-            <br>
-            <br>
-            <label>時間</label>
-            <input type="text" name='time' id='time' value="08:00">
-            <br>
-            <br>
-            <label>費用</label>
-            <input type="text" name='fee' id='fee' value="400">
-            <br>
-            <br>
-            <button class="next">下一步</button>
-            <div id="map" style="width: 600px; height:480px;"></div>            
+            <button id="btn">確認</button>
         </div>
+        <div class="map">
+            <div id="map" style="width: 600px; height:480px;"></div>
+        </div>
+        
     </main>
     <footer>
         <ul id="footer-ul">
@@ -73,28 +64,23 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
-    <script>
-        function formatDate() {
-            let today =  new Date(Date.now())
-                month = (today.getMonth() + 1).toString()
-                day = (today.getDate()).toString()
-                year = (today.getFullYear()).toString();
-
-            if (month.length < 2) {
-                month = '0' + month;
-            }          
-            if (day.length < 2) {
-                day = '0' + day;
-            } 
-
-            today = [year, month, day].join('-');
-            document.getElementById("date").setAttribute("min", today)
-        }     
-    </script>
     <style>
-        .route-info {
-            text-align: center;
+        main {
+            display: flex;
         }
+        
+        /* .route-info {
+            width:25%;
+            text-align: center;
+        } */
+        
+        /* .map {
+           width: 99%; height: 99%; position:fixed; text-align:center;
+        }
+
+        #map {
+            width: 100%; height: 100%; margin:0px auto; display:inline-block;
+        } */
     </style>    
 </body>
 </html>

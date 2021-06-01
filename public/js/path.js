@@ -19,8 +19,8 @@ async function wrapper () {
   const totalWaypts = [];
   const dict = {};
 
-  if (data.length < 0) {
-    document.location.href = `drivers-itinerary${query}`;
+  if (passenger.length < 1) {
+    document.location.href = `driver-itinerary${query}`;
   }
   document.getElementById("driver-route").innerHTML =
     `<h3>起點：${driver.origin}</h3><h3>終點：${driver.destination}</h3>`;
@@ -45,13 +45,13 @@ async function wrapper () {
         <button class="btn" id="${i}.0" >+</button> <button class="btn" id="${i}.1">-</button>`;
     console.log(pathSuggestion);
   };
+  console.log(pickedWaypts);
   showPickedPassenger(passenger, pickedWaypts, dict);
-  console.log(dict);
 
   initMap(driver, pickedWaypts);
-  const passengerInfo = chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, totalWaypts);
+  chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, totalWaypts, query, verifyToken);
   // clickButton(query, passengerInfo, verifyToken);
-  clickButton(driver, passengerInfo);
+  clickButton(query, passengerArr, verifyToken, driver);
 }
 
 function initMap (driver, pickedWaypts) {
@@ -87,39 +87,39 @@ function initMap (driver, pickedWaypts) {
   });
 }
 
-function clickButton (driver, passengerInfo) {
-  driver.passengerInfo = passengerInfo;
-  console.log(driver);
-  socket.emit("matchedPassenger", driver);
-}
-// function clickButton (query, passengerInfo, verifyToken, driver) {
-//   const applyRoute = document.querySelectorAll(".button")[0];
-//   const skipRoute = document.querySelectorAll(".button")[1];
-//   const offeredRouteId = query.split("=");
-//   const matchedPassengers = { passengerRouteId: passengerInfo, passengerType: "request", offeredRouteId: offeredRouteId[1] };
-//   applyRoute.addEventListener("click", () => {
-//     fetch("/api/1.0/matched-passengers", {
-//       method: "POST",
-//       body: JSON.stringify(matchedPassengers),
-//       headers: new Headers({
-//         Authorization: "Bearer " + verifyToken,
-//         "Content-Type": "application/json"
-//       })
-//     }).then((response) => {
-//       return response.json();
-//     }).catch(error => {
-//       console.error("Error:", error);
-//     }).then(response => {
-//       console.log("Success:", response);
-//       document.location.href = `driver-itinerary-detail.html${query}`;
-//     });
-//   });
-//   skipRoute.addEventListener("click", () => {
-//     document.location.href = `driver-itinerary.html${query}`;
-//   });
+// function clickButton (driver, passengerInfo) {
+//   driver.passengerInfo = passengerInfo;
+//   console.log(driver);
+//   socket.emit("matchedPassenger", driver);
 // }
+function clickButton (query, passengerArr, verifyToken, driver) {
+  const applyRoute = document.querySelectorAll(".button")[0];
+  const skipRoute = document.querySelectorAll(".button")[1];
+  const offeredRouteId = query.split("=");
+  const matchedPassengers = { passengerRouteId: passengerArr, passengerType: "request", offeredRouteId: offeredRouteId[1] };
+  applyRoute.addEventListener("click", () => {
+    fetch("/api/1.0/matched-passengers", {
+      method: "POST",
+      body: JSON.stringify(matchedPassengers),
+      headers: new Headers({
+        Authorization: "Bearer " + verifyToken,
+        "Content-Type": "application/json"
+      })
+    }).then((response) => {
+      return response.json();
+    }).catch(error => {
+      console.error("Error:", error);
+    }).then(response => {
+      console.log("Success:", response);
+      document.location.href = `driver-itinerary-detail.html${query}`;
+    });
+  });
+  skipRoute.addEventListener("click", () => {
+    document.location.href = `driver-itinerary.html${query}`;
+  });
+}
 
-function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, totalWaypts) {
+function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, totalWaypts, query, verifyToken) {
   console.log(passenger, driver, pickedWaypts, dict);
   for (let i = 0; i < passenger.length * 2; i++) {
     const btn = document.querySelectorAll(".btn")[i];
@@ -144,7 +144,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, total
           showPickedPassenger(passenger, pickedWaypts, dict);
           passengerArr.push(passengerPersons);
           console.log(passengerArr);
-          return passengerArr;
+          clickButton(query, passengerArr, verifyToken, driver);
         }
       } else {
         if (persons == 0) {
@@ -156,10 +156,16 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, total
           for (const i in pickedWaypts) {
             console.log(totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])), pickedWaypts[i]);
             console.log((totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2));
+            console.log((totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2 + 1));
             if (totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2) {
               if (totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2 + 1) {
                 waypts.push(pickedWaypts[i]);
               }
+            }
+          }
+          for (const i in passengerArr) {
+            if (passengerArr[i] !== passengerPersons) {
+              passengerArr2.push(passengerArr[i]);
             }
           }
           console.log(waypts);
@@ -168,7 +174,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, total
           initMap(driver, pickedWaypts);
           showPickedPassenger(passenger, pickedWaypts, dict);
           console.log(passengerArr2);
-          return passengerArr2;
+          clickButton(query, passengerArr2, verifyToken, driver);
         }
       }
     });

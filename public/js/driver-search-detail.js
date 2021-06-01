@@ -1,6 +1,10 @@
 const query = window.location.search;
 const socket = io();
 let id = "";
+const verifytoken = localStorage.getItem("access_token");
+if (!verifytoken) {
+  document.location.href = "./login.html";
+}
 fetch(`/api/1.0/driver-search-detail${query}`, {
   method: "GET"
 }).then((response) => {
@@ -47,28 +51,30 @@ const contact = () => {
   });
 };
 
-const verifytoken = localStorage.getItem("access_token");
-if (!verifytoken) {
-  document.location.href = "./login.html";
-}
 window.onload = function () {
   const back = document.getElementById("back");
   back.addEventListener("click", () => {
     document.location.href = document.referrer;
   });
+
   const book = document.getElementById("book");
   book.addEventListener("click", () => {
-    fetch(`/api/1.0/matched-driver${query}`, {
-      method: "POST",
-      headers: new Headers({
-        Authorization: "Bearer " + verifytoken
-      })
-    }).then((response) => {
-      return response.json();
-    }).then((data) => {
-      console.log(data.id);
-      document.location.href = "./passenger-itinerary.html";
-    });
+    // fetch(`/api/1.0/matched-passengers${query}`, {
+    //   method: "POST",
+    //   // body: { {}, passengerType, offeredRouteId }
+    //   headers: new Headers({
+    //     Authorization: "Bearer " + verifytoken
+    //   })
+    // }).then((response) => {
+    //   return response.json();
+    // }).then((data) => {
+    //   if (data.error) {
+    //     alert("尚未提供此路線");
+    //   } else {
+    //     console.log(data.id);
+    document.location.href = "./";
+    //   }
+    // });
   });
 };
 

@@ -56,7 +56,7 @@ async function siteAuto () {
       });
       infowindow.open(map, marker);
       console.log(place);
-      localStorage.setItem("origin", place.formatted_address);
+      localStorage.setItem("driverOrigin", place.formatted_address);
     }
   });
 }
@@ -69,11 +69,7 @@ window.addEventListener("load", () => {
   siteAuto();
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    if (localStorage.getItem("origin")) {
-      document.location.href = "./request-seats-destination.html";
-    } else {
-      alert("尚未選擇地點");
-    }
+    document.location.href = "./offer-seats-destination.html";
   });
 });
 
