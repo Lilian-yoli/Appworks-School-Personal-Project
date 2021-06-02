@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
     
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper"></script>
+    
     <title>Co-Car</title>
 </head>
 <body>
@@ -21,13 +21,13 @@
               <a href="./request-seats.html" class="tag tag-search-route">
                 <img src="./uploads/images/search.png" class="icon">尋找路線
             </a>
-              <a href="/?tag=men" class="tag tag-request">
+              <a href="/request-seats-origin.html" class="tag tag-request">
                 <img src="./uploads/images/add.png" class="icon">徵尋車主
             </a>
-              <!-- <a href="/?tag=accessories" class="tag tag-search-passenger">
+              <a href="/driver-search.html" class="tag tag-search-passenger">
                 <img src="./uploads/images/search.png" class="icon" >尋找乘客
-            </a> -->
-            <a href="./offer-seats.html" class="tag tag-offer">
+            </a>
+            <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
             </a>
             <a id="profile">
@@ -35,7 +35,6 @@
               </a>
             </nav>
         </div> 
-    
       </header>
     <main>
         <h2>建議路線</h2>
@@ -85,7 +84,8 @@
         .map {
             width:45%;
         }
-    </style>   
+    </style>  
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
 </body>
 
 </html>

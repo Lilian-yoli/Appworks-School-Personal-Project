@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
     <script src="./js/request-seats.js" defer></script>
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>
     <title>Co-Car</title>
 </head>
 <body>
@@ -43,7 +42,7 @@
             <br>
             <br>
             <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-05-28">
+            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-06">
             <br>
             <br>
             <button id="next">發送需求</button>            
@@ -72,6 +71,7 @@
                 text-align: center;
             }
         </style>
-    </main>    
+    </main> 
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
 </body>
 </html>

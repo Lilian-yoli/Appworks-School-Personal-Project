@@ -1,9 +1,8 @@
 const socket = io();
 async function wrapper () {
-  console.log(window.location.search);
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
-  const passengerArr = [];
+
   const response = await fetch(`/api/1.0/path-suggestion${query}`, {
     method: "GET",
     headers: new Headers({
@@ -15,8 +14,10 @@ async function wrapper () {
   console.log("data", data);
   const driver = data.driverInfo;
   const passenger = data.passengerInfo;
+  const index = [];
   const pickedWaypts = [];
   const totalWaypts = [];
+  const passengerArr = [];
   const dict = {};
 
   if (passenger.length < 1) {
@@ -27,29 +28,33 @@ async function wrapper () {
   let personCounter = 0;
   for (let i = 0; i < passenger.length; i++) {
     personCounter += passenger[i].persons;
+    // if seats enough, add waypts
     if (personCounter <= driver.seats_left) {
       const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
       const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
+      index[i * 2] = i * 2;
+      index[i * 2 + 1] = i * 2 + 1;
       pickedWaypts.push(originObj);
       pickedWaypts.push(destinationObj);
       passengerArr.push({ id: passenger[i].route_id, persons: passenger[i].persons, userId: passenger[i].user_id });
     }
     const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
     const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
-    dict[originObj] = i;
-    totalWaypts.push(JSON.stringify(originObj));
-    totalWaypts.push(JSON.stringify(destinationObj));
+    dict[i * 2] = originObj;
+    dict[i * 2 + 1] = destinationObj;
+
     const pathSuggestion = document.getElementById("path-suggestion");
     pathSuggestion.innerHTML += `<li>乘客${i + 1}: ${passenger[i].origin} 到 <br>
         ${passenger[i].destination} ｜ 人數：${passenger[i].persons}人</li>
         <button class="btn" id="${i}.0" >+</button> <button class="btn" id="${i}.1">-</button>`;
     console.log(pathSuggestion);
   };
-  console.log(pickedWaypts);
-  showPickedPassenger(passenger, pickedWaypts, dict);
+  localStorage.setItem("waypts", index);
+  console.log(dict, index);
+  showPickedPassenger(passenger, index);
 
-  initMap(driver, pickedWaypts);
-  chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, totalWaypts, query, verifyToken);
+  // initMap(driver, pickedWaypts);
+  chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken);
   // clickButton(query, passengerInfo, verifyToken);
   clickButton(query, passengerArr, verifyToken, driver);
 }
@@ -119,89 +124,90 @@ function clickButton (query, passengerArr, verifyToken, driver) {
   });
 }
 
-function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, totalWaypts, query, verifyToken) {
-  console.log(passenger, driver, pickedWaypts, dict);
+function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken) {
   for (let i = 0; i < passenger.length * 2; i++) {
     const btn = document.querySelectorAll(".btn")[i];
     btn.addEventListener("click", (e) => {
+      let index = localStorage.getItem("waypts");
+      if (index.length > 0) {
+        index = index.split(",");
+      } else {
+        index = [];
+      }
       e.preventDefault();
-      const waypts = [];
+      const newIndex = [];
       const passengerArr2 = [];
       const numInfo = (e.target.id).split(".");
-      const num = numInfo[0];
-      const persons = countCurrentPersons(passenger, pickedWaypts, dict);
-      const origin = { lat: passenger[num].origin_coordinate.x, lng: passenger[num].origin_coordinate.y };
-      const destination = { lat: passenger[num].destination_coordinate.x, lng: passenger[num].destination_coordinate.y };
-      const passengerPersons = { routeId: passenger[num].route_id, persons: passenger[num].persons, userId: passenger[num].user_id };
-      console.log(num);
+      const num = numInfo[0] * 2;
+      const persons = countCurrentPersons(passenger, index);
+      pickedWaypts = [];
+      console.log("num, index", num, index);
       if (numInfo[1] != 1) {
-        if (persons + passenger[num].persons > driver.seats_left) {
-          alert("人數超過可提供空位");
-        } else {
-          pickedWaypts.push(origin);
-          pickedWaypts.push(destination);
-          initMap(driver, pickedWaypts);
-          showPickedPassenger(passenger, pickedWaypts, dict);
-          passengerArr.push(passengerPersons);
-          console.log(passengerArr);
-          clickButton(query, passengerArr, verifyToken, driver);
+        if (index.indexOf(num.toString()) == -1) {
+          if (index.indexOf((num + 1).toString()) == -1) {
+            if (persons + passenger[num / 2].persons > driver.seats_left) {
+              alert("人數超過可提供空位");
+            } else {
+              index.push(num.toString());
+              index.push((num + 1).toString());
+            }
+          }
         }
+        for (const j in index) {
+          pickedWaypts.push(dict[index[j]]);
+        }
+        console.log("localStorage.setItem", index);
+        localStorage.setItem("waypts", index);
+        showPickedPassenger(passenger, index);
       } else {
         if (persons == 0) {
           alert("未選擇乘客");
         } else {
-          console.log(pickedWaypts, origin);
-          console.log("********", totalWaypts);
-          // totalWaypts.indexOf(origin)
-          for (const i in pickedWaypts) {
-            console.log(totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])), pickedWaypts[i]);
-            console.log((totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2));
-            console.log((totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2 + 1));
-            if (totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2) {
-              if (totalWaypts.indexOf(JSON.stringify(pickedWaypts[i])) != num * 2 + 1) {
-                waypts.push(pickedWaypts[i]);
+          for (const j in index) {
+            if (index[j] != num.toString()) {
+              if (index[j] != (num + 1).toString()) {
+                console.log("- button", index[j], num, (index[j] != num));
+                newIndex.push(index[j].toString());
               }
             }
           }
-          for (const i in passengerArr) {
-            if (passengerArr[i] !== passengerPersons) {
-              passengerArr2.push(passengerArr[i]);
-            }
+          console.log(newIndex);
+          for (const j in newIndex) {
+            pickedWaypts.push(dict[newIndex[j]]);
           }
-          console.log(waypts);
-          pickedWaypts = waypts;
-          console.log(waypts);
-          initMap(driver, pickedWaypts);
-          showPickedPassenger(passenger, pickedWaypts, dict);
-          console.log(passengerArr2);
-          clickButton(query, passengerArr2, verifyToken, driver);
+          localStorage.setItem("waypts", newIndex);
+          showPickedPassenger(passenger, newIndex);
         }
       }
     });
   }
 }
 
-function countCurrentPersons (passenger, pickedWaypts, dict) {
-  const index = [];
+function countCurrentPersons (passenger, index) {
   let counter = 0;
-  for (let i = 0; i < pickedWaypts.length; i += 2) {
-    index.push(dict[pickedWaypts[i]]);
-  }
   for (const i in index) {
-    counter += passenger[i].persons;
+    console.log("Number(index[i])", Number(index[i]));
+    if (Number(index[i]) % 2 == 0) {
+      const num = Number(index[i]) / 2;
+      console.log("passenger[num].persons", passenger[num].persons, counter);
+      counter += passenger[num].persons;
+    }
   }
+  console.log("countCurrentPersons", counter);
   return counter;
 }
 
-function showPickedPassenger (passenger, waypts, dict) {
-  const index = [];
-  for (let i = 0; i < waypts.length; i += 2) {
-    index.push(dict[waypts[i]]);
+function showPickedPassenger (passenger, index) {
+  const newIndex = [];
+  console.log(index);
+  for (let i = 0; i < index.length; i += 2) {
+    newIndex.push(index[i]);
   }
   const pickedPassenger = document.getElementById("picked-passenger");
   pickedPassenger.innerHTML = "";
-  for (const i in index) {
-    pickedPassenger.innerHTML += `<li>乘客${+i + 1}:<br> 起點：${passenger[i].origin} <br>
-    終點：${passenger[i].destination} ｜ 人數：${passenger[i].persons}人</li>`;
+  for (const i in newIndex) {
+    const num = newIndex[i] / 2;
+    pickedPassenger.innerHTML += `<li>乘客${num + 1}:<br> 起點：${passenger[num].origin} <br>
+    終點：${passenger[num].destination} ｜ 人數：${passenger[num].persons}人</li>`;
   }
 }

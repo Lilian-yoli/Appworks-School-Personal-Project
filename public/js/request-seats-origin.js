@@ -12,12 +12,12 @@ function initMap () {
   });
 }
 
-async function siteAuto () {
+function siteAuto () {
   const options = {
     componentRestrictions: { country: "tw" } // 限制在台灣範圍
   };
   const acInput = document.getElementById("autocomplete");
-  const autocomplete = await new google.maps.places.Autocomplete(acInput, options);
+  const autocomplete = new google.maps.places.Autocomplete(acInput, options);
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace(); // 地點資料存進place
     // 確認回來的資料有經緯度
