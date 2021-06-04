@@ -29,8 +29,8 @@ const passengerSearch = async (req, res) => {
 
 const passengerSearchDetail = async (req, res) => {
   console.log(req.query);
-  const { id } = req.query;
-  const result = await Passenger.passengerSearchDetail(id);
+  const { id, passenger } = req.query;
+  const result = await Passenger.passengerSearchDetail(id, passenger);
   res.status(200).send(result);
 };
 
@@ -41,13 +41,13 @@ const setMatchedDriver = async (req, res) => {
   const { persons, date } = req.query;
   const result = await Passenger.setMatchedDriver(driverRouteId, persons, date, userId);
   console.log("result", result);
-  res.status(200).send({ id: result });
+  res.status(200).send({ result });
 };
 
 const getPassengerItinerary = async (req, res) => {
   console.log(req.user);
-  const { email } = req.user;
-  const result = await Passenger.getPassengerItinerary(email);
+  const { id } = req.user;
+  const result = await Passenger.getPassengerItinerary(id);
   res.status(200).send(result);
 };
 
@@ -58,11 +58,37 @@ const passengerRequestDetail = async (req, res) => {
   res.status(200).send(result);
 };
 
+const setPassengerTour = async (req, res) => {
+  console.log("req.body", req.query);
+  const userId = req.user.id;
+  const driverRouteId = req.query.id;
+  console.log(driverRouteId);
+  const { persons, date } = req.query;
+  const result = await Passenger.setPassengerTour(driverRouteId, userId, persons, date);
+  if (result < 1) {
+    res.status(500).send({ error: "Internal server error" });
+  }
+  res.status(200).send(result);
+};
+
+const getTourInfo = async (req, res) => {
+  console.log("tour", req.query);
+  const tourId = req.query.tour;
+  const result = await Passenger.getTourInfo(tourId);
+  result.userId = req.user.id;
+  if (result.length < 1) {
+    res.status(500).send({ error: "Internal server error" });
+  }
+  res.status(200).send(result);
+};
+
 module.exports = {
   passengerSearch,
   passengerSearchDetail,
   setMatchedDriver,
   getPassengerItinerary,
   passengerRequestDetail,
-  requestSeatsInfo
+  requestSeatsInfo,
+  setPassengerTour,
+  getTourInfo
 };

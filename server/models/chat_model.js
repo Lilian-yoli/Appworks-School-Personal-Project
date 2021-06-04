@@ -18,6 +18,7 @@ const chatContentToDB = async (data) => {
   const result = await query("INSERT INTO chat_msg SET ?", [chatInfo]);
   console.log(result);
   const id = result.insertId;
+  await connection.query("COMMIT");
   return id;
 };
 
@@ -168,8 +169,44 @@ const startAChat = async (receiverId, id, room) => {
   return result;
 };
 
+const notifyContentToDB = async (receiverId, data, url) => {
+  const now = Math.floor(Date.now() / 1000);
+  const notificationInfo = {
+    user_id: receiverId,
+    content: data.content,
+    type: data.type,
+    time: now,
+    unread: 1,
+    url: url,
+    icon: data.icon
+  };
+  const connection = await mysql.connection();
+  await connection.query("START TRANSACTION");
+  const result = await query("INSERT INTO notification SET ?", [notificationInfo]);
+  console.log("insert result:", result);
+  await connection.query("COMMIT");
+  return receiverId;
+};
+
+const allNotifyContent = async (receiverId) => {
+  const result = await query(`SELECT a.content, a.url, a.icon, b.unread FROM notification a
+  CROSS JOIN(SELECT SUM(unread) unread FROM notification WHERE user_id = ${receiverId} AND unread = 1) b
+  WHERE user_id = ${receiverId} AND a.unread = 1 ORDER BY time DESC`);
+  console.log(result);
+  return result;
+};
+
+const updateNotification = async (id, url) => {
+  const result = await query(`UPDATE notification SET unread = 0 WHERE user_id = ${id} AND url = "${url}"`);
+  console.log(result);
+  return result;
+};
+
 module.exports = {
   chatContentToDB,
   getChatRecord,
-  startAChat
+  startAChat,
+  notifyContentToDB,
+  allNotifyContent,
+  updateNotification
 };

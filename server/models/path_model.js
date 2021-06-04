@@ -145,6 +145,28 @@ const driverSearchDetail = async (id) => {
   return result;
 };
 
+const setDriverTour = async (driverRouteId, passengerRouteId) => {
+  const connection = await mysql.connection();
+  await connection.query("START TRANSACTION");
+
+  const insertArr = [];
+  for (const i in passengerRouteId) {
+    console.log("driverRouteId, passengerRouteId", typeof (driverRouteId), typeof (passengerRouteId[i]));
+    const checkTour = await query(`SELECT * FROM tour 
+  WHERE offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId[i]}`);
+    console.log("**************", checkTour);
+    if (checkTour.length > 0) {
+      return { error: "Tour had already been created, please check your itinerary" };
+    }
+    const routeInfo = [driverRouteId, passengerRouteId[i], "request", 0, 0];
+    insertArr.push(routeInfo);
+  }
+  const result = await query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished, match_status) VALUES ?", [insertArr]);
+  console.log("-------", result);
+  await connection.query("COMMIT");
+  return driverRouteId;
+};
+
 module.exports = {
   insertRouteInfo,
   getAllplacesByPassengers,
@@ -153,5 +175,6 @@ module.exports = {
   getDriverItineraryDetail,
   getDriverItinerary,
   driverSearch,
-  driverSearchDetail
+  driverSearchDetail,
+  setDriverTour
 };

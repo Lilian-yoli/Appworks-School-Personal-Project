@@ -3,7 +3,7 @@ async function wrapper () {
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
 
-  const response = await fetch(`/api/1.0/path-suggestion${query}`, {
+  const response = await fetch(`/api/1.0/route-suggestion${query}`, {
     method: "GET",
     headers: new Headers({
       Authorization: "Bearer " + verifyToken,
@@ -16,12 +16,13 @@ async function wrapper () {
   const passenger = data.passengerInfo;
   const index = [];
   const pickedWaypts = [];
-  const totalWaypts = [];
   const passengerArr = [];
   const dict = {};
 
+  socket.emit("login", driver.id);
+
   if (passenger.length < 1) {
-    document.location.href = `driver-itinerary${query}`;
+    document.location.href = `driver-itinerary-detail.html${query}`;
   }
   document.getElementById("driver-route").innerHTML =
     `<h3>起點：${driver.origin}</h3><h3>終點：${driver.destination}</h3>`;
@@ -32,11 +33,11 @@ async function wrapper () {
     if (personCounter <= driver.seats_left) {
       const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
       const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
-      index[i * 2] = i * 2;
-      index[i * 2 + 1] = i * 2 + 1;
       pickedWaypts.push(originObj);
       pickedWaypts.push(destinationObj);
-      passengerArr.push({ id: passenger[i].route_id, persons: passenger[i].persons, userId: passenger[i].user_id });
+      index[i * 2] = i * 2;
+      index[i * 2 + 1] = i * 2 + 1;
+      passengerArr.push(passenger[i].route_id);
     }
     const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
     const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
@@ -49,14 +50,14 @@ async function wrapper () {
         <button class="btn" id="${i}.0" >+</button> <button class="btn" id="${i}.1">-</button>`;
     console.log(pathSuggestion);
   };
-  localStorage.setItem("waypts", index);
-  console.log(dict, index);
+  localStorage.setItem("index", index);
+  console.log("index,passengerArr", dict, index, passengerArr);
   showPickedPassenger(passenger, index);
 
   // initMap(driver, pickedWaypts);
   chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken);
-  // clickButton(query, passengerInfo, verifyToken);
-  clickButton(query, passengerArr, verifyToken, driver);
+  matchedBtn(driver, passenger, verifyToken, query);
+  skipBtn(query);
 }
 
 function initMap (driver, pickedWaypts) {
@@ -92,43 +93,38 @@ function initMap (driver, pickedWaypts) {
   });
 }
 
-// function clickButton (driver, passengerInfo) {
-//   driver.passengerInfo = passengerInfo;
-//   console.log(driver);
-//   socket.emit("matchedPassenger", driver);
+// function clickButton (query, passengerArr, verifyToken, driver) {
+//   const applyRoute = document.querySelectorAll(".button")[0];
+//   const skipRoute = document.querySelectorAll(".button")[1];
+//   const offeredRouteId = query.split("=");
+//   const matchedPassengers = { passengerRouteId: passengerArr, passengerType: "request", offeredRouteId: offeredRouteId[1] };
+//   applyRoute.addEventListener("click", () => {
+//     fetch("/api/1.0/matched-passengers", {
+//       method: "POST",
+//       body: JSON.stringify(matchedPassengers),
+//       headers: new Headers({
+//         Authorization: "Bearer " + verifyToken,
+//         "Content-Type": "application/json"
+//       })
+//     }).then((response) => {
+//       return response.json();
+//     }).catch(error => {
+//       console.error("Error:", error);
+//     }).then(response => {
+//       console.log("Success:", response);
+//       document.location.href = `driver-itinerary-detail.html${query}`;
+//     });
+//   });
+//   skipRoute.addEventListener("click", () => {
+//     document.location.href = `driver-itinerary.html${query}`;
+//   });
 // }
-function clickButton (query, passengerArr, verifyToken, driver) {
-  const applyRoute = document.querySelectorAll(".button")[0];
-  const skipRoute = document.querySelectorAll(".button")[1];
-  const offeredRouteId = query.split("=");
-  const matchedPassengers = { passengerRouteId: passengerArr, passengerType: "request", offeredRouteId: offeredRouteId[1] };
-  applyRoute.addEventListener("click", () => {
-    fetch("/api/1.0/matched-passengers", {
-      method: "POST",
-      body: JSON.stringify(matchedPassengers),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-Type": "application/json"
-      })
-    }).then((response) => {
-      return response.json();
-    }).catch(error => {
-      console.error("Error:", error);
-    }).then(response => {
-      console.log("Success:", response);
-      document.location.href = `driver-itinerary-detail.html${query}`;
-    });
-  });
-  skipRoute.addEventListener("click", () => {
-    document.location.href = `driver-itinerary.html${query}`;
-  });
-}
 
-function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken) {
+function chooseWypts (passenger, driver, pickedWaypts, dict) {
   for (let i = 0; i < passenger.length * 2; i++) {
     const btn = document.querySelectorAll(".btn")[i];
     btn.addEventListener("click", (e) => {
-      let index = localStorage.getItem("waypts");
+      let index = localStorage.getItem("index");
       if (index.length > 0) {
         index = index.split(",");
       } else {
@@ -136,7 +132,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, query
       }
       e.preventDefault();
       const newIndex = [];
-      const passengerArr2 = [];
+      const passengerArr = [];
       const numInfo = (e.target.id).split(".");
       const num = numInfo[0] * 2;
       const persons = countCurrentPersons(passenger, index);
@@ -155,9 +151,14 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, query
         }
         for (const j in index) {
           pickedWaypts.push(dict[index[j]]);
+          if (j % 2 == 0) {
+            console.log("index[j]", index[j]);
+            passengerArr.push(passenger[index[j] / 2].route_id);
+          }
         }
         console.log("localStorage.setItem", index);
-        localStorage.setItem("waypts", index);
+        console.log("result", pickedWaypts, passengerArr);
+        localStorage.setItem("index", index);
         showPickedPassenger(passenger, index);
       } else {
         if (persons == 0) {
@@ -174,8 +175,12 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr, query
           console.log(newIndex);
           for (const j in newIndex) {
             pickedWaypts.push(dict[newIndex[j]]);
+            if (j % 2 == 0) {
+              passengerArr.push(passenger[index[j] / 2].route_id);
+            }
           }
-          localStorage.setItem("waypts", newIndex);
+          console.log("result", pickedWaypts, passengerArr);
+          localStorage.setItem("index", newIndex);
           showPickedPassenger(passenger, newIndex);
         }
       }
@@ -210,4 +215,52 @@ function showPickedPassenger (passenger, index) {
     pickedPassenger.innerHTML += `<li>乘客${num + 1}:<br> 起點：${passenger[num].origin} <br>
     終點：${passenger[num].destination} ｜ 人數：${passenger[num].persons}人</li>`;
   }
+}
+
+// socket send notification
+function matchedBtn (driver, passenger, verifyToken, query) {
+  const applyRoute = document.querySelectorAll(".button")[0];
+  const passengerRouteId = [];
+  applyRoute.addEventListener("click", async () => {
+    const index = (localStorage.getItem("index")).split(",");
+
+    const passengerId = [];
+    for (const i in index) {
+      if (index[i] % 2 == 0) {
+        passengerRouteId.push(passenger[index[i] / 2].route_id);
+        passengerId.push(passenger[index[i] / 2].user_id);
+      }
+    }
+    const routeInfo = {
+      receiverId: passengerId,
+      passengerRouteId: passengerRouteId,
+      url: `./passenger-search-detail.html?id=${driver.routeId}`,
+      content: `車主${driver.name}已接受你的行程，立即前往查看`,
+      type: "match",
+      icon: "./uploads/images/member.png"
+    };
+    console.log(123);
+    socket.emit("notifiyPassenger", routeInfo);
+    alert("通知已傳送");
+    localStorage.setItem("passengerRoute", passengerRouteId);
+    localStorage.removeItem("waypts");
+    const res = await fetch("/api/1.0/driver-tour", {
+      method: "POST",
+      body: JSON.stringify({ driverRouteId: driver.routeId, passengerRouteId: passengerRouteId }),
+      headers: new Headers({
+        Authorization: "Bearer " + verifyToken,
+        "Content-Type": "application/json"
+      })
+    });
+    const data = await res.json();
+    console.log(data);
+    document.location.href = `./driver-itinerary-detail.html${query}`;
+  });
+}
+
+function skipBtn (query) {
+  const skipRoute = document.querySelectorAll(".button")[1];
+  skipRoute.addEventListener("click", () => {
+    document.location.href = `./driver-itinerary-detail.html${query}`;
+  });
 }

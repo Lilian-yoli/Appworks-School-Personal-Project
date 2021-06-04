@@ -98,8 +98,8 @@ const chatInfo = async (email, id) => {
   return result;
 };
 
-const tokenVerify = async (driverId) => {
-  const result = await query(`SELECT name FROM users WHERE id = ${driverId}`);
+const tokenVerify = async (receiverId) => {
+  const result = await query(`SELECT name FROM users WHERE id = ${receiverId}`);
   return result[0];
 };
 module.exports = {

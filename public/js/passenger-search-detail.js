@@ -1,42 +1,114 @@
 const query = window.location.search;
 const socket = io();
-let id = "";
+const verifyToken = localStorage.getItem("access_token");
+
 fetch(`/api/1.0/passenger-search-detail${query}`, {
   method: "GET"
-}).then((response) => {
-  return response.json();
+}).then((res) => {
+  return res.json();
 }).then((data) => {
   console.log(data);
-  id = data[0].id;
+  const driverRoute = data.driverRoute;
+  if (data.passengerRoute) {
+    document.querySelector("h2").innerHTML = "你的行程";
+    console.log(document.querySelector("h2").innerHTML = "你的行程");
+    const passengerRoute = data.passengerRoute;
+    document.getElementById("p-location").innerHTML =
+    `<h4>起點：${passengerRoute.origin}</h4>
+    <h4>終點：${passengerRoute.destination}</h4>`;
+    document.getElementById("p-detail").innerHTML =
+    `<h5>日期：${passengerRoute.date}</h5>
+    <h5>人數：${passengerRoute.persons}</h5>`;
+  }
   document.querySelector(".location").innerHTML =
-    `<h4>起點：${data[0].origin}</h4>
-    <h4>終點：${data[0].destination}</h4>`;
+    `<h4>起點：${driverRoute.origin}</h4>
+    <h4>終點：${driverRoute.destination}</h4>`;
   document.querySelector(".detail").innerHTML =
-    `<h5>日期：${data[0].date}</h5>
-    <h5>時間：${data[0].time}</h5>
-    <h5>人數：${data[0].available_seats}</h5>
-    <h5>單人費用：${data[0].fee}</h5>`;
+    `<h5>日期：${driverRoute.date}</h5>
+    <h5>時間：${driverRoute.time}</h5>
+    <h5>人數：${driverRoute.available_seats}</h5>
+    <h5>單人費用：${driverRoute.fee}</h5>`;
   document.querySelector(".driver").innerHTML =
   // <div>${data[0].picture}</div>
     `<div><img src="../uploads/images/member.png"></div>
-    <div>${data[0].name}</div>
-    <button id="contact" type="button" onclick="contact()">聯繫車主</button>`;
-  localStorage.setItem("driverId", id);
+    <div>${driverRoute.name}</div>
+    <button id="contact" type="button">聯繫車主</button>`;
+  clickEvent(driverRoute, query);
 });
-const verifyToken = localStorage.getItem("access_token");
-const contact = () => {
-  fetch("/api/1.0/verify", {
-    method: "GET",
+
+const clickEvent = async (driverRoute, query) => {
+  let data = "";
+  const res = await fetch("/api/1.0/verify", {
+    method: "POST",
+    body: JSON.stringify({ receiverId: driverRoute.id }),
     headers: new Headers({
-      Authorization: "Bearer " + verifyToken
+      Authorization: "Bearer " + verifyToken,
+      "Content-Type": "application/json"
     })
-  }).then((response) => {
-    return response.json();
-  }).then((data) => {
-    console.log(data);
-    localStorage.setItem("userId", data.id);
+  });
+  data = await res.json();
+  console.log("verifyAPI:", data);
+  socket.emit("login", data.userId);
+  const contact = document.getElementById("contact");
+  contact.addEventListener("click", async () => {
+    const room = makeRooom(data.userId, data.receiverId);
+    document.location.href = `./chat.html?room=${room}`;
+  });
+
+  const book = document.getElementById("book");
+  book.addEventListener("click", async () => {
+    const response = await fetch(`/api/1.0/passenger-tour${query}`, {
+      method: "POST",
+      headers: new Headers({
+        Authorization: "Bearer " + verifyToken
+      })
+    });
+    const idInfo = await response.json();
+    if (idInfo.error) {
+      return alert("當日路線已建立，請至「你的行程」查看");
+    }
+    console.log(idInfo);
+    console.log(idInfo.tourId);
+    const routeInfo = {
+      receiverId: [driverRoute.id],
+      passengerRouteId: null,
+      url: `./driver-itinerary-detail.html?routeid=${driverRoute.route_id}&tour=${idInfo.tourId}`,
+      content: `乘客${data.username}已接受你的行程，立即前往查看`,
+      type: "match",
+      icon: "./uploads/images/member.png"
+    };
+    socket.emit("notifiyPassenger", routeInfo);
+    alert("通知已傳送");
+
+    // document.location.href = "./passenger-itinerary.html";
   });
 };
+// const contact = (receiverId) => {
+//   const contact = document.getElementById("contact");
+//   contact.addEventListener("click", async () => {
+//     const res = await fetch("/api/1.0/verify", {
+//       method: "POST",
+//       body: JSON.stringify({ receiverId }),
+//       headers: new Headers({
+//         Authorization: "Bearer " + verifyToken,
+//         "Content-Type": "application/json"
+//       })
+//     });
+//     const data = await res.json();
+//     console.log(data);
+//     const room = makeRooom(data.userId, data.receiverId);
+//     document.location.href = `./chat.html?room=${room}`;
+//   });
+// };
+
+const makeRooom = (userId, receiverId) => {
+  if (userId > receiverId) {
+    return `${receiverId}WITH${userId}`;
+  } else {
+    return `${userId}WITH${receiverId}`;
+  }
+};
+
 const verifytoken = localStorage.getItem("access_token");
 if (!verifytoken) {
   document.location.href = "./login.html";
@@ -46,20 +118,20 @@ window.onload = function () {
   back.addEventListener("click", () => {
     document.location.href = document.referrer;
   });
-  const book = document.getElementById("book");
-  book.addEventListener("click", () => {
-    fetch(`/api/1.0/matched-driver${query}`, {
-      method: "POST",
-      headers: new Headers({
-        Authorization: "Bearer " + verifytoken
-      })
-    }).then((response) => {
-      return response.json();
-    }).then((data) => {
-      console.log(data.id);
-      document.location.href = "./passenger-itinerary.html";
-    });
-  });
+
+  // book.addEventListener("click", () => {
+  //   fetch(`/api/1.0/matched-driver${query}`, {
+  //     method: "POST",
+  //     headers: new Headers({
+  //       Authorization: "Bearer " + verifytoken
+  //     })
+  //   }).then((response) => {
+  //     return response.json();
+  //   }).then((data) => {
+  //     console.log(data.id);
+  //     document.location.href = "./passenger-itinerary.html";
+  //   });
+  // });
 };
 
 // const contact = () => {

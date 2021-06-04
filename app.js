@@ -63,9 +63,20 @@ io.on("connection", socket => {
     console.log(`There are ${usersNum} users connected...`);
   });
 
-  socket.on("matchedPassenger", (data) => {
+  socket.on("notifiyPassenger", async (data) => {
     console.log(data);
-    // io.in(users[data.])
+    const { receiverId } = data;
+    for (let i = 0; i < receiverId.length; i++) {
+      data.receiverId = receiverId[i];
+      console.log(users[receiverId[i]]);
+      let url = data.url;
+      if (data.passengerRouteId) {
+        url += `&passenger=${data.passengerRouteId[i]}`;
+      }
+      const notifyContentToDB = await Chat.notifyContentToDB(receiverId[i], data, url);
+      const allNotifyContent = await Chat.allNotifyContent(receiverId[i]);
+      socket.to(users[receiverId[i]]).emit("passengerReceive", allNotifyContent);
+    }
   });
   //   // socket.emit("message", "Welcome to chatbox");
 

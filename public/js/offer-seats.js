@@ -51,7 +51,7 @@ next.addEventListener("click", () => {
       window.localStorage.setItem("route", JSON.stringify(response.route));
       const url = new URL("http://localhost:3000/path.html");
       const searchParams = new URLSearchParams({
-        id: data[0].route_id
+        routeid: data[0].route_id
       });
       url.search = searchParams;
       console.log(url.href);
@@ -65,7 +65,7 @@ let service;
 let infowindow;
 const geometry = [];
 let counter = 0;
-async function initMap () {
+function initMap () {
   const taiwan = new google.maps.LatLng(23.69781, 120.960515);
 
   map = new google.maps.Map(document.getElementById("map"), {
@@ -82,19 +82,6 @@ async function initMap () {
   };
   findPlace(originQuery);
   findPlace(destinationQuery);
-}
-
-function createMarker (place, address) {
-  if (!place.geometry || !place.geometry.location) return;
-  const marker = new google.maps.Marker({
-    map,
-    position: place.geometry.location
-  });
-
-  infowindow = new google.maps.InfoWindow({
-    content: address
-  });
-  infowindow.open(map, marker);
 }
 
 function findPlace (request) {
@@ -115,6 +102,19 @@ function findPlace (request) {
   });
 }
 
+function createMarker (place, address) {
+  if (!place.geometry || !place.geometry.location) return;
+  const marker = new google.maps.Marker({
+    map,
+    position: place.geometry.location
+  });
+
+  infowindow = new google.maps.InfoWindow({
+    content: address
+  });
+  infowindow.open(map, marker);
+}
+
 function boundsFit (geometry1, geometry2) {
   const bounds = new google.maps.LatLngBounds();
   console.log(geometry1, geometry2);
@@ -128,3 +128,30 @@ function boundsFit (geometry1, geometry2) {
   }
   map.fitBounds(bounds);
 }
+
+// $(function () {
+//   if (typeof google === "undefined") {
+//     alert("Lazy loading Google maps");
+//     lazyLoadGoogleMaps();
+//   } else {
+//     alert("Google Maps is already loaded");
+//     googleMapsLoaded();
+//   }
+// });
+
+// function lazyLoadGoogleMaps () {
+//   // Note the callback function name
+//   $.getScript("http://maps.google.com/maps/api/js?sensor=true&callback=googleMapsLoaded")
+//     .done(function (script, textStatus) {
+//       alert("Google maps loaded successfully");
+//     })
+//     .fail(function (jqxhr, settings, ex) {
+//       alert("Could not load Google Maps: ", ex);
+//     });
+// }
+
+// // This function name is passed in to the Google maps script load above
+// // and will be called once Google maps has loaded
+// function googleMapsLoaded () {
+//   alert("Done!");
+// }

@@ -33,6 +33,8 @@ window.onload = function () {
       .then(response => {
         console.log("Success:", response);
         if (!response.error) {
+          localStorage.removeItem("origin");
+          localStorage.removeItem("destination");
           document.location.href = "./passenger-request-detail.html";
         } else {
           alert("行程重複輸入");

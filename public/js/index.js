@@ -1,4 +1,3 @@
-const socket = io();
 window.onload = function () {
   const origin = document.getElementById("origin");
   const destination = document.getElementById("destination");
@@ -19,27 +18,33 @@ window.onload = function () {
     console.log(url.href);
     document.location.href = url.href;
   });
-  const verifyToken = localStorage.getItem("access_token");
-  if (!verifyToken) {
-    return null;
-  } else {
-    fetch("/api/1.0/verify", {
-      method: "POST",
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken
-      })
-    }).then((res) => {
-      return res.json();
-    }).then((data) => {
-      console.log(data);
-      if (data.error) {
-        return;
-      }
-      socket.emit("login", data.userId + "s");
-      console.log(123);
-    });
-  }
-  socket.on("notify", data => {
-    console.log(data);
-  });
 };
+//   const verifyToken = localStorage.getItem("access_token");
+//   if (!verifyToken) {
+//     return null;
+//   } else {
+//     fetch("/api/1.0/verify", {
+//       method: "GET",
+//       headers: new Headers({
+//         Authorization: "Bearer " + verifyToken
+//       })
+//     }).then((res) => {
+//       return res.json();
+//     }).then((data) => {
+//       console.log(data);
+//       if (data.error) {
+//         return;
+//       }
+//       socket.emit("login", data.userId);
+//       console.log(123);
+//     });
+//   }
+// };
+
+// socket.on("passengerReceive", data => {
+//   console.log(data);
+//   if(data.length){
+//     const dropdownItem = document.createElement("div")
+//     div.
+//   }
+// });

@@ -1,14 +1,4 @@
 const verifyToken = localStorage.getItem("access_token");
-// const xhr = new XMLHttpRequest();
-// xhr.open("GET", "/api/1.0/driver-itinerary");
-// xhr.setRequestHeader("authorization", "Bearer " + verifyToken);
-// xhr.onreadystatechange = function () {
-//   if (xhr.readyState === 4 && xhr.status === 200) {
-//     const data = JSON.parse(xhr.responseText);
-//     console.log(data);
-//   }
-// };
-// xhr.send();
 
 fetch("/api/1.0/driver-itinerary", {
   method: "GET",
@@ -30,7 +20,7 @@ fetch("/api/1.0/driver-itinerary", {
     const time = document.createElement("h5");
     const fee = document.createElement("h5");
     const link = document.createElement("a");
-    link.href = `http://localhost:3000/driver-itinerary-detail.html?id=${data[i].route_id}`;
+    link.href = `http://localhost:3000/driver-itinerary-detail.html?routeid=${data[i].route_id}`;
     origin.textContent = "起點：" + data[i].origin;
     destination.textContent = "終點：" + data[i].destination;
     date.textContent = "日期：" + data[i].date;

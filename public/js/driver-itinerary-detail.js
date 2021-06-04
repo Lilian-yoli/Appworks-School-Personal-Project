@@ -29,15 +29,7 @@ function createDriverInfo (data) {
 
 function createPassengerInfo (data) {
   const passengerInfoArr = data.passengerInfoArr;
-  console.log(123);
   for (let i = 0; i < passengerInfoArr.length; i++) {
-    console.log(456);
-    const pLocation = document.createElement("h5");
-    pLocation.className = "name";
-    pLocation.innerHTML = `<h5>${passengerInfoArr[i].name}</h5>
-    <h5>人數：${passengerInfoArr[i].persons}</h5>`;
-
-    console.log(pLocation);
     const pDetails = document.createElement("div");
     // pDetails.textContent = passengerInfoArr[i].picture;
     // eslint-disable-next-line quotes
@@ -45,6 +37,11 @@ function createPassengerInfo (data) {
     pDetails.className = "picture";
     console.log(pDetails);
     passenger.appendChild(pDetails);
+
+    const pLocation = document.createElement("h5");
+    pLocation.className = "name";
+    pLocation.innerHTML = `<h5>${passengerInfoArr[i].name}</h5>
+    <h5>人數：${passengerInfoArr[i].persons}</h5>`;
     passenger.appendChild(pLocation);
   }
 }

@@ -20,7 +20,7 @@ const offerSeatsInfo = async (req, res) => {
 
 const routeSuggestion = async (req, res) => {
   console.log("routeSuggestion", (req.query));
-  const routeId = req.query.id;
+  const routeId = req.query.routeid;
   const { name, picture, id } = req.user;
   const getDriverDetail = await Path.getDriverDetail(routeId);
   console.log("getDriverDetail", getDriverDetail);
@@ -35,6 +35,7 @@ const routeSuggestion = async (req, res) => {
   // const sortAllPassengerByDistance = await Util.sortAllPassengerByDistance(filterRoutesIn5km);
   const result = { passengerInfo: filterRoutesIn5km };
   result.driverInfo = {
+    routeId: routeId,
     originLatLon: originLatLon,
     destinationLatLon: destinationLatLon,
     origin: origin,
@@ -74,9 +75,9 @@ const setMatchedPassengers = async (req, res) => {
 
 const getDriverItineraryDetail = async (req, res) => {
   console.log(req.user);
-  const { id } = req.query;
-  console.log(id);
-  const result = await Path.getDriverItineraryDetail(id);
+  const routeId = req.query.routeid;
+  console.log(routeId);
+  const result = await Path.getDriverItineraryDetail(routeId);
   console.log("result", result);
   console.log("getDriversItinerary", result);
   res.status(200).send(result);
@@ -118,6 +119,15 @@ const driverSearchDetail = async (req, res) => {
   res.status(200).send(result);
 };
 
+const setDriverTour = async (req, res) => {
+  console.log("req.body", req.body);
+  const { driverRouteId, passengerRouteId } = req.body;
+  const result = await Path.setDriverTour(driverRouteId, passengerRouteId);
+  if (result < 1) {
+    res.status(500).send({ error: "Internal server error" });
+  }
+  res.status(200).send({ tourId: result });
+};
 // const matchSearchedPassengers = async (req, res) => {
 //   console.log(req.body);
 //   const {id}
@@ -133,5 +143,6 @@ module.exports = {
   getDriverItinerary,
   getPlaceId,
   driverSearch,
-  driverSearchDetail
+  driverSearchDetail,
+  setDriverTour
 };

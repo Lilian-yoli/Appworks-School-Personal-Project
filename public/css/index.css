@@ -71,6 +71,11 @@ header {
   width: 25%;
 }
 
+#notifybell, #bell {
+  width: 26.34px;
+  margin-right:20px;
+} 
+
 #member {
   width: auto;
   margin-right:15px;

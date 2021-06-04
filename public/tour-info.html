@@ -10,7 +10,7 @@
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/passenger-search-detail.js"></script>
+    <script src="./js/tour-info.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -19,9 +19,6 @@
             <nav class="tags">
               <a href="./request-seats.html" class="tag tag-search-route">
                 <img src="./uploads/images/search.png" class="icon">尋找路線
-            </a>
-              <a href="/request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -36,25 +33,25 @@
         <div class="driverRouteDetail">
             <div id="myroute">
                 <h2></h2>
-                <div id="p-location"></div>
-                <div id="p-detail"></div>
+                <div id="a-location"></div>
+                <div id="a-detail"></div>
             </div>
             <div class="driverRoute">
-                <h2>車主行程</h2>
-                <div class="location">
+                <h2></h2>
+                <div id="b-location">
                     
                 </div>
-                <div class="detail">
+                <div id="b-detail">
 
                 </div>
-                <div class="driver">
-                    <h3>車主資訊</h3>
+                <div id="b-role">
+                    <h3></h3>
         
                 </div>
             </div>
             <br>
-            <button class="homePage" id="book">預約乘車</button>
-            <button class="homePage" id="back">回上一頁</button>
+            <button class="homePage" id="book">確認</button>
+            <button class="homePage" id="refuse">謝絕</button>
         </div>
         <br>
         <br>
