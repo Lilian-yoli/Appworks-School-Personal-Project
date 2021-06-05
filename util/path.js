@@ -12,19 +12,18 @@ const getDirection = async (start, destination) => {
   const originLatlon = start.split(",");
   const destinationLatlon = destination.split(",");
 
-  const waypointObj = {
-    start: { lat: Number(originLatlon[0]), lng: Number(originLatlon[1]) },
-    destination: { lat: Number(destinationLatlon[0]), lng: Number(destinationLatlon[1]) }
-  };
+  const waypointArr = [
+    { lat: Number(originLatlon[0]), lng: Number(originLatlon[1]) },
+    { lat: Number(destinationLatlon[0]), lng: Number(destinationLatlon[1]) }
+  ];
   const routes = data.routes[0];
   for (const i in routes.legs[0].steps) {
-    const stepVariables = "step" + i;
     // stepArr.push(routes.legs[0].steps[i].start_location);
 
-    waypointObj[stepVariables] = routes.legs[0].steps[i].start_location;
+    waypointArr.push(routes.legs[0].steps[i].start_location);
   }
   // console.log(waypointObj);
-  return waypointObj;
+  return waypointArr;
 };
 
 const filterRoutesIn5km = async (start, destination, date, seats) => {
@@ -104,9 +103,21 @@ const getPlaceId = async (origin, destination) => {
   return result;
 };
 
+const wayptsCity = async (waypoints) => {
+  console.log(waypoints[0].lat, waypoints[0].lng);
+  for (const i in waypoints) {
+    const city = await Util.getCity(waypoints[i]);
+    console.log(city);
+    waypoints[i].city = city;
+  }
+  console.log("getCounty", waypoints);
+  return waypoints;
+};
+
 module.exports = {
   getDirection,
   sortAllPassengerByDistance,
   filterRoutesIn5km,
-  getPlaceId
+  getPlaceId,
+  wayptsCity
 };

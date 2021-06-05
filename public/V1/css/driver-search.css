@@ -1,0 +1,140 @@
+  /* =================================
+    searchbar  Styles
+  ==================================== */  
+.searchbar {
+    width: 100%;
+    margin: 0;
+    margin-top: 7%;
+  }
+  
+  .wrapper {
+    width: 80%;
+    
+    margin-right: auto;
+    margin-left: auto;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+    box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
+    padding: 8px 0px 8px 8px;
+    border-radius: 16px;
+    height: 56px;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  #origin {
+    display: flex;
+    cursor: pointer;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    color: #FE646F;
+    background: none;
+    height: 40px;
+    box-sizing: border-box;
+    line-height: 24px;
+    width: 40%;
+    min-width: 0px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    -webkit-box-align: center;
+    align-items: center;
+  }
+  
+  #destination {
+    display: flex;
+    cursor: pointer;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    color: #FE646F;
+    background: none;
+    height: 40px;
+    box-sizing: border-box;
+    line-height: 24px;
+    width: 40%;
+    min-width: 0px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    -webkit-box-align: center;
+    align-items: center;
+  }
+  
+  #date {
+    display: flex;
+    cursor: pointer;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    color: #FE646F;
+    background: none;
+    height: 40px;
+    box-sizing: border-box;
+    line-height: 24px;
+    width: 30%;
+    min-width: 0px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    -webkit-box-align: center;
+    align-items: center;
+    padding-right: 2px;
+  }
+  
+  #persons {
+    display: flex;
+    cursor: pointer;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    color: #FE646F;
+    background: none;
+    height: 40px;
+    box-sizing: border-box;
+    line-height: 24px;
+    width: 20%;
+    min-width: 0px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    -webkit-box-align: center;
+    align-items: center;
+    
+  }
+  
+  #persons-words {
+    padding-right: 2px;
+    width: 7.5%;
+    text-align: center;
+  }
+  
+  #btn {
+    cursor: pointer;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+    color: #FE646F;
+    background: none;
+    height: 40px;
+    box-sizing: border-box;
+    line-height: 24px;
+    width: 7.5%;
+    min-width: 0px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    -webkit-box-align: center;
+    align-items: center;
+  }
+  
+  .interval {
+    width: 0.5%;
+    border-left: solid rgb(203, 200, 200);
+    height: 40px;
+    border-width: 0.5px;
+  }
+  

@@ -15,8 +15,8 @@ const wrapAsync = (fn) => {
 const authentication = () => {
   return async function (req, res, next) {
     let accessToken = req.get("Authorization");
-    
-    console.log("accessToken:", accessToken, typeof(accessToken))
+
+    console.log("accessToken:", accessToken, typeof (accessToken));
     if (!accessToken) {
       return res.status(401).send({ error: "Unauthorized" });
     }
@@ -86,11 +86,87 @@ const toDateFormat = async (fromUnixtime) => {
   return date[3] + "/" + month[date[1]] + "/" + date[2];
 };
 
+const getCity = async (point) => {
+  const { data } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${point.lat},${point.lng}&language=zh-TW&key=${GOOGLE_MAP}`);
+  const addressInfo = (data.plus_code.compound_code).split("台灣")[1];
+  let city = "";
+  for (let i = 0; i < 3; i++) {
+    city += addressInfo[i];
+  }
+  return city;
+};
+
+const getShortestRoute = async (originCity, destinationCity, originCoordinate, destinationCoordinate) => {
+  const result = {};
+  let originObj = {};
+  let min = Infinity;
+  console.log(originCity[0].offered_routes_id);
+  console.log(originCoordinate.x, originCoordinate.y,
+    originCity[0].coordinate.x, originCity[0].coordinate.y);
+  for (const i in originCity) {
+    if (i > 0) {
+      if (originCity[i].offered_routes_id !== originCity[i - 1].offered_routes_id) {
+        console.log("originCity[i].offered_routes_id", originCity[i].offered_routes_id);
+        originObj = {};
+        min = Infinity;
+      }
+    }
+    const distance = getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
+      originCity[i].coordinate.x, originCity[i].coordinate.y);
+    console.log("distance", distance);
+    if (distance < min) {
+      min = distance;
+      originObj.origin = originCity[i].coordinate;
+      originObj.originDis = min;
+      result[originCity[i].offered_routes_id] = originObj;
+    }
+    console.log("shortRoute[wayptsCoordinate[i].offered_routes_id]", result[originCity[i].offered_routes_id]);
+  }
+  for (const i in destinationCity) {
+    min = Infinity;
+    for (const j in destinationCity[i]) {
+      const distance = getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
+        destinationCity[i][j].coordinate.x, destinationCity[i][j].coordinate.y);
+      console.log("distance", distance);
+      if (distance < min) {
+        min = distance;
+        result[destinationCity[i][j].offered_routes_id].destination = destinationCity[i][j].coordinate;
+        result[destinationCity[i][j].offered_routes_id].destinationDis = min;
+      }
+      console.log("shortRoute[wayptsCoordinate[i].offered_routes_id]", result[destinationCity[i][j].offered_routes_id]);
+    }
+  }
+  console.log("shortRoute", result);
+  return result;
+};
+
+const orderShortestRoute = async (shortestRoute) => {
+  const orderRoutes = [];
+  for (const i in shortestRoute) {
+    const route = [];
+    const distance = shortestRoute[i].originDis + shortestRoute[i].destinationDis;
+    delete shortestRoute[i].originDis;
+    delete shortestRoute[i].destinationDis;
+    shortestRoute[i].routeId = i;
+    route.push(distance);
+    route.push(shortestRoute[i]);
+    orderRoutes.push(route);
+  }
+  orderRoutes.sort((a, b) => {
+    return a[0] - b[0];
+  });
+  console.log(orderRoutes);
+  return orderRoutes;
+};
+
 module.exports = {
   wrapAsync,
   authentication,
   getDistanceFromLatLonInKm,
   toTimestamp,
   transferToLatLng,
-  toDateFormat
+  toDateFormat,
+  getCity,
+  getShortestRoute,
+  orderShortestRoute
 };

@@ -10,11 +10,17 @@ const offerSeatsInfo = async (req, res) => {
     return;
   }
   const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id, fee);
-  if (!result) {
-    res.status(500).send({ error: "Internal server error" });
+  if (result.error) {
+    res.status(500).send({ error: result.error });
     return;
   }
   console.log("path_controller:", result);
+  const waypoints = await Util.getDirection(result.route[0].origin_coordinate.x + "," + result.route[0].origin_coordinate.y,
+    result.route[0].destination_coordinate.x + "," + result.route[0].destination_coordinate.y);
+  console.log("waypoints", waypoints);
+  const getCity = await Util.wayptsCity(waypoints);
+  const saveWaypts = await Path.saveWaypts(getCity, result.route[0].route_id);
+  console.log("saveWaypts", saveWaypts);
   return res.status(200).send(result);
 };
 

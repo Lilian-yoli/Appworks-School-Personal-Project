@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm } = require("../../util/util");
+const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute } = require("../../util/util");
 
 const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   const connection = await mysql.connection();
@@ -16,6 +16,7 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   }
   const originLatLng = await transferToLatLng(origin);
   const destinationLatLng = await transferToLatLng(destination);
+
   const now = Math.floor(Date.now() / 1000);
   console.log("originLatLng", originLatLng.lat, originLatLng.lng);
   if (!originLatLng || !destinationLatLng) {
@@ -36,6 +37,13 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   console.log("insertRoute", insertRoute);
   const routeId = insertRoute.insertId;
   const route = await query(`SELECT * FROM requested_routes WHERE route_id = ${routeId}`);
+
+  const originCity = await getCity(originLatLng);
+  const destinationCity = await getCity(destinationLatLng);
+  const city = [[routeId, originCity, "origin", now], [routeId, destinationCity, "destination", now]];
+  const insertCity = await query(`INSERT INTO requested_routes_cities 
+  (requested_routes_id, city, coordinate_type, created_at) VALUES ?`, [city]);
+  console.log("insertCity", insertCity);
   await connection.query("COMMIT");
   console.log("MAKE COMPARISON", route);
   console.log("route[0].origin_coordinate.x", route[0].origin_coordinate.x);
@@ -228,6 +236,42 @@ const getTourInfo = async (tourId) => {
   return result;
 };
 
+const getPassengerDetail = async (id) => {
+  const passengerDetail = await query(`SELECT origin, destination, origin_coordinate, destination_coordinate, persons, FROM_UNIXTIME(date) AS date 
+  FROM requested_routes WHERE route_id = ${id}`);
+  if (!passengerDetail) {
+    return { error: "No such route offered" };
+  }
+  passengerDetail[0].date = await toDateFormat(passengerDetail[0].date);
+  return passengerDetail[0];
+};
+
+const filterRoutes = async (routeId, date, persons, originCoordinate, destinationCoordinate) => {
+  const qryStr = `SELECT offered_routes_id, coordinate FROM routes_waypoints WHERE city IN 
+  (SELECT city FROM requested_routes_cities WHERE requested_routes_id = ${routeId} AND coordinate_type = "origin")
+  AND offered_routes_id IN
+  (SELECT route_id FROM offered_routes WHERE date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}) `;
+  const originCity = await query(qryStr);
+  console.log("originCity:", originCity);
+  const destinationCity = [];
+  for (const i in originCity) {
+    if (i > 0) {
+      if (originCity[i].offered_routes_id == originCity[i - 1].offered_routes_id) {
+        continue;
+      }
+    }
+    const destinationWaypts = await query(`SELECT DISTINCT offered_routes_id, coordinate FROM routes_waypoints
+    WHERE offered_routes_id = ${originCity[i].offered_routes_id} AND city IN 
+    (SELECT city FROM requested_routes_cities WHERE requested_routes_id = ${routeId} AND coordinate_type = "destination")`);
+    destinationCity.push(destinationWaypts);
+  }
+  console.log("destinationCity", destinationCity);
+
+  const shortestRoute = await getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);
+  const shortestRouteInOrder = await orderShortestRoute(shortestRoute);
+  return shortestRouteInOrder;
+};
+
 module.exports = {
   requestSeatsInfo,
   passengerSearch,
@@ -236,5 +280,7 @@ module.exports = {
   getPassengerItinerary,
   passengerRequestDetail,
   setPassengerTour,
-  getTourInfo
+  getTourInfo,
+  getPassengerDetail,
+  filterRoutes
 };

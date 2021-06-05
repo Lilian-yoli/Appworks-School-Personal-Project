@@ -167,6 +167,16 @@ const setDriverTour = async (driverRouteId, passengerRouteId) => {
   return driverRouteId;
 };
 
+const saveWaypts = async (getCity, routeId) => {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const column = "(offered_routes_id, coordinate, city, createdAt)";
+  for (const i in getCity) {
+    const value = `(${routeId}, Point("${getCity[i].lat}", "${getCity[i].lng}"), "${getCity[i].city}", ${timestamp})`;
+    const result = await query(`INSERT INTO routes_waypoints ${column} VALUES ${value}`);
+  }
+  return routeId;
+};
+
 module.exports = {
   insertRouteInfo,
   getAllplacesByPassengers,
@@ -176,5 +186,6 @@ module.exports = {
   getDriverItinerary,
   driverSearch,
   driverSearchDetail,
-  setDriverTour
+  setDriverTour,
+  saveWaypts
 };

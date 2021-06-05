@@ -1,4 +1,5 @@
 const Passenger = require("../models/passenger_model");
+const Util = require("../../util/passenger");
 
 const requestSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
@@ -82,6 +83,26 @@ const getTourInfo = async (req, res) => {
   res.status(200).send(result);
 };
 
+const suggestPassengerRoute = async (req, res) => {
+  console.log(req.query);
+  const routeId = req.query.routeid;
+  const { name, picture, id } = req.user;
+  const getPassengerDetail = await Passenger.getPassengerDetail(routeId);
+  console.log("getPassengerDetail", getPassengerDetail);
+
+  const { date, origin, destination, persons } = getPassengerDetail;
+  const originLatLon = `${getPassengerDetail.origin_coordinate.x}, ${getPassengerDetail.origin_coordinate.y}`;
+  const destinationLatLon = `${getPassengerDetail.destination_coordinate.x}, ${getPassengerDetail.destination_coordinate.y}`;
+  console.log("originLatLon", originLatLon);
+
+  const filterRoutes = await Passenger.filterRoutes(routeId, date, persons,
+    getPassengerDetail.origin_coordinate, getPassengerDetail.destination_coordinate);
+  if (filterRoutes.length < 1) {
+    res.status(500).send({ error: "Internal server error" });
+  }
+  res.status(200).send(filterRoutes);
+};
+
 module.exports = {
   passengerSearch,
   passengerSearchDetail,
@@ -90,5 +111,6 @@ module.exports = {
   passengerRequestDetail,
   requestSeatsInfo,
   setPassengerTour,
-  getTourInfo
+  getTourInfo,
+  suggestPassengerRoute
 };
