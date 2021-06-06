@@ -98,7 +98,9 @@ const suggestPassengerRoute = async (req, res) => {
   const filterRoutes = await Passenger.filterRoutes(routeId, date, persons,
     getPassengerDetail.origin_coordinate, getPassengerDetail.destination_coordinate);
   if (filterRoutes.length < 1) {
-    res.status(500).send({ error: "Internal server error" });
+    return res.status(500).send({ error: "Internal server error" });
+  } else if (filterRoutes.msg) {
+    return res.status(200).send(filterRoutes);
   }
   getPassengerDetail.id = id;
   const result = { passengerInfo: getPassengerDetail, driverInfo: filterRoutes };

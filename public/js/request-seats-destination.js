@@ -10,6 +10,14 @@ function initMap () {
     center: location,
     zoom: 7
   });
+  const options = {
+    componentRestrictions: { country: "tw" } // 限制在台灣範圍
+  };
+  const acInput = document.getElementById("autocomplete");
+
+  const autocomplete = new google.maps.places.Autocomplete(acInput, options);
+  const destination = placeMarker(autocomplete);
+  console.log(origin, destination);
 }
 
 function siteAuto () {
@@ -30,10 +38,10 @@ window.addEventListener("load", () => {
   const destination = document.getElementById("autocomplete");
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    if (localStorage.getItem("origin")) {
+    if (localStorage.getItem("destination")) {
       document.location.href = "./request-seats.html";
     } else {
-      alert("尚未選擇地點");
+      alert("尚未選擇地點，請確認地圖地址是否正確");
     }
   });
 });

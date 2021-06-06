@@ -5,25 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <script src="./js/offer-seats.js" defer></script>
+    
     <title>Co-Car</title>
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/login.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
                 <img src="./uploads/images/caravan.png" id="logo-car">
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
-              <a href="./request-seats.html" class="tag tag-search-route">
-                <img src="./uploads/images/search.png" class="icon">尋找路線
-            </a>
-              <a href="/request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
-            </a>
-              <a href="/driver-search.html" class="tag tag-search-passenger">
-                <img src="./uploads/images/search.png" class="icon" >尋找乘客
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -33,45 +27,29 @@
               </a>
             </nav>
         </div> 
-    </header>
+    
+      </header>
     <main>
-        <h1>Sign Up</h1>
-        <div id="signupMsg"></div>
-        <div>
-            <label>Name:</label>
-            <input type="text" name='signupName' id="signupName">
+        <div class="route-info">
+            <h2>提供路線資訊</h2>
+            <label>乘載人數</label>
+            <input type="text" name='persons' id='persons'>
             <br>
             <br>
-
-            <label>Email:</label>
-            <input type="text" name='signupEmail' id="signupEmail">
+            <label>日期</label>
+            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-06">
             <br>
             <br>
-
-            <label>Password:</label>
-            <input type="text" name='signupPassword' id="signupPassword">
-            <br><br>
-
-            <label>Phone:</label>
-            <input type="text" name='signupPhone' id="signupPhone">
-            <br><br>
-            <button type="submit" id="signupSubmit" >Submit</button>
-            <br><br>
-            
-        </div>
-        <h1>Sign In</h1>
-        <div id="signinMsg"></div>
-        <div>
-            <label>Email:</label>
-            <input type="text" name='signinEmail' id="signinEmail" value="test14@test.com">
+            <label>時間</label>
+            <input type="text" name='time' id='time'>
             <br>
             <br>
-
-            <label>Password:</label>
-            <input type="text" name='signinPassword' id="signinPassword" value="14">
-            <br><br>
-            <button type="submit" id="signinSubmit" >Submit</button>
-            <br><br>
+            <label>單人費用</label>
+            <input type="text" name='fee' id='fee'>
+            <br>
+            <br>
+            <button class="next">下一步</button>
+            <div id="map" style="width: 600px; height:480px;"></div>            
         </div>
     </main>
     <footer>
@@ -89,11 +67,29 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
+    <script>
+        function formatDate() {
+            let today =  new Date(Date.now())
+                month = (today.getMonth() + 1).toString()
+                day = (today.getDate()).toString()
+                year = (today.getFullYear()).toString();
+
+            if (month.length < 2) {
+                month = '0' + month;
+            }          
+            if (day.length < 2) {
+                day = '0' + day;
+            } 
+
+            today = [year, month, day].join('-');
+            document.getElementById("date").setAttribute("min", today)
+        }     
+    </script>
     <style>
-        main {
-            margin-top: 80px;
+        .route-info {
             text-align: center;
         }
     </style>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>    
 </body>
 </html>

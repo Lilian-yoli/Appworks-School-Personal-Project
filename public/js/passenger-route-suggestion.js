@@ -14,19 +14,36 @@ async function wrapper () {
   console.log("data", data);
   const passenger = data.passengerInfo;
   const driver = data.driverInfo;
-
   const waypts = [];
-
-  document.getElementById("driver-route").innerHTML =
+  if (data.msg) {
+    const pathSuggestion = document.getElementById("driver-route");
+    pathSuggestion.append(Object.assign(document.createElement("h1"),
+      { id: "sign" },
+      { textContent: "尚無合適路線，已儲存需求" }));
+    pathSuggestion.append(Object.assign(document.createElement("img"),
+      { id: "sign-pic" },
+      { src: "../uploads/images/passenger_nosuitable_route.svg" }));
+    pathSuggestion.append(Object.assign(document.createElement("form"),
+      { action: "./" },
+      { id: "back" }));
+    const back = document.getElementById("back");
+    back.append(Object.assign(document.createElement("input"),
+      { type: "submit" },
+      { value: "回首頁" }));
+    const map = document.getElementById("map");
+    map.style.display = "none";
+  } else {
+    document.getElementById("driver-route").innerHTML =
     `<h3>起點：${passenger.origin}</h3><h3>終點：${passenger.destination}</h3>`;
-  for (const i in driver) {
-    const pathSuggestion = document.getElementById("path-suggestion");
-    pathSuggestion.innerHTML += `<li>車主：${+i + 1}: ${driver[i][1].detail.origin} 到 <br>
-        ${driver[i][1].detail.destination} ｜ 人數：${driver[i][1].detail.seats_left}人</li>
+    for (const i in driver) {
+      const pathSuggestion = document.getElementById("path-suggestion");
+      pathSuggestion.innerHTML += `<li>車主${+i + 1}: <br>起點：${driver[i][1].detail.origin} <br>
+        終點：${driver[i][1].detail.destination} ｜ 人數：${driver[i][1].detail.seats_left}人</li>
         <button class="add btn" id="${i}.0" >+</button> 
-        <li>${driver[i][1].detail.picture}</li><li>${driver[i][1].detail.name}</li>
+        <li><img src="${driver[i][1].detail.picture}"></li><li>${driver[i][1].detail.name}</li>
         <button class="btn" id="contact">聯繫車主</button>`;
-    console.log(pathSuggestion);
+      console.log(pathSuggestion);
+    }
   }
 
   const driverOrigin = driver[0][1].detail.origin;
@@ -51,6 +68,9 @@ async function wrapper () {
 }
 
 function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) {
+  if (!waypts) {
+    return;
+  }
   const originCoordinate = driverOrigin;
   const destinationCoordinate = driverDestination;
 
@@ -214,10 +234,10 @@ function showPickedPassenger (driver, num, numInfo) {
   pickedDriver.innerHTML = "";
   if (numInfo == 0) {
     console.log(123);
-    pickedDriver.innerHTML = `<li>車主${+num + 1}:<br> 起點：${driver[num][1].detail.origin} <br>
+    pickedDriver.innerHTML = `<h3>已選擇的車主：</h3><li>車主${+num + 1}:<br> 起點：${driver[num][1].detail.origin} <br>
     終點：${driver[num][1].detail.destination} ｜ 人數：${driver[num][1].detail.seats_left}人</li>
     <button class="btn deduct" id="${num}.1">-</button>
-    <li>${driver[num][1].detail.picture}</li><li>${driver[num][1].detail.name}</li> `;
+    <li><img src="${driver[num][1].detail.picture}"></li><li>${driver[num][1].detail.name}</li> `;
   }
 }
 
@@ -276,7 +296,7 @@ const clickEvent = async (driver, passenger) => {
     socket.emit("notifiyPassenger", routeInfo);
     alert("通知已傳送");
 
-    document.location.href = "./passenger-itinerary.html";
+    document.location.href = "./";
   });
 };
 // socket send notification

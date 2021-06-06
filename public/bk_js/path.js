@@ -22,23 +22,7 @@ async function wrapper () {
   socket.emit("login", driver.id);
 
   if (passenger.length < 1) {
-    const pathSuggestion = document.getElementById("path-suggestion");
-    console.log(pathSuggestion);
-    pathSuggestion.append(Object.assign(document.createElement("h1"),
-      { id: "sign" },
-      { textContent: "尚無合適乘客" }));
-    pathSuggestion.append(Object.assign(document.createElement("img"),
-      { id: "sign-pic" },
-      { src: "../../uploads/images/no-path-suggestion.svg" }));
-    pathSuggestion.append(Object.assign(document.createElement("form"),
-      { action: "./" },
-      { id: "back" }));
-    const back = document.getElementById("back");
-    back.append(Object.assign(document.createElement("input"),
-      { type: "submit" },
-      { value: "回首頁" }));
-    const map = document.getElementById("map");
-    map.style.display = "none";
+    document.location.href = `driver-itinerary-detail.html${query}`;
   }
   document.getElementById("driver-route").innerHTML =
     `<h3>起點：${driver.origin}</h3><h3>終點：${driver.destination}</h3>`;
@@ -70,7 +54,7 @@ async function wrapper () {
   console.log("index,passengerArr", dict, index, passengerArr);
   showPickedPassenger(passenger, index);
 
-  initMap(driver, pickedWaypts);
+  // initMap(driver, pickedWaypts);
   chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken);
   matchedBtn(driver, passenger, verifyToken, query);
   skipBtn(query);
@@ -270,13 +254,13 @@ function matchedBtn (driver, passenger, verifyToken, query) {
     });
     const data = await res.json();
     console.log(data);
-    document.location.href = "./";
+    document.location.href = `./driver-itinerary-detail.html${query}`;
   });
 }
 
 function skipBtn (query) {
   const skipRoute = document.querySelectorAll(".button")[1];
   skipRoute.addEventListener("click", () => {
-    document.location.href = "./";
+    document.location.href = `./driver-itinerary-detail.html${query}`;
   });
 }

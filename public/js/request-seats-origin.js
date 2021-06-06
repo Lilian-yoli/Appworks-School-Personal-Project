@@ -1,3 +1,26 @@
+
+window.addEventListener("load", () => {
+  const button = document.getElementById("btn");
+  const origin = document.getElementById("autocomplete");
+
+  button.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (localStorage.getItem("origin")) {
+      document.location.href = "./request-seats-destination.html";
+    } else {
+      alert("尚未選擇地點，請確認地圖地址是否正確");
+    }
+  });
+});
+
+function toggleBounce () {
+  if (marker.getAnimation() !== null) {
+    marker.setAnimation(null);
+  } else {
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+  }
+}
+
 let map;
 let marker = "";
 function initMap () {
@@ -10,6 +33,7 @@ function initMap () {
     center: location,
     zoom: 7
   });
+  siteAuto();
 }
 
 function siteAuto () {
@@ -59,28 +83,4 @@ function siteAuto () {
       localStorage.setItem("origin", place.formatted_address);
     }
   });
-}
-
-window.addEventListener("load", () => {
-  const button = document.getElementById("btn");
-  const origin = document.getElementById("autocomplete");
-
-  initMap();
-  siteAuto();
-  button.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (localStorage.getItem("origin")) {
-      document.location.href = "./request-seats-destination.html";
-    } else {
-      alert("尚未選擇地點");
-    }
-  });
-});
-
-function toggleBounce () {
-  if (marker.getAnimation() !== null) {
-    marker.setAnimation(null);
-  } else {
-    marker.setAnimation(google.maps.Animation.BOUNCE);
-  }
 }

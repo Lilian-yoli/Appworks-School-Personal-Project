@@ -4,21 +4,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/header.css">
+    <script src="./js/offer-seats-origin.js" defer></script>
     <title>Co-Car</title>
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/tour-info.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
                 <img src="./uploads/images/caravan.png" id="logo-car">
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
-              <a href="./request-seats.html" class="tag tag-search-route">
-                <img src="./uploads/images/search.png" class="icon">尋找路線
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -28,34 +26,20 @@
               </a>
             </nav>
         </div> 
+    
       </header>
     <main>
-        <div class="driverRouteDetail">
-            <div id="myroute">
-                <h2></h2>
-                <div id="a-location"></div>
-                <div id="a-detail"></div>
-            </div>
-            <div class="driverRoute">
-                <h2></h2>
-                <div id="b-location">
-                    
-                </div>
-                <div id="b-detail">
-
-                </div>
-                <div id="b-role">
-                    <h3></h3>
-        
-                </div>
-            </div>
+        <div class="route-info">
+            <h2>提供路線資訊</h2>
+            <label>出發地</label>
+            <input type="text" name='origin' id='autocomplete'>
             <br>
-            
+            <br>
+            <button id="btn">確認</button>
         </div>
-        <br>
-        <br>
-        <br>
-        <br>
+        <div class="map">
+            <div id="map" style="width: 600px; height:480px;"></div>
+        </div>
         
     </main>
     <footer>
@@ -75,8 +59,10 @@
     </footer>
     <style>
         main {
-            text-align: center;
+            display: flex;
         }
-    </style>
+        
+    </style> 
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
 </body>
 </html>

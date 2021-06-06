@@ -5,24 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    <script src="./js/driver-itinerary.js"></script>
-    <title>Cocar</title>
+    <title>Co-Car</title>
 </head>
 <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/login.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
                 <img src="./uploads/images/caravan.png" id="logo-car">
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
-              <a href="./request-seats.html" class="tag tag-search-route">
-                <img src="./uploads/images/search.png" class="icon">尋找路線
-            </a>
-              <a href="/request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
-            </a>
-              <a href="/driver-search.html" class="tag tag-search-passenger">
-                <img src="./uploads/images/search.png" class="icon" >尋找乘客
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -32,14 +27,45 @@
               </a>
             </nav>
         </div> 
-      </header>
+    </header>
     <main>
-        <div class="route-info">
-            <h2>你的行程</h2>
-           <div id="itinerary">
-           </div>
-           <br> 
-           <button id="homePage">回首頁</button>
+        <h1>Sign Up</h1>
+        <div id="signupMsg"></div>
+        <div>
+            <label>Name:</label>
+            <input type="text" name='signupName' id="signupName">
+            <br>
+            <br>
+
+            <label>Email:</label>
+            <input type="text" name='signupEmail' id="signupEmail">
+            <br>
+            <br>
+
+            <label>Password:</label>
+            <input type="text" name='signupPassword' id="signupPassword">
+            <br><br>
+
+            <label>Phone:</label>
+            <input type="text" name='signupPhone' id="signupPhone">
+            <br><br>
+            <button type="submit" id="signupSubmit" >Submit</button>
+            <br><br>
+            
+        </div>
+        <h1>Sign In</h1>
+        <div id="signinMsg"></div>
+        <div>
+            <label>Email:</label>
+            <input type="text" name='signinEmail' id="signinEmail">
+            <br>
+            <br>
+
+            <label>Password:</label>
+            <input type="text" name='signinPassword' id="signinPassword" >
+            <br><br>
+            <button type="submit" id="signinSubmit" >Submit</button>
+            <br><br>
         </div>
     </main>
     <footer>
@@ -56,11 +82,12 @@
             <img src="./uploads/images/facebook.png">
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
-    </footer> 
+    </footer>
     <style>
-        .route-info {
+        main {
+            margin-top: 80px;
             text-align: center;
         }
-    </style>    
+    </style>
 </body>
 </html>

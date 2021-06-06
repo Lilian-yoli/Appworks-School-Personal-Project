@@ -5,24 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    <script src="./js/offer-seats-origin.js" defer></script>
+    
+    
     <title>Co-Car</title>
 </head>
 <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/header.js" defer></script>
+    <script src="./js/passenger-route-suggestion.js" defer></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
                 <img src="./uploads/images/caravan.png" id="logo-car">
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
-              <a href="./request-seats.html" class="tag tag-search-route">
-                <img src="./uploads/images/search.png" class="icon">尋找路線
-            </a>
-              <a href="/request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
-            </a>
-              <a href="/driver-search.html" class="tag tag-search-passenger">
-                <img src="./uploads/images/search.png" class="icon" >尋找乘客
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -32,22 +30,28 @@
               </a>
             </nav>
         </div> 
-    
       </header>
     <main>
+        <h2>建議路線</h2>
         <div class="route-info">
-            <h2>提供路線資訊</h2>
-            <label>出發地</label>
-            <input type="text" name='origin' id='autocomplete' value="台北車站">
-            <br>
-            <br>
-            <button id="btn">確認</button>
+            <div id="driver-route"></div>
+            <ul id="path-suggestion">
+
+            </ul>
+            <hr>
+            <div class="picked">
+                
+                <ul id="picked-passenger">
+                    <h3>已選擇車主</h3>
+                </ul>
+            </div>
+            <button type="button" class="button" id="apply-route">套用路線</button>
+            <button type="button" class="button" id="skip">略過路線</button>
         </div>
         <div class="map">
             <div id="map" style="width: 600px; height:480px;"></div>
         </div>
-        
-    </main>
+    </main> 
     <footer>
         <ul id="footer-ul">
             <li><a href="#" class="footer_link">關於 Cocar</a></li>
@@ -64,11 +68,20 @@
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
     <style>
-        main {
+        .main {
             display: flex;
+            flex-direction: column;
         }
-        
-    </style> 
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
+        .route-info {
+            width: 45%;
+            display: block;
+        }
+        .map {
+            width:45%;
+        }
+    </style>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
 </body>
+
 </html>

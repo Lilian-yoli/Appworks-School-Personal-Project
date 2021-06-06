@@ -1,7 +1,9 @@
+
 const verifyToken = localStorage.getItem("access_token");
 const origin = localStorage.getItem("origin");
 console.log(origin, typeof (origin));
 const destination = localStorage.getItem("destination");
+
 if (!verifyToken) {
   document.location.href = "./login.html";
 }
@@ -11,36 +13,36 @@ const date = document.getElementById("date");
 const next = document.getElementById("next");
 
 const seatsRequestInfo = {};
-window.onload = function () {
+next.onclick = function click () {
   // initMap();
-  next.addEventListener("click", () => {
-    seatsRequestInfo.origin = origin;
-    seatsRequestInfo.destination = destination;
-    seatsRequestInfo.persons = persons.value;
-    seatsRequestInfo.date = date.value;
+  // next.addEventListener("click", () => {
+  seatsRequestInfo.origin = origin;
+  seatsRequestInfo.destination = destination;
+  seatsRequestInfo.persons = persons.value;
+  seatsRequestInfo.date = date.value;
 
-    fetch("/api/1.0/request-seats-info", {
-      method: "POST",
-      body: JSON.stringify(seatsRequestInfo),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-Type": "application/json"
-      })
-    }).then((response) => {
-      console.log(123);
-      return response.json();
-    }).catch(error => console.error("Error:", error))
-      .then(response => {
-        console.log("Success:", response);
-        if (!response.error) {
-          localStorage.removeItem("origin");
-          localStorage.removeItem("destination");
-          document.location.href = "./passenger-request-detail.html";
-        } else {
-          alert("行程重複輸入");
-        }
-      });
-  });
+  fetch("/api/1.0/request-seats-info", {
+    method: "POST",
+    body: JSON.stringify(seatsRequestInfo),
+    headers: new Headers({
+      Authorization: "Bearer " + verifyToken,
+      "Content-Type": "application/json"
+    })
+  }).then((response) => {
+    console.log(123);
+    return response.json();
+  }).catch(error => console.error("Error:", error))
+    .then(response => {
+      console.log("Success:", response);
+      if (!response.error) {
+        localStorage.removeItem("origin");
+        localStorage.removeItem("destination");
+        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].route_id}`;
+      } else {
+        alert(response.error);
+      }
+    });
+  // });
   console.log(origin, destination);
 };
 
@@ -49,13 +51,14 @@ let service;
 let infowindow;
 const geometry = [];
 let counter = 0;
-async function initMap () {
+function initMap () {
   const taiwan = new google.maps.LatLng(23.69781, 120.960515);
 
   map = new google.maps.Map(document.getElementById("map"), {
     center: taiwan,
     zoom: 7
   });
+
   const originQuery = {
     query: origin,
     fields: ["name", "geometry", "place_id"]
@@ -66,7 +69,7 @@ async function initMap () {
   };
   findPlace(originQuery);
   findPlace(destinationQuery);
-}
+};
 
 function createMarker (place, address) {
   if (!place.geometry || !place.geometry.location) return;
@@ -83,6 +86,7 @@ function createMarker (place, address) {
 
 function findPlace (request) {
   counter++;
+  const place = "";
   service = new google.maps.places.PlacesService(map);
   service.findPlaceFromQuery(request, (results, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -90,6 +94,7 @@ function findPlace (request) {
       createMarker(results[0], request.query);
       // map.setCenter(results[0].geometry.location);
       console.log(results[0].geometry.location);
+
       geometry.push(results[0].geometry.location);
       if (counter > 1) {
         console.log(geometry[0], geometry[1]);

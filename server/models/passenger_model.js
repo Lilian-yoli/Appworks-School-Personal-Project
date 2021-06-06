@@ -260,6 +260,9 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
       destinationCity.push(destinationWaypts);
     }
   }
+  if (destinationCity.length < 1) {
+    return ({ msg: "無合適的行程" });
+  }
   console.log("destinationCity", destinationCity);
 
   const shortestRoute = await getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);

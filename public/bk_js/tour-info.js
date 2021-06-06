@@ -13,84 +13,51 @@ window.onload = async function () {
   const data = await res.json();
   console.log(data);
   const { driverInfo, passengerInfo } = data;
-  for (const i in passengerInfo) {
-    if (data.userId == passengerInfo[i].id) {
-      document.querySelectorAll("h2")[0].innerHTML = "你的行程";
-      document.getElementById("a-location").innerHTML =
-      `<h4>起點：${passengerInfo[i].origin}</h4>
-      <h4>終點：${passengerInfo[i].destination}</h4>`;
-      document.getElementById("a-detail").innerHTML =
-      `<h5>日期：${passengerInfo[i].date}</h5>
-      <h5>人數：${passengerInfo[i].persons}</h5>`;
 
-      document.getElementById("b-location").innerHTML =
+  if (data.userId == passengerInfo.id) {
+    document.querySelectorAll("h2").innerHTML = "你的行程";
+    document.getElementById("a-location").innerHTML =
+      `<h4>起點：${passengerInfo.origin}</h4>
+      <h4>終點：${passengerInfo.destination}</h4>`;
+    document.getElementById("a-detail").innerHTML =
+      `<h5>日期：${passengerInfo.date}</h5>
+      <h5>人數：${passengerInfo.persons}</h5>`;
+
+    document.getElementById("b-location").innerHTML =
       `<h4>起點：${driverInfo.origin}</h4>
         <h4>終點：${driverInfo.destination}</h4>`;
-      document.getElementById("b-detail").innerHTML =
+    document.getElementById("b-location").innerHTML =
       `<h5>日期：${driverInfo.date}</h5>
       <h5>時間：${driverInfo.time}</h5>
       <h5>人數：${driverInfo.seats_left}</h5>
       <h5>單人費用：${driverInfo.fee}</h5>`;
-      document.getElementById("b-role").innerHTML =
+    document.getElementById("b-role").innerHTML =
       // <div>${data[0].picture}</div>
       `<div><img src="../uploads/images/member.png"></div>
       <div>${driverInfo.name}</div>
-      <button id="contact" type="button">聯繫車主</button>
-      <button class="homePage" id="book">確認</button>
-      <button class="homePage" id="refuse">謝絕</button>`;
-      confirm(driverInfo.route_id, driverInfo.id);
-    } else {
-      document.querySelectorAll("h2")[0].innerHTML = "你的行程";
-      document.getElementById("a-location").innerHTML =
+      <button id="contact" type="button">聯繫車主</button>`;
+  } else {
+    document.querySelectorAll("h2")[0].innerHTML = "你的行程";
+    document.getElementById("a-location").innerHTML =
       `<h4>起點：${driverInfo.origin}</h4>
         <h4>終點：${driverInfo.destination}</h4>`;
-      document.getElementById("a-detail").innerHTML =
+    document.getElementById("a-detail").innerHTML =
       `<h5>日期：${driverInfo.date}</h5>
       <h5>時間：${driverInfo.time}</h5>
       <h5>人數：${driverInfo.seats_left}</h5>
       <h5>單人費用：${driverInfo.fee}</h5>`;
 
-      document.getElementById("b-location").innerHTML =
-      `<h4>起點：${passengerInfo[i].origin}</h4>
-      <h4>終點：${passengerInfo[i].destination}</h4>`;
-      document.getElementById("b-detail").innerHTML =
-      `<h5>日期：${passengerInfo[i].date}</h5>
-      <h5>人數：${passengerInfo[i].persons}</h5>`;
-      document.getElementById("b-role").innerHTML =
+    document.getElementById("b-location").innerHTML =
+      `<h4>起點：${passengerInfo.origin}</h4>
+      <h4>終點：${passengerInfo.destination}</h4>`;
+    document.getElementById("b-detail").innerHTML =
+      `<h5>日期：${passengerInfo.date}</h5>
+      <h5>人數：${passengerInfo.persons}</h5>`;
+    document.getElementById("b-role").innerHTML =
       // <div>${data[0].picture}</div>
       `<div><img src="../uploads/images/member.png"></div>
-      <div>${passengerInfo[i].name}</div>
-      <button class="btn" id="contact">聯繫乘客</button>
-      <button class="btn" id="confirm">確認</button>
-      <button class="btn" id="refuse">謝絕</button>`;
-      confirm(passengerInfo[i].route_id, passengerInfo[i].id);
-    }
-  }
-
-  function confirm (passengerRouteId, passengerId) {
-    const confirm = document.getElementById("confirm");
-    confirm.addEventListener("click", async () => {
-      const res = await fetch(`/api/1.0/tour-confirm${query}`, {
-        method: "POST",
-        body: JSON.stringify({ passengerRouteId }),
-        headers: new Headers({
-          Authorization: "Bearer " + verifyToken,
-          "Content-type": "application/json"
-        })
-      });
-      const data = await res.json();
-      console.log(data);
-      const routeInfo = {
-        receiverId: [passengerId],
-        passengerRouteId: [passengerRouteId],
-        url: location.href,
-        type: "match",
-        icon: "./uploads/images/member.png"
-      };
-      if (!data.error) {
-        socket.emit("notifiyPassenger", routeInfo);
-      }
-    });
+      <div>${passengerInfo.name}</div>
+      <button id="contact" type="button">聯繫乘客</button>`;
   }
 
   // const driverRoute = data.driverRoute;

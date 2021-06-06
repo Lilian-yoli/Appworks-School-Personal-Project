@@ -57,13 +57,6 @@ socket.on("passengerReceive", data => {
   }
 });
 
-const makeRooom = (userId, receiverId) => {
-  if (userId > receiverId) {
-    return `${receiverId}WITH${userId}`;
-  } else {
-    return `${userId}WITH${receiverId}`;
-  }
-};
 // function updateNotification () {
 //   console.log(window.event);
 //   // const dropdownItem = document.querySelectorAll(".dropdown-item");

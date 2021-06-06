@@ -5,25 +5,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    
-    
-    <title>Co-Car</title>
+    <script src="./js/driver-itinerary.js"></script>
+    <title>Cocar</title>
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/header.js" defer></script>
-    <script src="./js/passenger-route-suggestion.js" defer></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
                 <img src="./uploads/images/caravan.png" id="logo-car">
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
-              <a href="./request-seats.html" class="tag tag-search-route">
-                <img src="./uploads/images/search.png" class="icon">尋找路線
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
             </a>
-              <a href="/request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
+            <a href="./offer-seats-origin.html" class="tag tag-offer">
+                <img src="./uploads/images/add.png" class="icon">提供路線
             </a>
             <a id="profile">
                 <img src="./uploads/images/member.png" id="member">
@@ -32,26 +28,14 @@
         </div> 
       </header>
     <main>
-        <h2>建議路線</h2>
         <div class="route-info">
-            <div id="driver-route"></div>
-            <ul id="path-suggestion">
-
-            </ul>
-            <hr>
-            <div class="picked">
-                
-                <ul id="picked-passenger">
-                    <h3>已選擇車主</h3>
-                </ul>
-            </div>
-            <button type="button" class="button" id="apply-route">套用路線</button>
-            <button type="button" class="button" id="skip">略過路線</button>
+            <h2>你的行程</h2>
+           <div id="itinerary">
+           </div>
+           <br> 
+           <button id="homePage">回首頁</button>
         </div>
-        <div class="map">
-            <div id="map" style="width: 600px; height:480px;"></div>
-        </div>
-    </main> 
+    </main>
     <footer>
         <ul id="footer-ul">
             <li><a href="#" class="footer_link">關於 Cocar</a></li>
@@ -66,22 +50,11 @@
             <img src="./uploads/images/facebook.png">
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
-    </footer>
+    </footer> 
     <style>
-        .main {
-            display: flex;
-            flex-direction: column;
-        }
         .route-info {
-            width: 45%;
-            display: block;
+            text-align: center;
         }
-        .map {
-            width:45%;
-        }
-    </style>
-    
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
+    </style>    
 </body>
-
 </html>
