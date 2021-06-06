@@ -163,35 +163,12 @@ const passengerRequestDetail = async (id) => {
   return result;
 };
 
-const setPassengerTour = async (driverRouteId, userId, persons, date) => {
+const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverRoute = await query(`SELECT * FROM offered_routes WHERE route_id = ${driverRouteId}`);
   console.log("*********", userId, driverRoute[0].origin, driverRoute[0].destination, driverRoute[0].date);
-  const checkRequestedRoute = await query(`SELECT * FROM requested_routes WHERE user_id = ${userId} AND origin = "${driverRoute[0].origin}"
-  AND destination = "${driverRoute[0].destination}" AND date = "${driverRoute[0].date}" FOR UPDATE`);
-  console.log("checkRequestedRoute", checkRequestedRoute);
-  if (checkRequestedRoute.length > 0) {
-    return { error: "route had already been created" };
-  }
 
-  const now = Math.floor(Date.now() / 1000);
-  // distance update for search type passengers
-  const distance = getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
-    driverRoute[0].destination_coordinate.x, driverRoute[0].destination_coordinate.y);
-  const column = `(origin, destination, persons, date, origin_coordinate, destination_coordinate, 
-    passenger_type, user_id, createdAt, updatedAt, distance, isMatched)`;
-  const setValue = `("${driverRoute[0].origin}", "${driverRoute[0].destination}", ${persons},
-  UNIX_TIMESTAMP("${date}"), Point("${driverRoute[0].origin_coordinate.x}", "${driverRoute[0].origin_coordinate.y}"),
-Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destination_coordinate.y}"), 
-"search", ${userId}, "${now}", "${now}", ${distance}, 1)`;
-
-  const insertRouteTable = await query(`INSERT INTO requested_routes ${column} VALUES ${setValue}`);
-  console.log("insertRouteTable", insertRouteTable);
-  const passengerRouteId = insertRouteTable.insertId;
-  await connection.query("COMMIT");
-
-  await connection.query("START TRANSACTION");
   const checkTour = await query(`SELECT * FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id 
   WHERE t.offered_routes_id = ${driverRouteId} AND r.user_id = ${userId} FOR UPDATE`);
@@ -202,7 +179,7 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
     offered_routes_id: driverRouteId,
     passenger_routes_id: passengerRouteId,
     finished: 0,
-    passenger_type: "search",
+    passenger_type: "request",
     match_status: 0
   };
   const insertInfo = await query("INSERT INTO tour SET ?", tour);
@@ -237,7 +214,7 @@ const getTourInfo = async (tourId) => {
 };
 
 const getPassengerDetail = async (id) => {
-  const passengerDetail = await query(`SELECT origin, destination, origin_coordinate, destination_coordinate, persons, FROM_UNIXTIME(date) AS date 
+  const passengerDetail = await query(`SELECT route_id, origin, destination, origin_coordinate, destination_coordinate, persons, FROM_UNIXTIME(date) AS date 
   FROM requested_routes WHERE route_id = ${id}`);
   if (!passengerDetail) {
     return { error: "No such route offered" };
@@ -260,15 +237,33 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
         continue;
       }
     }
-    const destinationWaypts = await query(`SELECT DISTINCT offered_routes_id, coordinate FROM routes_waypoints
-    WHERE offered_routes_id = ${originCity[i].offered_routes_id} AND city IN 
+    const destinationWaypts = await query(`SELECT r.offered_routes_id, r.coordinate, o.origin, o.destination, o.origin_coordinate, o.destination_coordinate,
+    FROM_UNIXTIME(o.date+28800) AS date, o.time, o.seats_left, o.user_id, u.name, u.picture FROM routes_waypoints r
+    INNER JOIN offered_routes o ON r.offered_routes_id = o.route_id
+    INNER JOIN users u ON o.user_id = u.id
+    WHERE r.offered_routes_id = ${originCity[i].offered_routes_id} AND r.city IN 
     (SELECT city FROM requested_routes_cities WHERE requested_routes_id = ${routeId} AND coordinate_type = "destination")`);
-    destinationCity.push(destinationWaypts);
+    console.log("destinationWaypts", destinationWaypts);
+    if (destinationWaypts.length < 1) {
+      continue;
+    }
+    destinationWaypts[0].date = await toDateFormat(destinationWaypts[0].date);
+    // check direction the same
+    const pOriginToDestination = getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
+      destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
+
+    const pDestinationToDestination = getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
+      destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
+    console.log("pOriginToDestination", pOriginToDestination, pDestinationToDestination, (pOriginToDestination >= pDestinationToDestination));
+    if (pOriginToDestination >= pDestinationToDestination) {
+      destinationCity.push(destinationWaypts);
+    }
   }
   console.log("destinationCity", destinationCity);
 
   const shortestRoute = await getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);
   const shortestRouteInOrder = await orderShortestRoute(shortestRoute);
+
   return shortestRouteInOrder;
 };
 

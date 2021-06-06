@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/header.css">
-    
-    
     <title>Co-Car</title>
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/header.js" defer></script>
-    <script src="./js/passenger-route-suggestion.js" defer></script>
+    <script src="./js/tour-info.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -22,8 +20,8 @@
               <a href="./request-seats.html" class="tag tag-search-route">
                 <img src="./uploads/images/search.png" class="icon">尋找路線
             </a>
-              <a href="/request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
+            <a href="./offer-seats-origin.html" class="tag tag-offer">
+                <img src="./uploads/images/add.png" class="icon">提供路線
             </a>
             <a id="profile">
                 <img src="./uploads/images/member.png" id="member">
@@ -32,26 +30,35 @@
         </div> 
       </header>
     <main>
-        <h2>建議路線</h2>
-        <div class="route-info">
-            <div id="driver-route"></div>
-            <ul id="path-suggestion">
-
-            </ul>
-            <hr>
-            <div class="picked">
-                
-                <ul id="picked-passenger">
-                    <h3>已選擇車主</h3>
-                </ul>
+        <div class="driverRouteDetail">
+            <div id="myroute">
+                <h2></h2>
+                <div id="a-location"></div>
+                <div id="a-detail"></div>
             </div>
-            <button type="button" class="button" id="apply-route">套用路線</button>
-            <button type="button" class="button" id="skip">略過路線</button>
+            <div class="driverRoute">
+                <h2></h2>
+                <div id="b-location">
+                    
+                </div>
+                <div id="b-detail">
+
+                </div>
+                <div id="b-role">
+                    <h3></h3>
+        
+                </div>
+            </div>
+            <br>
+            <button class="homePage" id="book">確認</button>
+            <button class="homePage" id="refuse">謝絕</button>
         </div>
-        <div class="map">
-            <div id="map" style="width: 600px; height:480px;"></div>
-        </div>
-    </main> 
+        <br>
+        <br>
+        <br>
+        <br>
+        
+    </main>
     <footer>
         <ul id="footer-ul">
             <li><a href="#" class="footer_link">關於 Cocar</a></li>
@@ -68,20 +75,9 @@
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
     <style>
-        .main {
-            display: flex;
-            flex-direction: column;
-        }
-        .route-info {
-            width: 45%;
-            display: block;
-        }
-        .map {
-            width:45%;
+        main {
+            text-align: center;
         }
     </style>
-    
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
 </body>
-
 </html>

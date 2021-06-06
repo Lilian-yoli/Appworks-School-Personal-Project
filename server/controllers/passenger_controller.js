@@ -1,5 +1,4 @@
 const Passenger = require("../models/passenger_model");
-const Util = require("../../util/passenger");
 
 const requestSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
@@ -60,12 +59,12 @@ const passengerRequestDetail = async (req, res) => {
 };
 
 const setPassengerTour = async (req, res) => {
-  console.log("req.body", req.query);
+  console.log("req.body", req.body);
   const userId = req.user.id;
-  const driverRouteId = req.query.id;
+
+  const { driverRouteId, persons, date, passengerRouteId } = req.body;
   console.log(driverRouteId);
-  const { persons, date } = req.query;
-  const result = await Passenger.setPassengerTour(driverRouteId, userId, persons, date);
+  const result = await Passenger.setPassengerTour(driverRouteId, passengerRouteId, userId, persons, date);
   if (result < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
@@ -100,7 +99,9 @@ const suggestPassengerRoute = async (req, res) => {
   if (filterRoutes.length < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
-  res.status(200).send(filterRoutes);
+  getPassengerDetail.id = id;
+  const result = { passengerInfo: getPassengerDetail, driverInfo: filterRoutes };
+  res.status(200).send(result);
 };
 
 module.exports = {

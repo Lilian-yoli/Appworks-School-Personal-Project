@@ -5,8 +5,6 @@ const date = document.getElementById("date");
 const time = document.getElementById("time");
 const fee = document.getElementById("fee");
 const next = document.querySelector(".next");
-const originRegion = "";
-const destinationRegion = "";
 
 window.addEventListener("load", () => {
   console.log("test");
@@ -57,7 +55,7 @@ next.addEventListener("click", () => {
       });
       url.search = searchParams;
       console.log(url.href);
-      document.location.href = url.href;
+      document.location.href = `./path.html?routeid=${data[0].route_id}`;
     }
   });
 });
@@ -97,16 +95,6 @@ function findPlace (request) {
       // map.setCenter(results[0].geometry.location);
       console.log(results[0].geometry.location);
 
-      const placeSearch = {
-        placeId: results[0].place_id,
-        fields: ["name", "rating", "address_component", "adr_address"]
-      };
-      service.getDetails(placeSearch, (place, status) => {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-          console.log(place.adr_address);
-        }
-      });
-
       geometry.push(results[0].geometry.location);
       if (counter > 1) {
         console.log(geometry[0], geometry[1]);
@@ -135,37 +123,10 @@ function boundsFit (geometry1, geometry2) {
   bounds.extend(geometry1);
   bounds.extend(geometry2);
   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-    const extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);
-    const extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01);
+    const extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.02, bounds.getNorthEast().lng() + 0.02);
+    const extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.02, bounds.getNorthEast().lng() - 0.02);
     bounds.extend(extendPoint1);
     bounds.extend(extendPoint2);
   }
   map.fitBounds(bounds);
 }
-
-// $(function () {
-//   if (typeof google === "undefined") {
-//     alert("Lazy loading Google maps");
-//     lazyLoadGoogleMaps();
-//   } else {
-//     alert("Google Maps is already loaded");
-//     googleMapsLoaded();
-//   }
-// });
-
-// function lazyLoadGoogleMaps () {
-//   // Note the callback function name
-//   $.getScript("http://maps.google.com/maps/api/js?sensor=true&callback=googleMapsLoaded")
-//     .done(function (script, textStatus) {
-//       alert("Google maps loaded successfully");
-//     })
-//     .fail(function (jqxhr, settings, ex) {
-//       alert("Could not load Google Maps: ", ex);
-//     });
-// }
-
-// // This function name is passed in to the Google maps script load above
-// // and will be called once Google maps has loaded
-// function googleMapsLoaded () {
-//   alert("Done!");
-// }

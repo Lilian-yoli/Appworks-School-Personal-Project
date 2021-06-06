@@ -1,3 +1,4 @@
+
 const verifyToken = localStorage.getItem("access_token");
 const origin = localStorage.getItem("origin");
 console.log(origin, typeof (origin));
@@ -12,36 +13,36 @@ const date = document.getElementById("date");
 const next = document.getElementById("next");
 
 const seatsRequestInfo = {};
-window.onload = function () {
+next.onclick = function click () {
   // initMap();
-  next.addEventListener("click", () => {
-    seatsRequestInfo.origin = origin;
-    seatsRequestInfo.destination = destination;
-    seatsRequestInfo.persons = persons.value;
-    seatsRequestInfo.date = date.value;
+  // next.addEventListener("click", () => {
+  seatsRequestInfo.origin = origin;
+  seatsRequestInfo.destination = destination;
+  seatsRequestInfo.persons = persons.value;
+  seatsRequestInfo.date = date.value;
 
-    fetch("/api/1.0/request-seats-info", {
-      method: "POST",
-      body: JSON.stringify(seatsRequestInfo),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-Type": "application/json"
-      })
-    }).then((response) => {
-      console.log(123);
-      return response.json();
-    }).catch(error => console.error("Error:", error))
-      .then(response => {
-        console.log("Success:", response);
-        if (!response.error) {
-          localStorage.removeItem("origin");
-          localStorage.removeItem("destination");
-          document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].route_id}`;
-        } else {
-          alert("行程重複輸入");
-        }
-      });
-  });
+  fetch("/api/1.0/request-seats-info", {
+    method: "POST",
+    body: JSON.stringify(seatsRequestInfo),
+    headers: new Headers({
+      Authorization: "Bearer " + verifyToken,
+      "Content-Type": "application/json"
+    })
+  }).then((response) => {
+    console.log(123);
+    return response.json();
+  }).catch(error => console.error("Error:", error))
+    .then(response => {
+      console.log("Success:", response);
+      if (!response.error) {
+        localStorage.removeItem("origin");
+        localStorage.removeItem("destination");
+        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].route_id}`;
+      } else {
+        alert(response.error);
+      }
+    });
+  // });
   console.log(origin, destination);
 };
 
@@ -50,13 +51,14 @@ let service;
 let infowindow;
 const geometry = [];
 let counter = 0;
-async function initMap () {
+function initMap () {
   const taiwan = new google.maps.LatLng(23.69781, 120.960515);
 
   map = new google.maps.Map(document.getElementById("map"), {
     center: taiwan,
     zoom: 7
   });
+
   const originQuery = {
     query: origin,
     fields: ["name", "geometry", "place_id"]
@@ -67,7 +69,7 @@ async function initMap () {
   };
   findPlace(originQuery);
   findPlace(destinationQuery);
-}
+};
 
 function createMarker (place, address) {
   if (!place.geometry || !place.geometry.location) return;

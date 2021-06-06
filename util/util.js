@@ -116,7 +116,6 @@ const getShortestRoute = async (originCity, destinationCity, originCoordinate, d
     console.log("distance", distance);
     if (distance < min) {
       min = distance;
-      originObj.origin = originCity[i].coordinate;
       originObj.originDis = min;
       result[originCity[i].offered_routes_id] = originObj;
     }
@@ -130,10 +129,16 @@ const getShortestRoute = async (originCity, destinationCity, originCoordinate, d
       console.log("distance", distance);
       if (distance < min) {
         min = distance;
-        result[destinationCity[i][j].offered_routes_id].destination = destinationCity[i][j].coordinate;
         result[destinationCity[i][j].offered_routes_id].destinationDis = min;
+        result[destinationCity[i][j].offered_routes_id].detail = destinationCity[i][j];
       }
       console.log("shortRoute[wayptsCoordinate[i].offered_routes_id]", result[destinationCity[i][j].offered_routes_id]);
+    }
+  }
+  // to delete the route id with origin but without destination
+  for (const i in result) {
+    if (!result[i].detail) {
+      delete result[i];
     }
   }
   console.log("shortRoute", result);
