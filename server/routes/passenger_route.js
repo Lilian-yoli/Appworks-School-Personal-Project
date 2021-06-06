@@ -8,7 +8,8 @@ const {
   passengerRequestDetail,
   setPassengerTour,
   getTourInfo,
-  suggestPassengerRoute
+  suggestPassengerRoute,
+  confirmTour
 } = require("../controllers/passenger_controller");
 // eslint-disable-next-line no-unused-vars
 const { wrapAsync, authentication } = require("../../util/util");
@@ -39,5 +40,8 @@ router.route("/api/1.0/tour-info")
 
 router.route("/api/1.0/passenger-route-suggestion")
   .get(authentication(), wrapAsync(suggestPassengerRoute));
+
+router.route("/api/1.0/tour-confirm")
+  .post(authentication(), wrapAsync(confirmTour));
 
 module.exports = router;

@@ -76,6 +76,7 @@ const getTourInfo = async (req, res) => {
   const tourId = req.query.tour;
   const result = await Passenger.getTourInfo(tourId);
   result.userId = req.user.id;
+  result.tourInfo = { tourId: tourId };
   if (result.length < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
@@ -104,6 +105,18 @@ const suggestPassengerRoute = async (req, res) => {
   res.status(200).send(result);
 };
 
+const confirmTour = async (req, res) => {
+  console.log(req.query);
+  const driverRouteId = req.query.routeid;
+  const tourId = req.query.tour;
+  const { passengerRouteId } = req.body;
+  const result = await Passenger.confirmTour(driverRouteId, tourId, passengerRouteId);
+  if (result.error) {
+    return res.status(500).send(result.error);
+  }
+  res.status(200).send({ status: "updated" });
+};
+
 module.exports = {
   passengerSearch,
   passengerSearchDetail,
@@ -113,5 +126,6 @@ module.exports = {
   requestSeatsInfo,
   setPassengerTour,
   getTourInfo,
-  suggestPassengerRoute
+  suggestPassengerRoute,
+  confirmTour
 };

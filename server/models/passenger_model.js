@@ -193,14 +193,14 @@ const getTourInfo = async (tourId) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time,
-  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture  FROM tour t 
+  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status FROM tour t 
   INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
   driverInfo[0].date = await toDateFormat(driverInfo[0].date);
   console.log("driverInfo", driverInfo);
 
   const passengerInfo = await query(`SELECT r.route_id, r.origin, r.destination, r.persons, 
-  FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture FROM tour t
+  FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id
   INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId}`);
   passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
@@ -208,7 +208,8 @@ const getTourInfo = async (tourId) => {
 
   const result = {};
   result.driverInfo = driverInfo[0];
-  result.passengerInfo = passengerInfo[0];
+  result.passengerInfo = passengerInfo;
+  result.tourInfo = { matchStatus: driverInfo[0].match_status };
   console.log("getTourInfo Model:", result);
   return result;
 };
@@ -267,6 +268,20 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
   return shortestRouteInOrder;
 };
 
+const confirmTour = async (driverRouteId, tourId, passengerRouteId) => {
+  const checkTour = await query(`SELECT match_status FROM tour WHERE id = ${tourId} 
+  AND offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
+  if (checkTour[0].match_status == 1) {
+    return ({ error: "The route had already confirmed" });
+  }
+  const result = await query(`UPDATE tour SET match_status = 1 WHERE id = ${tourId} 
+  AND offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
+  if (result.lenth < 1) {
+    return ({ error: "Internal server error" });
+  }
+  return result;
+};
+
 module.exports = {
   requestSeatsInfo,
   passengerSearch,
@@ -277,5 +292,6 @@ module.exports = {
   setPassengerTour,
   getTourInfo,
   getPassengerDetail,
-  filterRoutes
+  filterRoutes,
+  confirmTour
 };
