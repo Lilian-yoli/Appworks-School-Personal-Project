@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("ws://localhost:3000", { transports: ["websocket"] });
 async function wrapper () {
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");

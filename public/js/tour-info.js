@@ -1,6 +1,6 @@
 
 const query = window.location.search;
-const socket = io();
+const socket = io("ws://localhost:3000", { transports: ["websocket"] });
 const verifyToken = localStorage.getItem("access_token");
 console.log(query);
 window.onload = async function () {

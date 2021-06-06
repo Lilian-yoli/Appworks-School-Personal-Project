@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("ws://localhost:3000", { transports: ["websocket"] });
 
 const verifyToken = localStorage.getItem("access_token");
 if (verifyToken) {

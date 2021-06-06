@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("ws://localhost:3000", { transports: ["websocket"] });
 window.addEventListener("load", () => {
   const signupName = document.getElementById("signupName");
   const signupEmail = document.getElementById("signupEmail");
