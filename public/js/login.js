@@ -1,4 +1,4 @@
-const socket = io("ws://18.116.17.255/", { transports: ["websocket"] });
+const socket = io();
 window.addEventListener("load", () => {
   const signupName = document.getElementById("signupName");
   const signupEmail = document.getElementById("signupEmail");

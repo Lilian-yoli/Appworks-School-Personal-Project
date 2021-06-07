@@ -1,6 +1,6 @@
 
 window.onload = async () => {
-  const socket = io("ws://18.116.17.255/", { transports: ["websocket"] });
+  const socket = io();
   const query = location.search;
   const verifyToken = localStorage.getItem("access_token");
   if (!verifyToken) {

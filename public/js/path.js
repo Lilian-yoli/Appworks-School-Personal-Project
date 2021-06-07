@@ -1,4 +1,4 @@
-const socket = io("ws://18.116.17.255/", { transports: ["websocket"] });
+const socket = io();
 async function wrapper () {
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
