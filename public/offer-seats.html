@@ -5,11 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <script src="dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="./js/offer-seats.js" defer></script>
     
     <title>Co-Car</title>
 </head>
 <body>
+    <div class="loader-wrapper">
+        <div class="loader"></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+      </div>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -41,19 +48,19 @@
         <div class="route-info">
             <h2>提供路線資訊</h2>
             <label>乘載人數</label>
-            <input type="text" name='persons' id='persons'>
+            <input type="text" name='persons' id='persons' value="4">
             <br>
             <br>
             <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-06">
+            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-30">
             <br>
             <br>
             <label>時間</label>
-            <input type="text" name='time' id='time'>
+            <input type="text" name='time' id='time' value="08:00">
             <br>
             <br>
             <label>單人費用</label>
-            <input type="text" name='fee' id='fee'>
+            <input type="text" name='fee' id='fee' value="350">
             <br>
             <br>
             <button class="next">下一步</button>

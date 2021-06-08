@@ -130,3 +130,36 @@ function boundsFit (geometry1, geometry2) {
   }
   map.fitBounds(bounds);
 }
+
+const showLoading = function () {
+  swal({
+    title: "正在計算路程...",
+    closeOnEsc: false,
+    allowEscapeKey: false,
+    allowOutsideClick: false,
+    buttons: false,
+    timer: 10000,
+    onOpen: () => {
+      swal.showLoading();
+    }
+  }).then(
+    () => {},
+    (dismiss) => {
+      if (dismiss === "timer") {
+        console.log("closed by timer!!!!");
+        swal({
+          title: "Finished!",
+          type: "success",
+          timer: 2000,
+          showConfirmButton: true
+        });
+      }
+    }
+  );
+};
+// showLoading();
+
+document.querySelector(".next")
+  .addEventListener("click", (event) => {
+    showLoading();
+  });

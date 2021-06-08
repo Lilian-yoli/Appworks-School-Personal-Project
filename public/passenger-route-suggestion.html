@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    <link rel="stylesheet" href="./loading.css">
+    <link rel="stylesheet" href="./css/loading.css">
     
     
     <title>Co-Car</title>
@@ -14,6 +14,15 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/header.js" defer></script>
     <script src="./js/passenger-route-suggestion.js" defer></script>
+    <div class="loader-wrapper">
+        <div class="loader"></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+      </div>
+      <!--  Page Content goes here  -->
+      <div class="container">
+       
+      
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -60,7 +69,6 @@
         <div class="map">
             <div id="map" style="width: 600px; height:480px;"></div>
         </div>
-       
     </main> 
     <footer>
         <ul id="footer-ul">
@@ -77,6 +85,7 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
+</div>
     <style>
         .main {
             display: flex;
@@ -91,7 +100,12 @@
         }
     </style>
     
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script>
+    <script>
+        window.addEventListener('load',function(){
+            document.querySelector('body').classList.add("loaded")  
+        });
+    </script> 
 </body>
 
 </html>

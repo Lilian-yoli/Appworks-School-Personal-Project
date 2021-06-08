@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="./js/request-seats.js" defer></script>
     <title>Co-Car</title>
 </head>
@@ -40,11 +41,11 @@
         <div class="route-info">
             <h2>路線資訊</h2>
             <label>人數</label>
-            <input type="text" name='persons' id='persons' value="1">
+            <input type="text" name='persons' id='persons' value="2">
             <br>
             <br>
             <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-07">
+            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-30">
             <br>
             <br>
             <button id="next" onclick="click()">發送需求</button>            
