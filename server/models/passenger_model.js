@@ -104,7 +104,7 @@ const setMatchedDriver = async (driverRouteId, persons, date, userId) => {
   // console.log(route);
   const now = Math.floor(Date.now() / 1000);
   // distance update for search type passengers
-  const distance = getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
+  const distance = await getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
     driverRoute[0].destination_coordinate.x, driverRoute[0].destination_coordinate.y);
   const column = `(origin, destination, persons, date, origin_coordinate, destination_coordinate, 
     passenger_type, user_id, createdAt, updatedAt, distance)`;
@@ -163,7 +163,8 @@ const passengerRequestDetail = async (id) => {
   return result;
 };
 
-const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date) => {
+const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date,
+  passengerOriginCoordinate, passengerDestinationCoordinate, driverOriginCoordinate, driverDestinationCoordinate) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverRoute = await query(`SELECT * FROM offered_routes WHERE route_id = ${driverRouteId}`);
@@ -193,14 +194,14 @@ const getTourInfo = async (tourId) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time,
-  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status FROM tour t 
-  INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id 
+  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status, o.origin_coordinate, o.destination_coordinate
+  FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
   driverInfo[0].date = await toDateFormat(driverInfo[0].date);
   console.log("driverInfo", driverInfo);
 
   const passengerInfo = await query(`SELECT r.route_id, r.origin, r.destination, r.persons, 
-  FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status FROM tour t
+  FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id
   INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId}`);
   passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
@@ -250,10 +251,10 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
     }
     destinationWaypts[0].date = await toDateFormat(destinationWaypts[0].date);
     // check direction the same
-    const pOriginToDestination = getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
+    const pOriginToDestination = await getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
       destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
 
-    const pDestinationToDestination = getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
+    const pDestinationToDestination = await getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
       destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
     console.log("pOriginToDestination", pOriginToDestination, pDestinationToDestination, (pOriginToDestination >= pDestinationToDestination));
     if (pOriginToDestination >= pDestinationToDestination) {
@@ -271,13 +272,13 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
   return shortestRouteInOrder;
 };
 
-const confirmTour = async (driverRouteId, tourId, passengerRouteId) => {
+const confirmTour = async (driverRouteId, tourId, passengerRouteId, matchStatus) => {
   const checkTour = await query(`SELECT match_status FROM tour WHERE id = ${tourId} 
   AND offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
   if (checkTour[0].match_status == 1) {
     return ({ error: "The route had already confirmed" });
   }
-  const result = await query(`UPDATE tour SET match_status = 1 WHERE id = ${tourId} 
+  const result = await query(`UPDATE tour SET match_status = ${matchStatus} WHERE id = ${tourId} 
   AND offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
   if (result.lenth < 1) {
     return ({ error: "Internal server error" });

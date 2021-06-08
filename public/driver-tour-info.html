@@ -10,7 +10,8 @@
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/tour-info.js"></script>
+    <script src="./js/driver-tour-info.js"></script>
+    <script src="./js/header.js"></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -23,6 +24,14 @@
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
             </a>
+            <div class="dropdown">
+                <a id="notify-bell" id="dropdownMenuButton" data-toggle="dropdown">
+                    <img src="./uploads/images/notification.png" id="bell">
+                  </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                  
+                </div>
+              </div>
             <a id="profile">
                 <img src="./uploads/images/member.png" id="member">
               </a>
@@ -52,6 +61,9 @@
             <br>
             
         </div>
+        <div class="map">
+            <div id="map" style="width: 600px; height:480px;"></div>
+        </div>
         <br>
         <br>
         <br>
@@ -78,5 +90,6 @@
             text-align: center;
         }
     </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script>
 </body>
 </html>

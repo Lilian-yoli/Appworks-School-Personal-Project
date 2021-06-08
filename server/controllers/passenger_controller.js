@@ -22,7 +22,7 @@ const passengerSearch = async (req, res) => {
   const result = await Passenger.passengerSearch(origin, destination, date, persons);
   console.log(result);
   if (!result) {
-    res.status(200).send({ error: "Not Found" });
+    return res.status(500).send({ error: "Not Found" });
   }
   res.status(200).send(result);
 };
@@ -62,9 +62,14 @@ const setPassengerTour = async (req, res) => {
   console.log("req.body", req.body);
   const userId = req.user.id;
 
-  const { driverRouteId, persons, date, passengerRouteId } = req.body;
+  const {
+    driverRouteId, persons, date, passengerRouteId,
+    passengerOriginCoordinate, passengerDestinationCoordinate,
+    driverOriginCoordinate, driverDestinationCoordinate
+  } = req.body;
   console.log(driverRouteId);
-  const result = await Passenger.setPassengerTour(driverRouteId, passengerRouteId, userId, persons, date);
+  const result = await Passenger.setPassengerTour(driverRouteId, passengerRouteId, userId, persons, date,
+    passengerOriginCoordinate, passengerDestinationCoordinate, driverOriginCoordinate, driverDestinationCoordinate);
   if (result < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
@@ -111,8 +116,9 @@ const confirmTour = async (req, res) => {
   console.log(req.query);
   const driverRouteId = req.query.routeid;
   const tourId = req.query.tour;
-  const { passengerRouteId } = req.body;
-  const result = await Passenger.confirmTour(driverRouteId, tourId, passengerRouteId);
+  const { passengerRouteId, matchStatus } = req.body;
+  console.log(passengerRouteId, matchStatus);
+  const result = await Passenger.confirmTour(driverRouteId, tourId, passengerRouteId, matchStatus);
   if (result.error) {
     return res.status(500).send(result.error);
   }

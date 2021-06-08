@@ -25,17 +25,22 @@ const authentication = () => {
     if (accessToken == "null") {
       return res.status(401).send({ error: "Unauthoized" });
     }
-    const user = jwt.verify(accessToken, TOKEN_SECRET);
-    console.log("jwt.verify:", user);
-    req.user = user;
-    const result = await User.getUserDetail(user.email);
-    req.user.id = result[0].id;
-    console.log("req.user", req.user);
-    if (!result) {
+    try {
+      const user = jwt.verify(accessToken, TOKEN_SECRET);
+      console.log("jwt.verify:", user);
+      req.user = user;
+      const result = await User.getUserDetail(user.email);
+      req.user.id = result[0].id;
+      console.log("req.user", req.user);
+      if (!result) {
+        res.status(403).send({ error: "Forbidden" });
+      } else {
+        console.log("authentication_result:", result);
+        next();
+      }
+    } catch (err) {
+      console.error(err);
       res.status(403).send({ error: "Forbidden" });
-    } else {
-      console.log("authentication_result:", result);
-      next();
     }
   };
 };

@@ -153,7 +153,7 @@ const setDriverTour = async (driverRouteId, passengerRouteId) => {
   for (const i in passengerRouteId) {
     console.log("driverRouteId, passengerRouteId", typeof (driverRouteId), typeof (passengerRouteId[i]));
     const checkTour = await query(`SELECT * FROM tour 
-  WHERE offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId[i]}`);
+  WHERE offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId[i]} FOR UPDATE`);
     console.log("**************", checkTour);
     if (checkTour.length > 0) {
       return { error: "Tour had already been created, please check your itinerary" };
@@ -163,8 +163,9 @@ const setDriverTour = async (driverRouteId, passengerRouteId) => {
   }
   const result = await query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished, match_status) VALUES ?", [insertArr]);
   console.log("-------", result);
+  const insertId = result.insertId;
   await connection.query("COMMIT");
-  return driverRouteId;
+  return insertId;
 };
 
 const saveWaypts = async (getCity, routeId) => {

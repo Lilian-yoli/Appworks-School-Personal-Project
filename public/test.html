@@ -5,13 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./loading.css">
     
     
     <title>Co-Car</title>
-</head>
+<!-- </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/path.js" defer></script>
+    <script src="./js/header.js" defer></script>
+    <script src="./js/passenger-route-suggestion.js" defer></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -49,7 +51,7 @@
             <div class="picked">
                 
                 <ul id="picked-passenger">
-                    <h3>已選擇乘客</h3>
+                    <h3>已選擇車主</h3>
                 </ul>
             </div>
             <button type="button" class="button" id="apply-route">套用路線</button>
@@ -57,8 +59,28 @@
         </div>
         <div class="map">
             <div id="map" style="width: 600px; height:480px;"></div>
+        </div> -->
+        <div class="loading-window">
+            <div class="car">
+                <div class="strike"></div>
+                <div class="strike strike2"></div>
+                <div class="strike strike3"></div>
+                <div class="strike strike4"></div>
+                <div class="strike strike5"></div>
+                <div class="car-detail spoiler"></div>
+                <div class="car-detail back"></div>
+                <div class="car-detail center"></div>
+                <div class="car-detail center1"></div>
+                <div class="car-detail front"></div>
+                <div class="car-detail wheel"></div>
+                <div class="car-detail wheel wheel2"></div>
+            </div>
+        
+            <div class="text">
+                <span>Loading</span><span class = "dots">...</span>
+            </div>
         </div>
-    </main> 
+    <!-- </main>  -->
     <footer>
         <ul id="footer-ul">
             <li><a href="#" class="footer_link">關於 Cocar</a></li>
@@ -86,7 +108,8 @@
         .map {
             width:45%;
         }
-    </style>  
+    </style>
+    
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
 </body>
 

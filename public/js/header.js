@@ -1,6 +1,14 @@
-const socket = io();
-
 const verifyToken = localStorage.getItem("access_token");
+console.log(verifyToken);
+const socket = io();
+// socket.on("connect_error", (err) => {
+//   console.log(err.message);
+//   if (err.message) {
+//     alert(err.message);
+//     return window.location.assign("/login.html");
+//   }
+// });
+
 if (verifyToken) {
   fetch("/api/1.0/verify", {
     method: "POST",

@@ -5,13 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    
-    
-    <title>Co-Car</title>
+    <script src="./js/passenger-itinerary.js"></script>
+    <title>Co-car</title>
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/path.js" defer></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -39,26 +36,19 @@
         </div> 
       </header>
     <main>
-        <h2>建議路線</h2>
         <div class="route-info">
-            <div id="driver-route"></div>
-            <ul id="path-suggestion">
+               <h2>你的行程</h2>
+            <div id="itinerary">
 
-            </ul>
-            <hr>
-            <div class="picked">
-                
-                <ul id="picked-passenger">
-                    <h3>已選擇乘客</h3>
-                </ul>
-            </div>
-            <button type="button" class="button" id="apply-route">套用路線</button>
-            <button type="button" class="button" id="skip">略過路線</button>
+           </div>
+           <div id="driver">
+
+           </div> 
+           <br>
+           <button id="homePage">回首頁</button>
         </div>
-        <div class="map">
-            <div id="map" style="width: 600px; height:480px;"></div>
-        </div>
-    </main> 
+        
+    </main>
     <footer>
         <ul id="footer-ul">
             <li><a href="#" class="footer_link">關於 Cocar</a></li>
@@ -75,19 +65,9 @@
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
     <style>
-        .main {
-            display: flex;
-            flex-direction: column;
+        main{
+            text-align: center;
         }
-        .route-info {
-            width: 45%;
-            display: block;
-        }
-        .map {
-            width:45%;
-        }
-    </style>  
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
+    </style>    
 </body>
-
 </html>

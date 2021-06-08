@@ -143,16 +143,14 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
       marker = new google.maps.Marker({
         map: map,
         title: "title",
-        position: new google.maps.LatLng(origin),
-        icon: "../../uploads/images/minicaravan.png"
+        position: new google.maps.LatLng(origin)
       });
 
       const destination = { lat: driver[index][1].detail.destination_coordinate.x, lng: driver[index][1].detail.destination_coordinate.y };
       marker = new google.maps.Marker({
         map: map,
         title: "title",
-        position: new google.maps.LatLng(destination),
-        icon: "../../uploads/images/minicaravan.png"
+        position: new google.maps.LatLng(destination)
       });
 
       const wayptsDestination = new google.maps.LatLng(waypts[1].location);
@@ -162,20 +160,8 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
         label: "終點"
       });
       marker.setPosition(wayptsDestination);
-      // marker.setPosition(response.routes[0].legs[1].start_location);
-      // makeMarker({ lat: 25.0424254, lng: 121.5649266 }, icons.start, "title");
-      // makeMarker(leg.end_location, icons.end, "title");
     }
   });
-
-  function makeMarker (position, icon, title) {
-    new google.maps.Marker({
-      position: position,
-      map: map,
-      icon: icon,
-      title: title
-    });
-  }
 
   // const infowindow = new google.maps.InfoWindow();
 
@@ -288,10 +274,11 @@ const clickEvent = async (driver, passenger) => {
     const routeInfo = {
       receiverId: [driver[index][1].detail.user_id],
       passengerRouteId: null,
-      url: `./tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}`,
+      url: `./driver-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}`,
       content: `乘客${data.username}已接受你的行程，立即前往查看`,
       type: "match",
-      icon: "./uploads/images/member.png"
+      icon: "./uploads/images/member.png",
+      confirm: 0
     };
     socket.emit("notifiyPassenger", routeInfo);
     alert("通知已傳送");
@@ -343,6 +330,7 @@ const clickEvent = async (driver, passenger) => {
 function skipBtn () {
   const skipRoute = document.querySelectorAll(".button")[1];
   skipRoute.addEventListener("click", () => {
+    alert("路線已儲存");
     document.location.href = "./";
   });
 }

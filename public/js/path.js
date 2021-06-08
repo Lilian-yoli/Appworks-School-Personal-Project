@@ -1,4 +1,5 @@
 const socket = io();
+
 async function wrapper () {
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
@@ -175,6 +176,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict) {
         console.log("localStorage.setItem", index);
         console.log("result", pickedWaypts, passengerArr);
         localStorage.setItem("index", index);
+        initMap(driver, pickedWaypts);
         showPickedPassenger(passenger, index);
       } else {
         if (persons == 0) {
@@ -198,6 +200,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict) {
           console.log("result", pickedWaypts, passengerArr);
           localStorage.setItem("index", newIndex);
           showPickedPassenger(passenger, newIndex);
+          initMap(driver, pickedWaypts);
         }
       }
     });
@@ -247,17 +250,7 @@ function matchedBtn (driver, passenger, verifyToken, query) {
         passengerId.push(passenger[index[i] / 2].user_id);
       }
     }
-    const routeInfo = {
-      receiverId: passengerId,
-      passengerRouteId: passengerRouteId,
-      url: `./passenger-search-detail.html?id=${driver.routeId}`,
-      content: `車主${driver.name}已接受你的行程，立即前往查看`,
-      type: "match",
-      icon: "./uploads/images/member.png"
-    };
-    console.log(123);
-    socket.emit("notifiyPassenger", routeInfo);
-    alert("通知已傳送");
+
     localStorage.setItem("passengerRoute", passengerRouteId);
     localStorage.removeItem("waypts");
     const res = await fetch("/api/1.0/driver-tour", {
@@ -270,6 +263,17 @@ function matchedBtn (driver, passenger, verifyToken, query) {
     });
     const data = await res.json();
     console.log(data);
+    const routeInfo = {
+      receiverId: passengerId,
+      passengerRouteId: passengerRouteId,
+      url: `./passenger-tour-info.html?id=${driver.routeId}?tour=${data.tourId}`,
+      content: `車主${driver.name}已接受你的行程，立即前往查看`,
+      type: "match",
+      icon: "./uploads/images/member.png"
+    };
+    console.log(123);
+    socket.emit("notifiyPassenger", routeInfo);
+    alert("通知已傳送");
     document.location.href = "./";
   });
 }

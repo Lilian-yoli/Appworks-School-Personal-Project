@@ -94,7 +94,11 @@
   .homePage {
     width:75px;
   }
-  
+
+  #notifybell, #bell {
+    width: 26.34px;
+    margin-right:20px;
+  }
 
   /* =================================
     footer Styles
@@ -145,3 +149,4 @@ a.footer_link:link, a.footer_link:visited {
 .rights {
     color: rgb(173, 169, 169);
 }
+

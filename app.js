@@ -1,8 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
+const jwt = require("jsonwebtoken");
+const { TOKEN_SECRET } = process.env;
 // eslint-disable-next-line no-unused-vars
 const API_VERSION = process.env;
 const pathRoutes = require("./server/routes/path_routes");
@@ -20,6 +23,26 @@ app.use(passengerRoutes);
 app.use(chatRoutes);
 
 // app.use("/api/" + API_VERSION, [pathRoutes]);
+// io.use((socket, next) => {
+//   const token = socket.handshake.auth.verifyToken;
+//   console.log(socket.handshake.auth);
+//   if (token === null) {
+//     const err = new Error("未登入");
+//     next(err);
+//   } else {
+//     jwt.verify(token, "secretkey", async (error, result) => {
+//       if (error) {
+//         console.log(error);
+//         const err = new Error("登入逾期");
+//         next(err);
+//       }
+//       console.log("socket middleware:", result);
+//       socket.userInfo = result;
+//       next();
+//     });
+//   }
+// });
+
 const users = {};
 const rusers = {};
 let usersNum = 0;
@@ -66,9 +89,11 @@ io.on("connection", socket => {
   socket.on("notifiyPassenger", async (data) => {
     console.log(data);
     const { receiverId } = data;
+    console.log("receiverId", receiverId);
     for (let i = 0; i < receiverId.length; i++) {
       data.receiverId = receiverId[i];
-      console.log(users[receiverId[i]]);
+      console.log(data);
+      console.log("**********", users[receiverId[i]]);
       let url = data.url;
       if (data.passengerRouteId) {
         url += `&passenger=${data.passengerRouteId[i]}`;
