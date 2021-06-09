@@ -13,6 +13,7 @@
       flex-direction: column;
       height: 100%;
       margin-bottom: 115px;
+
     }
   
     /* =================================
@@ -34,7 +35,7 @@
     top: 0px;
     z-index: 60;
     height: 80px;
-    margin: 0 15px 0 15px;
+    margin: 0 0 1 0;
   }
   
   #logo-car {
@@ -85,12 +86,19 @@
     margin-top: 80px;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    margin-bottom: 115px;
+    max-height: 1500px
   }
 
   .homePage {
     width:75px;
   }
-  
+
+  #notifybell, #bell {
+    width: 26.34px;
+    margin-right:20px;
+  }
 
   /* =================================
     footer Styles
@@ -141,3 +149,4 @@ a.footer_link:link, a.footer_link:visited {
 .rights {
     color: rgb(173, 169, 169);
 }
+

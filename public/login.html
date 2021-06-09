@@ -16,18 +16,20 @@
                 <img src="./uploads/images/caravan.png" id="logo-car">
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
-              <a href="./request-seats.html" class="tag tag-search-route">
-                <img src="./uploads/images/search.png" class="icon">尋找路線
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
             </a>
-              <a href="/?tag=men" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">徵尋車主
-            </a>
-              <!-- <a href="/?tag=accessories" class="tag tag-search-passenger">
-                <img src="./uploads/images/search.png" class="icon" >尋找乘客
-            </a> -->
-            <a href="./offer-seats.html" class="tag tag-offer">
+            <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
             </a>
+            <div class="dropdown">
+                <a id="notify-bell" id="dropdownMenuButton" data-toggle="dropdown">
+                    <img src="./uploads/images/notification.png" id="bell">
+                  </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                  
+                </div>
+              </div>
             <a id="profile">
                 <img src="./uploads/images/member.png" id="member">
               </a>
@@ -63,12 +65,12 @@
         <div id="signinMsg"></div>
         <div>
             <label>Email:</label>
-            <input type="text" name='signinEmail' id="signinEmail" value="test14@test.com">
+            <input type="text" name='signinEmail' id="signinEmail">
             <br>
             <br>
 
             <label>Password:</label>
-            <input type="text" name='signinPassword' id="signinPassword" value="14">
+            <input type="text" name='signinPassword' id="signinPassword" >
             <br><br>
             <button type="submit" id="signinSubmit" >Submit</button>
             <br><br>

@@ -4,13 +4,113 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./loading.css">
+    
+    
+    <title>Co-Car</title>
+<!-- </head>
 <body>
-  <ul id="users"></ul>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="./js/main.js"></script>
-  
-  
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/header.js" defer></script>
+    <script src="./js/passenger-route-suggestion.js" defer></script>
+    <header>
+        <div class="navbar">
+            <a href="/" class="logo">
+                <img src="./uploads/images/caravan.png" id="logo-car">
+                <img src="./uploads/images/logo.png" id="logo"></a>
+            <nav class="tags">
+              <a href="./request-seats-origin.html" class="tag tag-request">
+                <img src="./uploads/images/add.png" class="icon">尋找路線
+            </a>
+            <a href="./offer-seats-origin.html" class="tag tag-offer">
+                <img src="./uploads/images/add.png" class="icon">提供路線
+            </a>
+            <div class="dropdown">
+                <a id="notify-bell" id="dropdownMenuButton" data-toggle="dropdown">
+                    <img src="./uploads/images/notification.png" id="bell">
+                  </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                  
+                </div>
+              </div>
+            <a id="profile">
+                <img src="./uploads/images/member.png" id="member">
+              </a>
+            </nav>
+        </div> 
+      </header>
+    <main>
+        <h2>建議路線</h2>
+        <div class="route-info">
+            <div id="driver-route"></div>
+            <ul id="path-suggestion">
+
+            </ul>
+            <hr>
+            <div class="picked">
+                
+                <ul id="picked-passenger">
+                    <h3>已選擇車主</h3>
+                </ul>
+            </div>
+            <button type="button" class="button" id="apply-route">套用路線</button>
+            <button type="button" class="button" id="skip">略過路線</button>
+        </div>
+        <div class="map">
+            <div id="map" style="width: 600px; height:480px;"></div>
+        </div> -->
+        <div class="loading-window">
+            <div class="car">
+                <div class="strike"></div>
+                <div class="strike strike2"></div>
+                <div class="strike strike3"></div>
+                <div class="strike strike4"></div>
+                <div class="strike strike5"></div>
+                <div class="car-detail spoiler"></div>
+                <div class="car-detail back"></div>
+                <div class="car-detail center"></div>
+                <div class="car-detail center1"></div>
+                <div class="car-detail front"></div>
+                <div class="car-detail wheel"></div>
+                <div class="car-detail wheel wheel2"></div>
+            </div>
+        
+            <div class="text">
+                <span>Loading</span><span class = "dots">...</span>
+            </div>
+        </div>
+    <!-- </main>  -->
+    <footer>
+        <ul id="footer-ul">
+            <li><a href="#" class="footer_link">關於 Cocar</a></li>
+            <li><a href="#" class="footer_link">服務條款</a></li>
+            <li><a href="#" class="footer_link">隱私政策</a></li>
+            <li><a href="#" class="footer_link">聯絡我們</a></li>
+            <li><a href="#" class="footer_link">FAQ</a></li>
+        </ul>
+        <div class="link">
+            <img src="./uploads/images/line.png">
+            <img src="./uploads/images/twitter.png">
+            <img src="./uploads/images/facebook.png">
+        </div>
+        <div class="rights">© 2021. All rights reserved.</div>      
+    </footer>
+    <style>
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+        .route-info {
+            width: 45%;
+            display: block;
+        }
+        .map {
+            width:45%;
+        }
+    </style>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
 </body>
+
 </html>

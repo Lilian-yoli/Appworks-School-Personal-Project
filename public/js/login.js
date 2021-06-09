@@ -27,7 +27,11 @@ window.addEventListener("load", () => {
       if (!data.error) {
         console.log(data);
         window.localStorage.setItem("acees_token", data.data.access_token);
-        document.location.href = document.referrer;
+        if (document.referrer != window.location.href) {
+          document.location.href = document.referrer;
+        } else {
+          document.location.href = "./";
+        }
       } else {
         alert(data.error);
       }
@@ -50,7 +54,12 @@ window.addEventListener("load", () => {
       if (!data.error) {
         console.log("signin:", data);
         window.localStorage.setItem("access_token", data.access_token);
-        document.location.href = document.referrer;
+        console.log(document.referrer);
+        if (document.referrer == window.location.href || !document.referrer) {
+          document.location.href = "./";
+        } else {
+          document.location.href = document.referrer;
+        }
       } else {
         alert(data.error);
       }

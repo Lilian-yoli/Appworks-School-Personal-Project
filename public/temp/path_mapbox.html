@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css" type="text/css">
+    <script src="./js/path.js" defer></script>
+    <title>Co Car</title>
+</head>
+<body>
+    <header>
+        <a href="/"><img src="" id="logo"></a>
+        <nav class="tags">
+            <a href="#" class="tag tag-search-route">尋找路線</a>
+            <a href="#" class="tag tag-provide-route">提供路線</a>
+        </nav>
+        <a id="profile"></a>
+    </header>
+    <main>
+        <div class="route-info">
+            <h2>建議路線</h2>
+            <ul class="path-suggestion">
+                <li id="sg-1">suggestion1</li>
+                <li id="sg-2">suggestion2</li>
+                <li id="sg-3">suggestion3</li>
+            </ul>
+        </div>
+        <div id='map' style='width: 400px; height: 300px;'></div>
+        <div class="info-box">
+        <div id="info">
+        <p>
+        Draw your route using the draw tools on the right. To get the most
+        accurate route match, draw points at regular intervals.
+        </p>
+        </div>
+        <div id="directions"></div>
+        </div>
+    </main>    
+    <style>
+        .marker {
+            background-image: url('upload/location.jpg');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+        }
+    </style>
+</body>
+
+
+</html>

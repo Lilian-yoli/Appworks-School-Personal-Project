@@ -23,7 +23,7 @@ const signUp = async (name, email, password, phone) => {
       email: email,
       password: bcrypt.hashSync(password, salt),
       phone: phone,
-      picture: null,
+      picture: "../uploads/images/member.png",
       login_at: loginAt,
       token_expired: TOKEN_EXPIRE
     };
@@ -33,12 +33,10 @@ const signUp = async (name, email, password, phone) => {
       email: user.email,
       phone: user.phone,
       picture: user.picture
-    }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE });
+    }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE * 1000 });
     user.access_token = accessToken;
-
     const queryStr = "INSERT INTO users SET ?";
     const result = await connection.query(queryStr, user);
-
     user.id = result.insertId;
     await connection.query("COMMIT");
     return { user };
@@ -74,7 +72,7 @@ const signIn = async (email, password) => {
   user.access_token = accessToken;
   user.login_at = loginAt;
   user.token_expired = TOKEN_EXPIRE;
-  const queryStr = "UPDATE users SET access_token = ?, token_expired = ?, login_at = ? WHERE user_id = ?";
+  const queryStr = "UPDATE users SET access_token = ?, token_expired = ?, login_at = ? WHERE id = ?";
   // eslint-disable-next-line no-unused-vars
   const updateUser = connection.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, user.id]);
 
@@ -84,8 +82,7 @@ const signIn = async (email, password) => {
 };
 
 const getUserDetail = async (email) => {
-  const connection = await mysql.connection();
-  const result = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
+  const result = await query("SELECT * FROM users WHERE email = ?", [email]);
   console.log("getUserDetail:", result);
   return result;
 };
@@ -100,9 +97,15 @@ const chatInfo = async (email, id) => {
   const result = { senderId: senderId[0].user_id, receiverId: receiverId[0].user_id };
   return result;
 };
+
+const tokenVerify = async (receiverId) => {
+  const result = await query(`SELECT name FROM users WHERE id = ${receiverId}`);
+  return result[0];
+};
 module.exports = {
   signUp,
   signIn,
   getUserDetail,
-  chatInfo
+  chatInfo,
+  tokenVerify
 };

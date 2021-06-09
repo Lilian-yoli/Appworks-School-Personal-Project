@@ -12,19 +12,18 @@ const getDirection = async (start, destination) => {
   const originLatlon = start.split(",");
   const destinationLatlon = destination.split(",");
 
-  const waypointObj = {
-    start: { lat: Number(originLatlon[0]), lng: Number(originLatlon[1]) },
-    destination: { lat: Number(destinationLatlon[0]), lng: Number(destinationLatlon[1]) }
-  };
+  const waypointArr = [
+    { lat: Number(originLatlon[0]), lng: Number(originLatlon[1]) },
+    { lat: Number(destinationLatlon[0]), lng: Number(destinationLatlon[1]) }
+  ];
   const routes = data.routes[0];
   for (const i in routes.legs[0].steps) {
-    const stepVariables = "step" + i;
     // stepArr.push(routes.legs[0].steps[i].start_location);
 
-    waypointObj[stepVariables] = routes.legs[0].steps[i].start_location;
+    waypointArr.push(routes.legs[0].steps[i].start_location);
   }
   // console.log(waypointObj);
-  return waypointObj;
+  return waypointArr;
 };
 
 const filterRoutesIn5km = async (start, destination, date, seats) => {
@@ -44,12 +43,12 @@ const filterRoutesIn5km = async (start, destination, date, seats) => {
     const destinationLatLng = filterByDestination[i].destination_coordinate;
     const originDistance = await Util.getDistanceFromLatLonInKm(driverOrigin[0], driverOrigin[1], originLatLng.x, originLatLng.y);
     const destinationDistance = await Util.getDistanceFromLatLonInKm(driverOrigin[0], driverOrigin[1], destinationLatLng.x, destinationLatLng.y);
+    console.log("*******", originDistance, destinationDistance);
     if (destinationDistance > originDistance) {
-      let persons = 0;
-      persons += filterByDestination[i].persons;
-      if (persons <= seats) { filterResultArr.push(filterByDestination[i]); }
+      filterResultArr.push(filterByDestination[i]);
     }
   }
+  console.log(filterResultArr);
   return filterResultArr;
 };
 
@@ -95,8 +94,30 @@ const sortAllPassengerByDistance = (place) => {
   return allPassengerDistance;
 };
 
+const getPlaceId = async (origin, destination) => {
+  const originEncode = encodeURI(origin);
+  const destinationEncode = encodeURI(destination);
+  const originId = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${GOOGLE_MAP}&input=${originEncode}&inputtype=textquery`);
+  const destinationId = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${GOOGLE_MAP}&input=${destinationEncode}&inputtype=textquery`);
+  const result = { origin: originId.data.candidates[0].place_id, destination: destinationId.data.candidates[0].place_id };
+  return result;
+};
+
+const wayptsCity = async (waypoints) => {
+  console.log(waypoints[0].lat, waypoints[0].lng);
+  for (const i in waypoints) {
+    const city = await Util.getCity(waypoints[i]);
+    console.log(city);
+    waypoints[i].city = city;
+  }
+  console.log("getCounty", waypoints);
+  return waypoints;
+};
+
 module.exports = {
   getDirection,
   sortAllPassengerByDistance,
-  filterRoutesIn5km
+  filterRoutesIn5km,
+  getPlaceId,
+  wayptsCity
 };
