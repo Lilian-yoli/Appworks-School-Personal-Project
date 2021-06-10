@@ -3,18 +3,28 @@ window.addEventListener("load", () => {
   const signupName = document.getElementById("signupName");
   const signupEmail = document.getElementById("signupEmail");
   const signupPassword = document.getElementById("signupPassword");
-  const signupPhone = document.getElementById("signupPhone");
   const signinEmail = document.getElementById("signinEmail");
   const signinPassword = document.getElementById("signinPassword");
   const singupSubmit = document.getElementById("signupSubmit");
   const singinSubmit = document.getElementById("signinSubmit");
 
+  const signUpButton = document.getElementById("signUp");
+  const signInButton = document.getElementById("signIn");
+  const container = document.getElementById("container");
+
+  signUpButton.addEventListener("click", () => {
+    container.classList.add("right-panel-active");
+  });
+
+  signInButton.addEventListener("click", () => {
+    container.classList.remove("right-panel-active");
+  });
+
   singupSubmit.addEventListener("click", () => {
     const signupInfo = {
       signupName: signupName.value,
       signupEmail: signupEmail.value,
-      signupPassword: signupPassword.value,
-      signupPhone: signupPhone.value
+      signupPassword: signupPassword.value
     };
     console.log(signupInfo);
     fetch("/api/1.0/user/signup", {
@@ -26,7 +36,8 @@ window.addEventListener("load", () => {
     }).then((data) => {
       if (!data.error) {
         console.log(data);
-        window.localStorage.setItem("acees_token", data.data.access_token);
+        window.localStorage.setItem("access_token", data.data.access_token);
+        loginSuccess();
         if (document.referrer != window.location.href) {
           document.location.href = document.referrer;
         } else {
@@ -52,12 +63,13 @@ window.addEventListener("load", () => {
       return response.json();
     }).then((data) => {
       if (!data.error) {
+        loginSuccess();
         console.log("signin:", data);
         window.localStorage.setItem("access_token", data.access_token);
-        console.log(document.referrer);
-        if (document.referrer == window.location.href || !document.referrer) {
+        if (document.referrer == window.location || !document.referrer) {
           document.location.href = "./";
         } else {
+          console.log("lastpage");
           document.location.href = document.referrer;
         }
       } else {
@@ -66,3 +78,12 @@ window.addEventListener("load", () => {
     });
   });
 });
+
+const loginSuccess = function () {
+  swal({
+    title: "登入成功",
+    closeOnEsc: false,
+    allowOutsideClick: false,
+    icon: "success"
+  });
+};

@@ -90,9 +90,13 @@ const getDriverItineraryDetail = async (req, res) => {
 };
 
 const getDriverItinerary = async (req, res) => {
-  console.log("req.user123", req.user);
-  const result = await Path.getDriverItinerary(req.user.id);
-  res.status(200).send(result);
+  try {
+    console.log("req.user123", req.user);
+    const result = await Path.getDriverItinerary(req.user.id);
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const getPlaceId = async (req, res) => {
@@ -141,6 +145,15 @@ const setDriverTour = async (req, res) => {
 //   const
 // };
 
+const getDriverHomepage = async (req, res) => {
+  try {
+    const result = await Path.getDriverHomepage();
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   offerSeatsInfo,
   routeSuggestion,
@@ -150,5 +163,6 @@ module.exports = {
   getPlaceId,
   driverSearch,
   driverSearchDetail,
-  setDriverTour
+  setDriverTour,
+  getDriverHomepage
 };

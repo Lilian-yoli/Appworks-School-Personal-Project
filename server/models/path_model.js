@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { transferToLatLng, toDateFormat, toTimestamp } = require("../../util/util");
+const { transferToLatLng, toDateFormat, toTimestamp, getGooglePhoto, trimAddress } = require("../../util/util");
 
 const insertRouteInfo = async (origin, destination, persons, date, time, id, fee) => {
   const connection = await mysql.connection();
@@ -110,13 +110,36 @@ const getDriverItineraryDetail = async (id) => {
 };
 
 const getDriverItinerary = async (id) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date) AS date, available_seats, fee, time, route_id FROM offered_routes WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp}`;
-  const result = await query(qryStr);
-  for (const i in result) {
-    result[i].date = await toDateFormat(result[i].date);
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    console.log(timestamp);
+    const matchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.fee, o.time, o.route_id, t.id 
+  FROM offered_routes o INNER JOIN tour t ON o.route_id = t.offered_routes_id 
+  WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp} ORDER BY routeTS`;
+    let match = await query(matchQryStr);
+    if (match.length < 1) {
+      match = { empty: "行程尚未媒合" };
+    } else {
+      for (const i in match) {
+        match[i].date = await toDateFormat(match[i].date);
+      }
+    }
+    const unmatchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.fee, o.time, o.route_id, t.id 
+  FROM offered_routes o LEFT OUTER JOIN tour t ON o.route_id = t.offered_routes_id 
+  WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp} AND t.id IS NULL ORDER BY routeTS`;
+    let unmatch = await query(unmatchQryStr);
+    if (unmatch.length < 1) {
+      unmatch = { empty: "尚未提供行程" };
+    } else {
+      for (const i in unmatch) {
+        unmatch[i].date = await toDateFormat(match[i].date);
+      }
+    }
+    const result = { match, unmatch };
+    return result;
+  } catch (err) {
+    console.error(err);
   }
-  return result;
 };
 
 const driverSearch = async (origin, destination, date) => {
@@ -178,6 +201,25 @@ const saveWaypts = async (getCity, routeId) => {
   return routeId;
 };
 
+const getDriverHomepage = async () => {
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const route = await query(`SELECT origin, destination, FROM_UNIXTIME(date + 28800) AS date, seats_left
+    FROM offered_routes WHERE date > ${timestamp} AND seats_left > 0 ORDER BY date LIMIT 4`);
+    console.log(route);
+    for (const i in route) {
+      route[i].date = await toDateFormat(route[i].date);
+      route[i].photo = await getGooglePhoto(route[i].destination);
+      route[i].origin = await trimAddress(route[i].origin);
+      route[i].destination = await trimAddress(route[i].destination);
+    }
+    console.log(route);
+    return { route };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   insertRouteInfo,
   getAllplacesByPassengers,
@@ -188,5 +230,6 @@ module.exports = {
   driverSearch,
   driverSearchDetail,
   setDriverTour,
-  saveWaypts
+  saveWaypts,
+  getDriverHomepage
 };

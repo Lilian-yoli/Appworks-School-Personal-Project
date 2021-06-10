@@ -138,7 +138,7 @@ const showLoading = function () {
     allowEscapeKey: false,
     allowOutsideClick: false,
     buttons: false,
-    timer: 10000,
+    timer: 2000,
     onOpen: () => {
       swal.showLoading();
     }

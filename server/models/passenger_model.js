@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute } = require("../../util/util");
+const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute, getphoto, trimAddress, getGooglePhoto } = require("../../util/util");
 
 const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   const connection = await mysql.connection();
@@ -51,8 +51,8 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
 };
 
 const passengerSearch = async (origin, destination, date, persons) => {
-  // const timestamp = await toTimestamp(date);
-  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date) AS date, time, available_seats, fee, route_id FROM offered_routes WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}`;
+  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date) AS date, time, available_seats, fee, route_id 
+  FROM offered_routes WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}`;
   const result = await query(qryStr);
   for (const i in result) {
     result[i].date = await toDateFormat(result[i].date);
@@ -138,18 +138,42 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
 };
 
 const getPassengerItinerary = async (id) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.fee, o.seats_left, t.id FROM requested_routes r
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const qryStrMatched = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.fee, r.persons, t.id FROM requested_routes r
   INNER JOIN tour t ON r.route_id = t.passenger_routes_id
   INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id
   INNER JOIN users u ON u.id = o.user_id
-  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp}`;
-  const result = await query(qryStr);
-  for (const i in result) {
-    result[i].date = await toDateFormat(result[i].date);
+  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp} ORDER by date LIMIT 6`;
+    let matched = await query(qryStrMatched);
+    if (matched.length < 1) {
+      matched = { empty: "行程尚未進行媒合" };
+    } else {
+      for (const i in matched) {
+        matched[i].date = await toDateFormat(matched[i].date);
+      }
+    }
+
+    const qryStrUnmatched = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons 
+    FROM requested_routes r LEFT OUTER JOIN tour t ON r.route_id = t.passenger_routes_id 
+    WHERE t.id IS NULL ORDER by date LIMIT 6`;
+    let unmatched = await query(qryStrUnmatched);
+    if (unmatched.length < 1) {
+      unmatched = { empty: "尚未建立行程" };
+    } else {
+      for (const i in unmatched) {
+        unmatched[i].date = await toDateFormat(unmatched[i].date);
+      }
+    }
+
+    const result = {};
+    result.matched = matched[0];
+    result.unmatched = unmatched[0];
+    console.log("getPassengerItinerary", result);
+    return result;
+  } catch (err) {
+    console.log(err);
   }
-  console.log("getPassengerItinerary", result);
-  return result;
 };
 
 const passengerRequestDetail = async (id) => {
@@ -286,6 +310,26 @@ const confirmTour = async (driverRouteId, tourId, passengerRouteId, matchStatus)
   return result;
 };
 
+const getPassengerHomepage = async () => {
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const route = await query(`SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons
+    FROM requested_routes r LEFT OUTER JOIN tour t ON route_id = passenger_routes_id
+    WHERE r.date > ${timestamp} AND t.id IS NULL ORDER BY date LIMIT 4`);
+    console.log(route);
+    for (const i in route) {
+      route[i].date = await toDateFormat(route[i].date);
+      route[i].photo = await getGooglePhoto(route[i].destination);
+      route[i].origin = await trimAddress(route[i].origin);
+      route[i].destination = await trimAddress(route[i].destination);
+    }
+    console.log(route);
+    return { route };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   requestSeatsInfo,
   passengerSearch,
@@ -297,5 +341,6 @@ module.exports = {
   getTourInfo,
   getPassengerDetail,
   filterRoutes,
-  confirmTour
+  confirmTour,
+  getPassengerHomepage
 };

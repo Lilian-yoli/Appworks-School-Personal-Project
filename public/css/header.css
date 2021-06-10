@@ -74,6 +74,7 @@
   #member {
     width: auto;
     margin-right:15px;
+    cursor: pointer;
   } 
   
   a,a:link,a:visited, a:hover {
@@ -98,8 +99,24 @@
   #notifybell, #bell {
     width: 26.34px;
     margin-right:20px;
+    cursor: pointer;
   }
 
+  .ropdown-item {
+    align-items: center;
+    width: 100%;
+    margin: 5% 10% 5% 10%;
+    color: #FE646F;
+  }
+
+  #username {
+    color: #FE646F;
+  }
+
+  #logout {
+    cursor: pointer;
+    color:rgb(173, 169, 169);
+  }
   /* =================================
     footer Styles
   ==================================== */ 

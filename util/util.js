@@ -18,11 +18,13 @@ const authentication = () => {
 
     console.log("accessToken:", accessToken, typeof (accessToken));
     if (!accessToken) {
+      console.log("!accessToken");
       return res.status(401).send({ error: "Unauthorized" });
     }
     accessToken = accessToken.replace("Bearer ", "");
     console.log("!accessToken", accessToken, (!accessToken));
     if (accessToken == "null") {
+      console.log("accessToken == null");
       return res.status(401).send({ error: "Unauthoized" });
     }
     try {
@@ -169,6 +171,71 @@ const orderShortestRoute = async (shortestRoute) => {
   return orderRoutes;
 };
 
+const dbToDateformat = async (dbResult) => {
+  for (const i in dbResult) {
+    dbResult[i].date = await toDateFormat(dbResult[i].date);
+  }
+  return dbResult;
+};
+
+// const trimLocationName =async(dbResult)=>{
+//   for(const i in dbResult){
+//     const city = (dbResult[i].origin).split("台灣")
+//   }
+
+const getphoto = async (place) => {
+  place = place.split("台灣")[1];
+  const city = place[0] + place[1] + place[2];
+  console.log(city);
+  const cityDictionary = {
+    台北市: "Taipei",
+    新北市: "NewTaipei",
+    桃園市: "Taoyuan",
+    新竹市: "Hsinchu",
+    新竹縣: "HsinchuCounty",
+    苗栗縣: "MiaoliCounty",
+    台中市: "Taichung",
+    彰化縣: "ChanghuaCounty",
+    雲林縣: "YunlinCounty",
+    嘉義市: "Chiayi",
+    嘉義縣: "ChiayiCounty",
+    台南市: "Tainan",
+    高雄市: "Kaohsiung",
+    屏東縣: "PingtungCounty",
+    台東縣: "TaitungCounty",
+    花蓮縣: "HualienCounty",
+    宜蘭縣: "YilanCounty",
+    南投縣: "NantouCounty",
+    基隆市: "Keelung"
+  };
+  const { data } = await axios.get(`https://ptx.transportdata.tw/MOTC/v2/Tourism/ScenicSpot/${cityDictionary[city]}?$top=30&$format=JSON`);
+  let num = Math.floor(Math.random() * 30) + 1;
+  let photo = data[num].Picture.PictureUrl1;
+  while (photo.length < 1) {
+    num = Math.floor(Math.random() * 30) + 1;
+    photo = data[num].Picture.PictureUrl1;
+  }
+  console.log(photo);
+  return photo;
+};
+
+const getGooglePhoto = async (place) => {
+  place = await trimAddress(place);
+  place = encodeURI(place);
+  const { data } = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=photos&key=${GOOGLE_MAP}`);
+  const photo = data.candidates[0].photos[0].photo_reference;
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo}&key=${GOOGLE_MAP}`;
+};
+
+const trimAddress = async (address) => {
+  address = address.split("台灣")[1];
+  let newAddress = "";
+  for (let i = 0; i < 6; i++) {
+    newAddress += address[i];
+  }
+  return newAddress;
+};
+
 module.exports = {
   wrapAsync,
   authentication,
@@ -178,5 +245,9 @@ module.exports = {
   toDateFormat,
   getCity,
   getShortestRoute,
-  orderShortestRoute
+  orderShortestRoute,
+  dbToDateformat,
+  getphoto,
+  trimAddress,
+  getGooglePhoto
 };

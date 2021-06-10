@@ -1,13 +1,6 @@
 const verifyToken = localStorage.getItem("access_token");
 console.log(verifyToken);
 const socket = io();
-// socket.on("connect_error", (err) => {
-//   console.log(err.message);
-//   if (err.message) {
-//     alert(err.message);
-//     return window.location.assign("/login.html");
-//   }
-// });
 
 if (verifyToken) {
   fetch("/api/1.0/verify", {
@@ -65,6 +58,20 @@ socket.on("passengerReceive", data => {
   }
 });
 
+fetch("api/1.0/user-profile", {
+  method: "GET",
+  headers: new Headers({
+    Authorization: "Bearer " + verifyToken
+  })
+}).then((response) => {
+  return response.json();
+}).then((data) => {
+  console.log(data);
+  document.getElementById("username").innerHTML = data.data.name;
+}).catch((error) => {
+  console.error("Error:", error);
+});
+
 const makeRooom = (userId, receiverId) => {
   if (userId > receiverId) {
     return `${receiverId}WITH${userId}`;
@@ -72,6 +79,15 @@ const makeRooom = (userId, receiverId) => {
     return `${userId}WITH${receiverId}`;
   }
 };
+
+window.onload = function () {
+  const logout = document.getElementById("logout");
+  console.log(logout);
+  logout.addEventListener("click", () => {
+    localStorage.removeItem("access_token");
+  });
+};
+
 // function updateNotification () {
 //   console.log(window.event);
 //   // const dropdownItem = document.querySelectorAll(".dropdown-item");

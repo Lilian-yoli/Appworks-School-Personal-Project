@@ -125,6 +125,15 @@ const confirmTour = async (req, res) => {
   res.status(200).send({ status: "updated" });
 };
 
+const getPassengerHomepage = async (req, res) => {
+  try {
+    const result = await Passenger.getPassengerHomepage();
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   passengerSearch,
   passengerSearchDetail,
@@ -135,5 +144,6 @@ module.exports = {
   setPassengerTour,
   getTourInfo,
   suggestPassengerRoute,
-  confirmTour
+  confirmTour,
+  getPassengerHomepage
 };

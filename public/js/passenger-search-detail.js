@@ -1,5 +1,5 @@
 const query = window.location.search;
-const socket = io("ws://18.116.17.255/", { transports: ["websocket"] });
+const socket = io();
 const verifyToken = localStorage.getItem("access_token");
 
 fetch(`/api/1.0/passenger-search-detail${query}`, {
@@ -59,8 +59,15 @@ const clickEvent = async (driverRoute, query) => {
   book.addEventListener("click", async () => {
     const response = await fetch(`/api/1.0/passenger-tour${query}`, {
       method: "POST",
+      body: JSON.stringify({
+        driverRouteId: driver[index][1].detail.offered_routes_id,
+        persons: passenger.persons,
+        date: passenger.date,
+        passengerRouteId: passenger.route_id
+      }),
       headers: new Headers({
-        Authorization: "Bearer " + verifyToken
+        Authorization: "Bearer " + verifyToken,
+        "Content-Type": "application/json"
       })
     });
     const idInfo = await response.json();
@@ -109,68 +116,9 @@ const makeRooom = (userId, receiverId) => {
   }
 };
 
-const verifytoken = localStorage.getItem("access_token");
-if (!verifytoken) {
-  document.location.href = "./login.html";
-}
 window.onload = function () {
   const back = document.getElementById("back");
   back.addEventListener("click", () => {
     document.location.href = document.referrer;
   });
-
-  // book.addEventListener("click", () => {
-  //   fetch(`/api/1.0/matched-driver${query}`, {
-  //     method: "POST",
-  //     headers: new Headers({
-  //       Authorization: "Bearer " + verifytoken
-  //     })
-  //   }).then((response) => {
-  //     return response.json();
-  //   }).then((data) => {
-  //     console.log(data.id);
-  //     document.location.href = "./passenger-itinerary.html";
-  //   });
-  // });
 };
-
-// const contact = () => {
-//   const button = document.getElementById("contact");
-//   button.addEventListener("click", () => {
-//     fetch(`/api/1.0/get-id${query}`)
-//   })
-// };
-// const contact = () => {
-//   const button = document.getElementById("contact");
-//   button.addEventListener("click", () => {
-//     console.log(driverEmail);
-//     socket.emit("user_connected", driverName);
-//     socket.on("user_connected", function (username) {
-//       console.log(username);
-//       let html = "";
-//       html += `<li>${username}</li>`;
-//       console.log(html);
-//       document.getElementById("user").innerHTML += html;
-//     });
-//   });
-// };
-// const sender = "test12";
-// const reciever = driverName;
-// const sendMessage = () => {
-//   // get message
-//   const msg = document.getElementById("msg").value;
-//   socket.emit("send_message", {
-//     sender: sender,
-//     reciever: driverName,
-//     message: msg
-//   });
-//   return false;
-// };
-
-// // listen from server
-// socket.on("new_message", function (data) {
-//   console.log(data);
-//   let html = "";
-//   html += `<li>${data.sender} says: ${data.message}</li>`;
-//   document.getElementById("msg").innerHTML = html;
-// });
