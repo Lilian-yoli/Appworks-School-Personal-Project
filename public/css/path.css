@@ -1,0 +1,85 @@
+.route-info {
+    width: 30%;
+    text-align: center;
+    flex: 1;
+}
+
+#my-route {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#my-title {
+    width: 100%;
+    margin: 1% 0 1% 5%; 
+}
+
+#my-wrapper {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#my-origin, #my-destination {
+    width: 100%;
+    margin: 1% 5% 1% 5%;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.my-detail {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: left;
+}
+
+#my-date, #my-time, #my-seats {
+    width: 25%;
+    margin: 1% 0 1% -4%;
+    font-size: 18px;
+    display:flex;
+    text-align: left;
+    align-items: center;
+}
+
+#my-date {
+    margin-left: 5%;
+    width: 30%;
+    margin-right: 2%;    
+}
+
+#path-suggestion {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.suggestion-title {
+    width: 100%;
+    margin: 1% 0 1% 5%; 
+}
+
+.suggestion-wrapper {
+    width: 100%;
+    margin: 1% 5% 1% 5%;
+    border: 2px;
+    border-radius: 18px;
+    box-sizing: border-box;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
+}
+
+.suggestion-upper {
+    width: 100%;
+    margin: 3% 1% 3% 1%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.

@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/map-search.css">
+    <link rel="stylesheet" href="./css/googleMap.css">
     <script src="./js/request-seats-origin.js"></script>
     <title>Co-Car</title>
 </head>
@@ -16,7 +18,7 @@
             <img src="./uploads/images/logo.png" id="logo"></a>
         <nav class="tags">
           <a href="./request-seats-origin.html" class="tag tag-request">
-            <img src="./uploads/images/add.png" class="icon">尋找路線
+            <img src="./uploads/images/search.png" class="icon">尋找路線
         </a>
         <a href="./offer-seats-origin.html" class="tag tag-offer">
             <img src="./uploads/images/add.png" class="icon">提供路線
@@ -37,20 +39,34 @@
       </header>
     <main>
       <div class="wrapper">
-        <div class="left">
         <div class="route-info">
-            <h2>路線資訊</h2>
-            <label>出發地</label>
+            <h2>尋找路線-出發地</h2>
+            <label></label>
             <input type="text" name='origin' id='autocomplete' value="appworks">
             <br>
             <br>
             <button id="btn">確認</button>
         </div>
+        <div id="map-wrapper"> 
+          <div id="map"></div>
+        </div>
+    </div>
+    </main>
+    <footer>
+      <ul id="footer-ul">
+          <li><a href="#" class="footer_link">關於 Cocar</a></li>
+          <li><a href="#" class="footer_link">服務條款</a></li>
+          <li><a href="#" class="footer_link">隱私政策</a></li>
+          <li><a href="#" class="footer_link">聯絡我們</a></li>
+          <li><a href="#" class="footer_link">FAQ</a></li>
+      </ul>
+      <div class="link">
+          <img src="./uploads/images/line.png">
+          <img src="./uploads/images/twitter.png">
+          <img src="./uploads/images/facebook.png">
       </div>
-         
-      <div id="map" style="width: 600px; height:480px;"></div>
-      </div>
-    </main>   
+      <div class="rights">© 2021. All rights reserved.</div>      
+  </footer>   
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script> 
 </body>
 </html>

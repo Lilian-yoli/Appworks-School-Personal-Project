@@ -69,7 +69,11 @@ window.addEventListener("load", () => {
   siteAuto();
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    document.location.href = "./offer-seats-destination.html";
+    if (localStorage.getItem("destination")) {
+      document.location.href = "./offer-seats-destination.html";
+    } else {
+      alert("尚未選擇地點，請確認地圖地址是否正確");
+    }
   });
 });
 

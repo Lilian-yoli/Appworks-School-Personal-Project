@@ -11,10 +11,12 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    height: 100%;
     margin-bottom: 115px;
     display: block;
     overflow: auto;
+    position: relative;
+    height: auto;
+    min-height: 100% !important;
   }
 
   /* =================================
@@ -176,6 +178,8 @@
 main {
   margin: 0 0 115px 0;
   background: #f6f5f7;
+  height: auto;
+  overflow: auto;
 }
 
 .container {
@@ -227,13 +231,13 @@ main {
   width: 70%;
   margin: 0 5% 3% 5%;
   padding:7.5px 5px 7.5px 0;
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .persons {
   width: 30%;
   padding:12px 10px 7.5px 0;
-  font-size: 24px;
+  font-size: 18px;
   margin: 0 2% 3% 2%;
   text-align: right;
 }
@@ -267,14 +271,14 @@ main {
 
 .origin {
   width: 30%;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: bold;
   margin: 0.5% 0 4% 5%; 
 }
 
 .destination {
   width: 30%;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: bold;
   margin: 0.5% 4% 4% 7%; 
 }
@@ -297,4 +301,8 @@ main {
   height: 360px;
   z-index: 1;
   display: flex;
+}
+
+*:focus {
+  outline: none;
 }

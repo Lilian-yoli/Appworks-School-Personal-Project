@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/map-search.css">
+    <link rel="stylesheet" href="./css/googleMap.css">
     <script src="./js/offer-seats-origin.js" defer></script>
     <title>Co-Car</title>
 </head>
@@ -37,18 +39,19 @@
     
       </header>
     <main>
-        <div class="route-info">
-            <h2>提供路線資訊</h2>
-            <label>出發地</label>
-            <input type="text" name='origin' id='autocomplete' value="appworks">
-            <br>
-            <br>
-            <button id="btn">確認</button>
-        </div>
-        <div class="map">
-            <div id="map" style="width: 600px; height:480px;"></div>
-        </div>
+        <div class="wrapper">
+            <div class="route-info">
+                <h2>提供路線-出發地</h2>
+                <input type="text" name='origin' id='autocomplete' value="appworks">
+                <br>
+                <br>
+                <button id="btn">確認</button>
+            </div>
         
+            <div id="map-wrapper">
+                <div id="map"></div>
+            </div>
+        </div>
     </main>
     <footer>
         <ul id="footer-ul">
@@ -65,12 +68,6 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
-    <style>
-        main {
-            display: flex;
-        }
-        
-    </style> 
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
 </body>
 </html>

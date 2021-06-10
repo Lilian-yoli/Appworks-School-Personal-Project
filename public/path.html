@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
-    
+    <link rel="stylesheet" href="./css/googleMap.css">
+    <link rel="stylesheet" href="./css/path.css">
     
     <title>Co-Car</title>
 </head>
@@ -19,7 +20,7 @@
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
               <a href="./request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">尋找路線
+                <img src="./uploads/images/search.png" class="icon">尋找路線
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -39,24 +40,56 @@
         </div> 
       </header>
     <main>
-        <h2>建議路線</h2>
-        <div class="route-info">
-            <div id="driver-route"></div>
-            <ul id="path-suggestion">
-
-            </ul>
-            <hr>
-            <div class="picked">
+        <div class="wrapper">
+            <div class="route-info">
                 
-                <ul id="picked-passenger">
-                    <h3>已選擇乘客</h3>
-                </ul>
+                <div id="my-route">
+                    <h2 id="my-title">你的路線</h2>
+                    <div id="my-wrapper">
+                        <div id="my-origin">起點：110台灣台北市信義區基隆路一段178號</div>
+                        <div id="my-destination">終點：556台灣南投縣信義鄉新中橫公路31號</div>
+                        <div class="my-detail">
+                            <div id="my-date">日期：2021/06/30</div>
+                            <div id="my-time">時間：08:00</div>
+                            <div id="my-seats">5個座位</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="path-suggestion">
+                    <h2 class=suggestion-title>建議路線</h2>
+                    <div class="suggestion-wrapper">
+                        <div class="suggestion-upper">
+                            <div class="suggestion-img"><img class="suggestion-img-img" src="./uploads/images/route.png"></div>
+                            <div class="suggestion-location">
+                                <div class="suggestion-origin">110台灣台北市信義區基隆路一段178號</div>
+                                <div class="suggestion-destination">555台灣南投縣魚池鄉中山路419號</div>
+                            </div>
+                            <div class="suggestion-option">
+                                <img class="suggestion-add" src="./uploads/images/check.png">
+                            </div>     
+                        </div>
+                        <div class="under">
+                            <div class="profile"><img src="./uploads/images/member.png"></div>
+                            <div class="name">林美秀</div>
+                            <button class="contact"></button>
+                        </div>                        
+                    </div>
+
+
+                </div>
+                <hr>
+                <div class="picked">
+                    
+                    <ul id="picked-passenger">
+                        <h3>已選擇乘客</h3>
+                    </ul>
+                </div>
+                <button type="button" class="button" id="apply-route">套用路線</button>
+                <button type="button" class="button" id="skip">略過路線</button>
             </div>
-            <button type="button" class="button" id="apply-route">套用路線</button>
-            <button type="button" class="button" id="skip">略過路線</button>
-        </div>
-        <div class="map">
-            <div id="map" style="width: 600px; height:480px;"></div>
+            <div id="map-wrapper">
+                <div id="map" style="width: 600px; height:480px;"></div>
+            </div>
         </div>
     </main> 
     <footer>
@@ -74,20 +107,7 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
-    <style>
-        .main {
-            display: flex;
-            flex-direction: column;
-        }
-        .route-info {
-            width: 45%;
-            display: block;
-        }
-        .map {
-            width:45%;
-        }
-    </style>  
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script>  -->
 </body>
 
 </html>

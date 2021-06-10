@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/googleMap.css">
+    <link rel="stylesheet" href="./css/map-search.css">
     <script src="./js/request-seats-destination.js" defer></script>
     <title>Co-Car</title>
 </head>
@@ -16,7 +18,7 @@
             <img src="./uploads/images/logo.png" id="logo"></a>
         <nav class="tags">
           <a href="./request-seats-origin.html" class="tag tag-request">
-            <img src="./uploads/images/add.png" class="icon">尋找路線
+            <img src="./uploads/images/search.png" class="icon">尋找路線
         </a>
         <a href="./offer-seats-origin.html" class="tag tag-offer">
             <img src="./uploads/images/add.png" class="icon">提供路線
@@ -36,16 +38,18 @@
     </div> 
       </header>
     <main>
+      <div class="wrapper">
         <div class="route-info">
-            <h2>路線資訊</h2>
-            <label>目的地</label>
+            <h2>尋找路線-目的地</h2>
             <input type="text" name='destination' id='autocomplete' value="日月潭">
             <br>
             <br>
             <button id="btn">確認</button>
         </div>
-        <div id="map" style="width: 600px; height:480px;"></div>
-       
+        <div id="map-wrapper">
+          <div id="map"></div>
+        </div>
+      </div> 
     </main> 
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
 </body>

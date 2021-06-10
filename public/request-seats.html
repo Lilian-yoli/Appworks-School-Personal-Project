@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/googleMap.css">
+    <link rel="stylesheet" href="./css/map-search.css">
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="./js/request-seats.js" defer></script>
     <title>Co-Car</title>
@@ -17,7 +19,7 @@
                 <img src="./uploads/images/logo.png" id="logo"></a>
             <nav class="tags">
               <a href="./request-seats-origin.html" class="tag tag-request">
-                <img src="./uploads/images/add.png" class="icon">尋找路線
+                <img src="./uploads/images/search.png" class="icon">尋找路線
             </a>
             <a href="./offer-seats-origin.html" class="tag tag-offer">
                 <img src="./uploads/images/add.png" class="icon">提供路線
@@ -38,19 +40,36 @@
     
       </header>
     <main>
-        <div class="route-info">
-            <h2>路線資訊</h2>
-            <label>人數</label>
-            <input type="text" name='persons' id='persons' value="2">
-            <br>
-            <br>
-            <label>日期</label>
-            <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-30">
-            <br>
-            <br>
-            <button id="next" onclick="click()">發送需求</button>            
+        <div class="wrapper">
+            <div class="route-info">
+                <h2>尋找路線</h2>
+                <div class="form">
+                    <h3 class="label">人數</h3>
+                    <select name="persons" id="persons" value="2">
+                        <option selected>1</option>
+                        <option >2</option>
+                        <option >3</option>
+                        <option >4</option>
+                        <option >5</option>
+                        <option >6</option>
+                        <option >7</option>
+                        <option >8</option>
+                    </select> 
+                </div>
+                <br>
+                <br>
+                <div class="form">
+                    <h3 class="label">日期</h3>
+                    <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-30">
+                </div>
+                <br>
+                <br>
+                <button id="next" onclick="click()">發送需求</button>            
+            </div>
+            <div id="map-wrapper">
+                <div id="map"></div>
+            </div>
         </div>
-        <div id="map" style="width: 600px; height:480px;"></div>
         <script>
             function formatDate() {
                 let today =  new Date(Date.now())
@@ -73,6 +92,6 @@
             
         </style>
     </main>
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>    
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
 const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute, getphoto, trimAddress, getGooglePhoto } = require("../../util/util");
+const { get, set, del } = require("../../util/redis");
 
 const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   const connection = await mysql.connection();
@@ -320,9 +321,11 @@ const getPassengerHomepage = async () => {
     for (const i in route) {
       route[i].date = await toDateFormat(route[i].date);
       route[i].photo = await getGooglePhoto(route[i].destination);
+      set(pPhoto, route[i].photo);
       route[i].origin = await trimAddress(route[i].origin);
       route[i].destination = await trimAddress(route[i].destination);
     }
+
     console.log(route);
     return { route };
   } catch (error) {

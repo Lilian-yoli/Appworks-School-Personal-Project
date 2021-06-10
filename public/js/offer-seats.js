@@ -4,7 +4,7 @@ const persons = document.getElementById("persons");
 const date = document.getElementById("date");
 const time = document.getElementById("time");
 const fee = document.getElementById("fee");
-const next = document.querySelector(".next");
+const next = document.getElementById("next");
 
 window.addEventListener("load", () => {
   console.log("test");
@@ -12,51 +12,54 @@ window.addEventListener("load", () => {
   const searchParams = new URLSearchParams({ id: 1 });
   url.search = searchParams;
   console.log(url.href);
-});
 
-const seatsOfferedInfo = {};
-next.addEventListener("click", () => {
-  if (persons.value === "" || date.value === "" || date.value === "") {
-    return alert("乘載人數、日期、費用為必填");
-  }
-  seatsOfferedInfo.origin = origin;
-  seatsOfferedInfo.destination = destination;
-  seatsOfferedInfo.persons = persons.value;
-  seatsOfferedInfo.date = date.value;
-  seatsOfferedInfo.time = time.value;
-  seatsOfferedInfo.fee = fee.value;
+  initMap();
+  const seatsOfferedInfo = {};
 
-  const verifyToken = localStorage.getItem("access_token");
-  if (!verifyToken) {
-    document.location.href = "./login.html";
-  }
-  fetch("/api/1.0/offer-seats-info", {
-    method: "POST",
-    body: JSON.stringify(seatsOfferedInfo),
-    headers: new Headers({
-      Authorization: "Bearer " + verifyToken,
-      "Content-Type": "application/json"
-    })
-  }).then((response) => {
-    return response.json();
-  }).catch(error => {
-    console.error("Error:", error);
-  }).then(response => {
-    console.log("Success:", response);
-    if (response.error) {
-      alert(response.error);
-    } else {
-      const data = response.route;
-      console.log("data46:", data);
-      window.localStorage.setItem("route", JSON.stringify(response.route));
-      const url = new URL("http://localhost:3000/path.html");
-      const searchParams = new URLSearchParams({
-        routeid: data[0].route_id
-      });
-      url.search = searchParams;
-      console.log(url.href);
-      document.location.href = `./path.html?routeid=${data[0].route_id}`;
+  next.addEventListener("click", () => {
+    if (persons.value === "" || date.value === "" || date.value === "") {
+      return alert("乘載人數、日期、費用為必填");
     }
+    seatsOfferedInfo.origin = origin;
+    seatsOfferedInfo.destination = destination;
+    seatsOfferedInfo.persons = persons.value;
+    seatsOfferedInfo.date = date.value;
+    seatsOfferedInfo.time = time.value;
+    seatsOfferedInfo.fee = fee.value;
+
+    const verifyToken = localStorage.getItem("access_token");
+    if (!verifyToken) {
+      document.location.href = "./login.html";
+    }
+    fetch("/api/1.0/offer-seats-info", {
+      method: "POST",
+      body: JSON.stringify(seatsOfferedInfo),
+      headers: new Headers({
+        Authorization: "Bearer " + verifyToken,
+        "Content-Type": "application/json"
+      })
+    }).then((response) => {
+      return response.json();
+    }).catch(error => {
+      console.error("Error:", error);
+    }).then(response => {
+      console.log("Success:", response);
+      if (response.error) {
+        alert(response.error);
+      } else {
+        const data = response.route;
+        showLoading();
+        console.log("data46:", data);
+        window.localStorage.setItem("route", JSON.stringify(response.route));
+        const url = new URL("http://localhost:3000/path.html");
+        const searchParams = new URLSearchParams({
+          routeid: data[0].route_id
+        });
+        url.search = searchParams;
+        console.log(url.href);
+        document.location.href = `./path.html?routeid=${data[0].route_id}`;
+      }
+    });
   });
 });
 
@@ -157,9 +160,3 @@ const showLoading = function () {
     }
   );
 };
-// showLoading();
-
-document.querySelector(".next")
-  .addEventListener("click", (event) => {
-    showLoading();
-  });

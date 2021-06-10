@@ -1,0 +1,20 @@
+.wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: stretch;
+}
+
+#map-wrapper {
+    width: 65%;
+    background-color: cornsilk;
+    flex: 1.5;
+}
+
+#map {
+    right:0;
+    top:0;
+    height: 600px;;
+    width:100%;
+}
+
