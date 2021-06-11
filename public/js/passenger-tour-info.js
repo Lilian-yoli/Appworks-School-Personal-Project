@@ -1,8 +1,7 @@
 
-const query = window.location.search;
-
-console.log(query);
 async function wrapper () {
+  const verifyToken = localStorage.getItem("access_token");
+  const query = window.location.search;
   const res = await fetch(`/api/1.0/tour-info${query}`, {
     method: "GET",
     headers: new Headers({
@@ -13,51 +12,39 @@ async function wrapper () {
   console.log(data);
   const { driverInfo, passengerInfo } = data;
   document.querySelectorAll("h2")[0].innerHTML = "你的行程";
-  document.getElementById("a-location").innerHTML =
-      `<h4>起點：${passengerInfo[0].origin}</h4>
-      <h4>終點：${passengerInfo[0].destination}</h4>`;
-  document.getElementById("a-detail").innerHTML =
-      `<h5>日期：${passengerInfo[0].date}</h5>
-      <h5>人數：${passengerInfo[0].persons}</h5>`;
-
-  document.getElementById("b-location").innerHTML =
-      `<br><h3>車主行程</h3>
-      <h4>起點：${driverInfo.origin}</h4>
-        <h4>終點：${driverInfo.destination}</h4>`;
-  document.getElementById("b-detail").innerHTML =
-      `<h5>日期：${driverInfo.date}</h5>
-      <h5>時間：${driverInfo.time}</h5>
-      <h5>人數：${driverInfo.seats_left}</h5>
-      <h5>單人費用：${driverInfo.fee}</h5>`;
-
-  // <div>${data[0].picture}</div>
+  document.getElementById("my-route").innerHTML =
+  `<h3 id="my-title">你的路線</h3>
+  <div id="my-wrapper">
+      <div id="my-detail">
+          <div id="my-date">日期：${passengerInfo[0].date}</div>
+          <div id="my-seats">${passengerInfo[0].persons}個座位</div>
+      </div>
+      <div class="my-upper">
+          <img id="my-route-img" src="./uploads/images/route.png">
+          <div id="my-location">
+              <div id="my-origin">起點：${passengerInfo[0].origin}</div>
+              <div id="my-destination">終點：${passengerInfo[0].destination}</div>
+          </div>
+      </div>
+  </div>`;
+  const companionRoute = document.getElementById("companion-route");
   if (passengerInfo[0].match_status == 0) {
-    document.getElementById("b-role").innerHTML =
-        `<div><img src="../uploads/images/member.png"></div>
-      <div>${driverInfo.name}</div>
-      <button id="contact" type="button">聯繫車主</button>
-      <button class="homePage" id="confirm">確認</button>
-      <button class="homePage" id="refuse">謝絕</button>`;
-    confirm(driverInfo, passengerInfo);
+    companionRoute.innerHTML =
+    html(passengerInfo, "");
+    confirm(driverInfo, passengerInfo, verifyToken, query);
     contact(passengerInfo[0].id, driverInfo.id);
-  } else if (passengerInfo[0].match_status == 1) {
-    document.getElementById("b-role").innerHTML =
-        `<div><img src="../uploads/images/member.png"></div>
-      <div>${driverInfo.name}</div>
-      <button id="contact" type="button">聯繫車主</button>
-      <h3>車主已確認</h3>`;
+  } else if (driverInfo.match_status == 1) {
+    companionRoute.innerHTML =
+    html(driverInfo, "greenspot", verifyToken, query);
     contact(passengerInfo[0].id, driverInfo.id);
   } else {
-    document.getElementById("b-role").innerHTML =
-    `<div><img src="../uploads/images/member.png"></div>
-    <div>${driverInfo.name}</div>
-    <button id="contact" type="button">聯繫車主</button>
-    <h3>車主已謝絕</h3>`;
+    companionRoute.innerHTML =
+    html(driverInfo, "refuse", verifyToken, query);
   }
   initMap(driverInfo, passengerInfo);
 }
 
-function confirm (driverInfo, passengerInfo) {
+function confirm (driverInfo, passengerInfo, verifyToken, query) {
   const confirm = document.getElementById("confirm");
   confirm.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
@@ -174,3 +161,47 @@ function initMap (driverInfo, passengerInfo) {
     }
   });
 }
+
+function html (driverInfo, confirmStatus) {
+  let confirmSign = "";
+  let button = "";
+  if (confirmStatus == 0) {
+    confirmSign = "";
+    button = `<div class="button-container">
+    <button class="confirm">確認</button>
+    <button class="refuse">謝絕</button></div>`;
+  } else {
+    confirmSign = `<div class="companion-confirm">
+  <img class="companion-confirm-status" src="./uploads/images/${confirmStatus}.png"></div>`;
+    button = "";
+  }
+  const html =
+  `<h4 id="companion-title">車主</h4>
+  <div class="companion-wrapper">
+  <div class="companion-upper">
+      <img class="companion-img" src="./uploads/images/route.png">
+      <div class="companion-location">
+          <div class="companion-origin">${driverInfo.origin}</div>
+          <div class="companion-destination">${driverInfo.destination}</div>
+      </div>
+      ${confirmSign}     
+  </div>
+  <div class="under">
+      <img class="profile" src="./uploads/images/member.png">
+      <div class="name">${driverInfo.name}</div>
+      <div class="persons">${driverInfo.seats_left}人</div>
+      <div class="time">${driverInfo.time}</div>
+      <div class="btn-wrap"><button class="contact">聯繫乘客</button></div>
+  </div>
+  ${button}                                     
+</div>`;
+  return html;
+}
+
+const makeRooom = (userId, receiverId) => {
+  if (userId > receiverId) {
+    return `${receiverId}WITH${userId}`;
+  } else {
+    return `${userId}WITH${receiverId}`;
+  }
+};

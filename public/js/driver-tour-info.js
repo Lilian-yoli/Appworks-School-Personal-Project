@@ -248,12 +248,3 @@ const makeRooom = (userId, receiverId) => {
     return `${userId}WITH${receiverId}`;
   }
 };
-
-function logout () {
-  const logout = document.getElementById("logout");
-  console.log(logout);
-  logout.addEventListener("click", () => {
-    localStorage.removeItem("access_token");
-  });
-}
-logout();
