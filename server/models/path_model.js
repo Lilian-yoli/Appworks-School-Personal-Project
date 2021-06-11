@@ -43,7 +43,9 @@ const insertRouteInfo = async (origin, destination, persons, date, time, id, fee
 const getAllplacesByPassengers = async (date) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
-  const queryStr = `SELECT * FROM requested_routes WHERE date = UNIX_TIMESTAMP("${date}") AND isMatched= 0 ORDER BY distance DESC, persons DESC FOR UPDATE`;
+  const queryStr = `SELECT r.origin, r.destination, r.origin_coordinate, r.destination_coordinate, r.distance, r.persons, r.route_id, r.user_id, u.name, u.picture 
+  FROM requested_routes r INNER JOIN users u ON r.user_id = u.id 
+  WHERE date = UNIX_TIMESTAMP("${date}") AND isMatched= 0 ORDER BY distance DESC, persons DESC FOR UPDATE`;
   const allPlaces = await query(queryStr);
   await connection.query("COMMIT");
   console.log("allPlaces", allPlaces);
