@@ -56,16 +56,6 @@ async function wrapper () {
 
     let personCounter = 0;
     for (let i = 0; i < passenger.length; i++) {
-      personCounter += passenger[i].persons;
-      // if seats enough, add waypts
-      if (personCounter <= driver.seats_left) {
-        const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
-        const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
-        pickedWaypts.push(originObj);
-        pickedWaypts.push(destinationObj);
-        index[i] = i;
-        passengerArr.push(passenger[i].route_id);
-      }
       const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
       const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
       dict[i * 2] = originObj;
@@ -92,18 +82,27 @@ async function wrapper () {
           </div>                        
       </div>`;
       console.log(pathSuggestion);
+      personCounter += passenger[i].persons;
+      // if seats enough, add waypts
+      if (personCounter <= driver.seats_left) {
+        const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
+        const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
+        pickedWaypts.push(originObj);
+        pickedWaypts.push(destinationObj);
+        index[i] = i;
+        passengerArr.push(passenger[i].route_id);
+        showPickedPassenger(i);
+      }
     };
     const pathSuggestion = document.getElementById("path-suggestion");
     const title = document.createElement("h2");
     title.className = "suggestion-title";
     title.textContent = "推薦乘客";
     pathSuggestion.insertBefore(title, pathSuggestion.firstChild);
-    localStorage.setItem("index", index);
     console.log("index,passengerArr", dict, index, passengerArr);
-    showPickedPassenger(index);
-
+    localStorage.setItem("index", index);
     initMap(driver, pickedWaypts);
-    chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken);
+    chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr);
     matchedBtn(driver, passenger, verifyToken, query);
     skipBtn(query);
   }
@@ -169,50 +168,69 @@ function initMap (driver, pickedWaypts) {
 //   });
 // }
 
-function chooseWypts (passenger, driver, pickedWaypts, dict) {
+function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
   for (let i = 0; i < passenger.length; i++) {
     const add = document.querySelectorAll(".suggestion-add")[i];
     add.addEventListener("click", (e) => {
+      e.preventDefault();
       let index = localStorage.getItem("index");
       console.log("index", index);
       if (index.length < 1) {
         index = [];
+      } else {
+        index = index.split(",");
       }
       const num = e.target.id;
-      e.preventDefault();
       const newIndex = [];
-      const passengerArr = [];
 
       const persons = countCurrentPersons(passenger, index);
-      pickedWaypts = [];
+
       console.log("index", num, index);
-      if (index.indexOf(num.toString()) == -1) {
-        if (persons + passenger[num].persons > driver.seats_left) {
-          swal({
-            text: "選擇人數超過可提供座位",
-            type: "warning"
-          });
-        } else {
-          index.push(num.toString());
+      console.log(add, add.src);
+      if (add.src != "http://localhost:3000/uploads/images/check.png") {
+        if (index.indexOf(num.toString()) == -1) {
+          if (persons + passenger[num].persons > driver.seats_left) {
+            swal({
+              text: "選擇人數超過可提供座位",
+              icon: "warning"
+            });
+          } else {
+            index.push(num.toString());
+            passengerArr = [];
+            pickedWaypts = [];
+            for (const j in index) {
+              console.log(dict[index[j] * 2], index[j]);
+              pickedWaypts.push(dict[index[j] * 2]);
+              pickedWaypts.push(dict[index[j] * 2 + 1]);
+              console.log("index[j]", index[j]);
+              passengerArr.push(passenger[index[j]].route_id);
+            }
+            showPickedPassenger(num);
+          }
         }
-        for (const j in index) {
-          pickedWaypts.push(dict[index[j] * 2]);
-          pickedWaypts.push(dict[index[j] * 2 + 1]);
-          console.log("index[j]", index[j]);
-          passengerArr.push(passenger[index[j]].route_id);
-        }
+
         console.log("localStorage.setItem", index);
         console.log("result", pickedWaypts, passengerArr);
         localStorage.setItem("index", index);
         initMap(driver, pickedWaypts);
-        showPickedPassenger(passenger, index);
       } else {
-        if (persons == 0) {
-          swal({
-            text: "未選擇乘客",
-            type: "warning"
-          });
+        for (const i in index) {
+          if (index[i] != num) {
+            newIndex.push(index[i]);
+          }
+          passengerArr = [];
+          pickedWaypts = [];
+          console.log(newIndex);
+          for (const i in newIndex) {
+            pickedWaypts.push(dict[index[i] * 2]);
+            pickedWaypts.push(dict[index[i] * 2 + 1]);
+            passengerArr.push(passenger[index[i]].route_id);
+          }
         }
+
+        localStorage.setItem("index", newIndex);
+        initMap(driver, pickedWaypts);
+        showPickedPassenger(num);
       }
     });
   }
@@ -229,23 +247,17 @@ function countCurrentPersons (passenger, index) {
   return counter;
 }
 
-function showPickedPassenger (index) {
-  const newIndex = [];
-  console.log(index);
-  for (let i = 0; i < index.length; i++) {
-    const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[index[i]];
-    const add = document.getElementsByClassName("suggestion-add")[index[i]];
-    if (pickedPassenger.backgroundColor == "rgba(77, 255, 77, 0.4)") {
-      pickedPassenger.backgroundColor = "white";
-      add.src = "./uploads/images/graycheck.png";
-      newIndex.push(index[i]);
-    } else {
-      pickedPassenger.backgroundColor = "#25FD98";
-      add.src = "./uploads/images/check.png";
-    }
+function showPickedPassenger (num) {
+  console.log(num);
+  const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[num];
+  const add = document.getElementsByClassName("suggestion-add")[num];
+  if (add.src == "http://localhost:3000/uploads/images/check.png") {
+    pickedPassenger.backgroundColor = "white";
+    add.src = "./uploads/images/graycheck.png";
+  } else {
+    pickedPassenger.backgroundColor = "cronsilk";
+    add.src = "./uploads/images/check.png";
   }
-  localStorage.setItem("index", newIndex);
-  console.log();
 }
 
 // socket send notification
@@ -254,7 +266,12 @@ function matchedBtn (driver, passenger, verifyToken, query) {
   const passengerRouteId = [];
   applyRoute.addEventListener("click", async () => {
     const index = localStorage.getItem("index");
-
+    if (index.length < 1) {
+      swal({
+        text: "未選擇乘客",
+        icon: "warning"
+      });
+    }
     const passengerId = [];
     for (const i in index) {
       passengerRouteId.push(passenger[index[i]].route_id);
@@ -285,7 +302,7 @@ function matchedBtn (driver, passenger, verifyToken, query) {
     socket.emit("notifiyPassenger", routeInfo);
     swal({
       text: "選擇人數超過可提供座位",
-      type: "success"
+      icon: "success"
     });
     document.location.href = "./";
   });
@@ -296,7 +313,7 @@ function skipBtn (query) {
   skipRoute.addEventListener("click", () => {
     swal({
       text: "路線已儲存",
-      type: "success"
+      icon: "success"
     });
     document.location.href = "./";
   });
