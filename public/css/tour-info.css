@@ -6,7 +6,7 @@ body {
     min-height: 100% !important;
 }
 
-.route-info {
+#route-info {
     width: 30%;
     text-align: center;
     flex: 1;
@@ -14,7 +14,7 @@ body {
     overflow: scroll;
 }
 
-#my-route {
+#my-route, .companion-route {
     width: 100%;
     text-align: left;
     display: flex;
@@ -22,13 +22,34 @@ body {
     flex-direction: row;
 }
 
-#my-title {
+#my-title, #companion-title {
     width: 100%;
     margin: 1% 0 1% 5%; 
+    text-align:left ;
 }
 
-#my-wrapper {
+#my-wrapper, .companion-wrapper {
     width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.my-upper, .companion-upper {
+    width: 100%;
+    margin: 3% 5% 5% 5%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#my-route-img, .companion-img {
+    width: 12px;
+    size: 20px;
+    margin-top: 1.5%;
+}
+
+#my-location, .companion-location {
+    width: 95%;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -36,13 +57,23 @@ body {
 
 #my-origin, #my-destination {
     width: 100%;
-    margin: 1% 5% 1% 5%;
-    font-size: 18px;
-    font-weight: 800;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    text-align: left;
+    margin-left: 2%;
+    font-size:  20px;
+    margin-top: 0;
 }
 
-.my-detail {
+#my-destination, .companion-destination {
+    margin-top: 5%;
+    margin-bottom: -2%;
+}
+
+#my-detail {
     width: 100%;
+    margin-top: 1%;
     display: flex;
     flex-wrap: wrap;
     text-align: left;
@@ -51,10 +82,20 @@ body {
 #my-date, #my-time, #my-seats {
     width: 25%;
     margin: 1% 0 1% -4%;
-    font-size: 18px;
+    font-size: 20px;
     display:flex;
     text-align: left;
     align-items: center;
+}
+
+#my-time {
+    margin-right: auto;
+    margin-left: 3%;
+    width: 25%
+}
+
+#my-seats {
+    margin-right: 5%;
 }
 
 #my-date {
@@ -63,77 +104,51 @@ body {
     margin-right: 2%;    
 }
 
-#path-suggestion {
+hr {
+    height: 8px;
+    border: none;
+    background-color: rgb(237, 237, 237);
+    margin-top: 0;
+}
+
+.companion-upper {
+    margin-top: 1%;
+}
+
+.companion-origin, .companion-destination {
     width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-}
-
-.suggestion-title {
-    width: 100%;
-    margin: 1% 0 1% 5%; 
-    text-align: left;
-}
-
-.suggestion-wrapper {
-    width: 100%;
-    margin: 1% 5% 1% 5%;
-    border: 2px;
-    border-radius: 20px;
-    box-sizing: border-box;
-    background-color: rgb(255, 255, 255);
-    box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    background-color: white ;
-}
-
-.suggestion-upper {
-    width: 100%;
-    margin: 5% 5% 5% 5%;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.suggestion-img-img {
-    width: 12px;
-    size: 20px;
-}
-
-.suggestion-location {
-    width: 75%;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     text-align: left;
     margin-left: 2%;
+    font-size:  20px;
+    margin-top: 0;
 }
 
-.suggestion-origin {
-    width:100%;
-    margin-top: -5px;
-    font-size:18px;
-}
-
-.suggestion-destination {
-    width:100%;
+.companion-destination {
     margin-top: 5%;
-    font-size:18px;
-    margin-bottom: -3%;
+    margin-bottom: -2%;
 }
 
+.companion-location {
+    width: 80%;
+}
 
-.suggestion-option {
+.companion-confirm {
     width: 15%;
-    cursor: pointer;
+    margin-right: 1%;
+}
+
+.companion-confirm-status {
+    width: 100%;
 }
 
 .under {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
+    align-items: stretch;
     margin: 0% 5% 2% 5%;
 }
 
@@ -156,6 +171,8 @@ body {
     display: flex;
     align-items: center;
     width: 25%;
+    margin-left: auto;
+    margin-right: -2%;
 }
 
 .contact {
@@ -187,7 +204,7 @@ body {
 }
 
 .persons {
-    width:5%;
+    width:10%;
     text-align: left;
     display: flex;
     align-items: center; 
@@ -201,19 +218,20 @@ body {
     text-align: left;
     display: flex;
     align-items: center; 
-    margin-left:3%;
+    margin-left:5%;
     font-size: 18px;
     margin-right: auto;
 }
 
 .button-container {
-    margin: 3% 5% 2% 5%;
+    margin: 2% 5% 1% 5%;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    width:100%;
 }
 
-.button {
+.homepage, .confirm, .refuse {
     width: 35%;
     background-color: #ffa83e;
     color: black;
@@ -241,4 +259,19 @@ body {
     justify-content: center;
     margin-right: 7.5%; 
     margin-bottom: 5%;
+}
+
+.confirm, .refuse {
+    width:20%;
+    background-color: #FE646F;
+    color: white;
+    font-weight: bold;
+}
+
+.refuse {
+    margin-right: auto;
+}
+
+.confirm {
+    margin-left: auto;
 }

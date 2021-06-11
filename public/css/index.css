@@ -11,7 +11,6 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    margin-bottom: 115px;
     display: block;
     overflow: auto;
     position: relative;
@@ -176,7 +175,7 @@
   ==================================== */ 
 
 main {
-  margin: 0 0 115px 0;
+  margin:0;
   background: #f6f5f7;
   height: auto;
   overflow: auto;
@@ -258,6 +257,8 @@ main {
   align-items: center;
   margin-left: auto;
   margin-right: auto;
+  padding: 0 2% 0 2%;
+  border-radius: 20px;
 }
 
 
@@ -296,7 +297,7 @@ main {
 }
 
 .driver-route {
-  margin: 0 0 0 5%;
+  margin: 0 0 5% 5%;
   width:100%;
   height: 360px;
   z-index: 1;

@@ -1,6 +1,6 @@
-const socket = io();
 
 async function wrapper () {
+  const socket = io();
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
 
@@ -78,7 +78,7 @@ async function wrapper () {
               <img class="profile" src="${passenger[i].picture}">
               <div class="name">${passenger[i].name}</div>
               <div class="persons">${passenger[i].persons}人</div>
-              <div class="btn-wrap"><button class="contact">聯繫乘客</button></div>
+              <div class="btn-wrap"><button class="contact" id="${i}">聯繫乘客</button></div>
           </div>                        
       </div>`;
       console.log(pathSuggestion);
@@ -103,6 +103,7 @@ async function wrapper () {
     localStorage.setItem("index", index);
     initMap(driver, pickedWaypts);
     chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr);
+    contact(passenger, driver);
     matchedBtn(driver, passenger, verifyToken, query);
     skipBtn(query);
   }
@@ -252,10 +253,8 @@ function showPickedPassenger (num) {
   const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[num];
   const add = document.getElementsByClassName("suggestion-add")[num];
   if (add.src == "http://localhost:3000/uploads/images/check.png") {
-    pickedPassenger.backgroundColor = "white";
     add.src = "./uploads/images/graycheck.png";
   } else {
-    pickedPassenger.backgroundColor = "cronsilk";
     add.src = "./uploads/images/check.png";
   }
 }
@@ -301,8 +300,9 @@ function matchedBtn (driver, passenger, verifyToken, query) {
     console.log(123);
     socket.emit("notifiyPassenger", routeInfo);
     swal({
-      text: "選擇人數超過可提供座位",
-      icon: "success"
+      text: "已傳送通知",
+      icon: "success",
+      buttons: false
     });
     document.location.href = "./";
   });
@@ -318,3 +318,23 @@ function skipBtn (query) {
     document.location.href = "./";
   });
 }
+
+function contact (passenger, driver) {
+  for (const i in passenger) {
+    const contact = document.getElementsByClassName("contact")[i];
+    contact.addEventListener("click", async (e) => {
+      const num = e.target.id;
+      console.log(num, driver.id, passenger[num].user_id);
+      const room = makeRooom(driver.id, passenger[num].user_id);
+      document.location.href = `./chat.html?room=${room}`;
+    });
+  }
+}
+
+const makeRooom = (userId, receiverId) => {
+  if (userId > receiverId) {
+    return `${receiverId}WITH${userId}`;
+  } else {
+    return `${userId}WITH${receiverId}`;
+  }
+};

@@ -4,12 +4,12 @@ const Util = require("../../util/path");
 
 const offerSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
-  const { origin, destination, persons, date, time, fee } = req.body;
+  const { origin, destination, persons, date, time } = req.body;
   if (!origin || !destination || !persons || !date) {
     res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
     return;
   }
-  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id, fee);
+  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id);
   if (result.error) {
     res.status(500).send({ error: result.error });
     return;
@@ -47,7 +47,6 @@ const routeSuggestion = async (req, res) => {
     origin: origin,
     destination: destination,
     seats_left: availableSeats,
-    fee: getDriverDetail.fee,
     date: date,
     time: getDriverDetail.time,
     name: name,

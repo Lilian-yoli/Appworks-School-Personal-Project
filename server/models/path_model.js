@@ -3,7 +3,7 @@ const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
 const { transferToLatLng, toDateFormat, toTimestamp, getGooglePhoto, trimAddress } = require("../../util/util");
 
-const insertRouteInfo = async (origin, destination, persons, date, time, id, fee) => {
+const insertRouteInfo = async (origin, destination, persons, date, time, id) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const qryStr = `SELECT * FROM offered_routes WHERE origin = "${origin}" AND destination = "${destination}" AND available_seats = "${persons}" AND date = UNIX_TIMESTAMP("${date}") AND time = "${time}" AND user_id = ${id} FOR UPDATE`;
@@ -25,10 +25,10 @@ const insertRouteInfo = async (origin, destination, persons, date, time, id, fee
   console.log("toTimestamp(date)", date);
 
   const columns = `(origin, destination, available_seats, date, time, user_id, origin_coordinate, 
-      destination_coordinate, fee, seats_left, routeTS)`;
+      destination_coordinate, seats_left, routeTS)`;
   const setValue = `("${origin}", "${destination}", ${persons},
     UNIX_TIMESTAMP("${date}"), "${time}", ${id}, Point("${originLatLng.lat}", "${originLatLng.lng}"),
-  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "${fee}", ${persons}, TIMESTAMP("${date}", "${time}"))`;
+  Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), ${persons}, TIMESTAMP("${date}", "${time}"))`;
 
   const insertRoute = await query(`INSERT INTO offered_routes ${columns} VALUES ${setValue}`);
   console.log("insertRoute", insertRoute);
@@ -54,7 +54,7 @@ const getAllplacesByPassengers = async (date) => {
 };
 
 const getDriverDetail = async (id) => {
-  const driverDetail = await query(`SELECT origin, destination, seats_left, time, origin_coordinate, destination_coordinate, fee, FROM_UNIXTIME(date) AS date 
+  const driverDetail = await query(`SELECT origin, destination, seats_left, time, origin_coordinate, destination_coordinate, FROM_UNIXTIME(date) AS date 
   FROM offered_routes WHERE route_id = ${id}`);
   if (!driverDetail) {
     return { error: "No such route offered" };
@@ -115,7 +115,7 @@ const getDriverItinerary = async (id) => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
     console.log(timestamp);
-    const matchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.fee, o.time, o.route_id, t.id 
+    const matchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.time, o.route_id, t.id 
   FROM offered_routes o INNER JOIN tour t ON o.route_id = t.offered_routes_id 
   WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp} ORDER BY routeTS`;
     let match = await query(matchQryStr);
@@ -126,7 +126,7 @@ const getDriverItinerary = async (id) => {
         match[i].date = await toDateFormat(match[i].date);
       }
     }
-    const unmatchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.fee, o.time, o.route_id, t.id 
+    const unmatchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.time, o.route_id, t.id 
   FROM offered_routes o LEFT OUTER JOIN tour t ON o.route_id = t.offered_routes_id 
   WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp} AND t.id IS NULL ORDER BY routeTS`;
     let unmatch = await query(unmatchQryStr);

@@ -3,7 +3,6 @@ const destination = localStorage.getItem("driverDestination");
 const persons = document.getElementById("persons");
 const date = document.getElementById("date");
 const time = document.getElementById("time");
-const fee = document.getElementById("fee");
 const next = document.getElementById("next");
 
 window.addEventListener("load", () => {
@@ -25,7 +24,6 @@ window.addEventListener("load", () => {
     seatsOfferedInfo.persons = persons.value;
     seatsOfferedInfo.date = date.value;
     seatsOfferedInfo.time = time.value;
-    seatsOfferedInfo.fee = fee.value;
 
     const verifyToken = localStorage.getItem("access_token");
     if (!verifyToken) {
@@ -57,6 +55,7 @@ window.addEventListener("load", () => {
         });
         url.search = searchParams;
         console.log(url.href);
+        showLoading();
         document.location.href = `./path.html?routeid=${data[0].route_id}`;
       }
     });

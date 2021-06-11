@@ -129,3 +129,21 @@
     justify-content: center;
     align-items: center;
 }
+
+#time {
+    display: flex;
+    align-items: center;
+    min-height: 54px;
+    padding: 0px 16px;
+    background-color: rgb(237, 237, 237);
+    border-radius: 16px;
+    color:#FE646F;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 54px;
+    text-decoration: none;
+    border: 0px;
+    margin: auto auto auto 10px;
+    width: 50%;
+    justify-content: center;
+}

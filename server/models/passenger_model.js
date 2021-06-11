@@ -198,6 +198,7 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons
   const checkTour = await query(`SELECT * FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id 
   WHERE t.offered_routes_id = ${driverRouteId} AND r.user_id = ${userId} FOR UPDATE`);
+  console.log(checkTour);
   if (checkTour.length > 0) {
     return { error: "Tour had already been created, please check your itinerary" };
   }
@@ -321,7 +322,6 @@ const getPassengerHomepage = async () => {
     for (const i in route) {
       route[i].date = await toDateFormat(route[i].date);
       route[i].photo = await getGooglePhoto(route[i].destination);
-      set(pPhoto, route[i].photo);
       route[i].origin = await trimAddress(route[i].origin);
       route[i].destination = await trimAddress(route[i].destination);
     }
