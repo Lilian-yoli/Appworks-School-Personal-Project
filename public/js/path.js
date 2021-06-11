@@ -245,6 +245,7 @@ function showPickedPassenger (index) {
     }
   }
   localStorage.setItem("index", newIndex);
+  console.log();
 }
 
 // socket send notification
