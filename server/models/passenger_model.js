@@ -188,8 +188,7 @@ const passengerRequestDetail = async (id) => {
   return result;
 };
 
-const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date,
-  passengerOriginCoordinate, passengerDestinationCoordinate, driverOriginCoordinate, driverDestinationCoordinate) => {
+const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverRoute = await query(`SELECT * FROM offered_routes WHERE route_id = ${driverRouteId}`);
@@ -207,7 +206,8 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons
     passenger_routes_id: passengerRouteId,
     finished: 0,
     passenger_type: "request",
-    match_status: 0
+    match_status: 0,
+    send_by: userId
   };
   const insertInfo = await query("INSERT INTO tour SET ?", tour);
   await connection.query("COMMIT");
@@ -216,11 +216,11 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons
   return { userId, tourId };
 };
 
-const getTourInfo = async (tourId) => {
+const getTourInfo = async (tourId, userId) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time,
-  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status, o.origin_coordinate, o.destination_coordinate
+  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
   FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
   driverInfo[0].date = await toDateFormat(driverInfo[0].date);
@@ -229,14 +229,14 @@ const getTourInfo = async (tourId) => {
   const passengerInfo = await query(`SELECT r.route_id, r.origin, r.destination, r.persons, 
   FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id
-  INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId}`);
+  INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId} AND r.user_id = ${userId}`);
   passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
   console.log("passengerInfo", passengerInfo);
 
   const result = {};
   result.driverInfo = driverInfo[0];
   result.passengerInfo = passengerInfo;
-  result.tourInfo = { matchStatus: driverInfo[0].match_status };
+  result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
   console.log("getTourInfo Model:", result);
   return result;
 };

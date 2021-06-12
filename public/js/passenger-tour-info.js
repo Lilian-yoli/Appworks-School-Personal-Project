@@ -2,7 +2,7 @@
 async function wrapper () {
   const verifyToken = localStorage.getItem("access_token");
   const query = window.location.search;
-  const res = await fetch(`/api/1.0/tour-info${query}`, {
+  const res = await fetch(`/api/1.0/passenger-tour-info${query}`, {
     method: "GET",
     headers: new Headers({
       Authorization: "Bearer " + verifyToken
@@ -27,25 +27,31 @@ async function wrapper () {
           </div>
       </div>
   </div>`;
+  console.log((data.tourInfo.sendBy == data.userId), data.tourInfo.sendBy, data.userId);
   const companionRoute = document.getElementById("companion-route");
   if (passengerInfo[0].match_status == 0) {
-    companionRoute.innerHTML =
-    html(passengerInfo, "");
-    confirm(driverInfo, passengerInfo, verifyToken, query);
-    contact(passengerInfo[0].id, driverInfo.id);
+    if (data.tourInfo.sendBy == data.userId) {
+      companionRoute.innerHTML =
+      html(driverInfo, "grayspot");
+    } else {
+      companionRoute.innerHTML =
+      html(driverInfo, "");
+      confirm(driverInfo, passengerInfo, verifyToken, query);
+    }
   } else if (driverInfo.match_status == 1) {
     companionRoute.innerHTML =
     html(driverInfo, "greenspot", verifyToken, query);
-    contact(passengerInfo[0].id, driverInfo.id);
   } else {
     companionRoute.innerHTML =
     html(driverInfo, "refuse", verifyToken, query);
   }
+  contact(passengerInfo[0].id, driverInfo.id);
   initMap(driverInfo, passengerInfo);
+  hompage();
 }
 
 function confirm (driverInfo, passengerInfo, verifyToken, query) {
-  const confirm = document.getElementById("confirm");
+  const confirm = document.querySelector(".confirm");
   confirm.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
@@ -69,7 +75,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
       socket.emit("notifiyPassenger", routeInfo);
     }
   });
-  const refuse = document.getElementById("refuse");
+  const refuse = document.querySelector(".refuse");
   refuse.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
@@ -94,7 +100,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
 }
 
 function contact (passengerId, driverId) {
-  const contact = document.getElementById("contact");
+  const contact = document.querySelector(".contact");
   contact.addEventListener("click", () => {
     const room = makeRooom(passengerId, driverId);
     document.location.href = `./chat.html?room=${room}`;
@@ -205,3 +211,10 @@ const makeRooom = (userId, receiverId) => {
     return `${userId}WITH${receiverId}`;
   }
 };
+
+function hompage () {
+  const homepage = document.querySelector(".homepage");
+  homepage.addEventListener("click", () => {
+    document.location.href = "./";
+  });
+}

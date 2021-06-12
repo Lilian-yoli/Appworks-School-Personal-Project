@@ -153,6 +153,17 @@ const getDriverHomepage = async (req, res) => {
   }
 };
 
+const getTourInfo = async (req, res) => {
+  console.log("tour", req.query);
+  const tourId = req.query.tour;
+  const result = await Path.getTourInfo(tourId);
+  result.userId = req.user.id;
+  if (result.length < 1) {
+    res.status(500).send({ error: "Internal server error" });
+  }
+  res.status(200).send(result);
+};
+
 module.exports = {
   offerSeatsInfo,
   routeSuggestion,
@@ -163,5 +174,6 @@ module.exports = {
   driverSearch,
   driverSearchDetail,
   setDriverTour,
-  getDriverHomepage
+  getDriverHomepage,
+  getTourInfo
 };

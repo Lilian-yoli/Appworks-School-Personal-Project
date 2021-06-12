@@ -295,16 +295,15 @@ function matchedBtn (driver, passenger, verifyToken, query) {
       url: `./passenger-tour-info.html?id=${driver.routeId}?tour=${data.tourId}`,
       content: `車主${driver.name}已接受你的行程，立即前往查看`,
       type: "match",
-      icon: "./uploads/images/member.png"
+      icon: "./uploads/images/match.svg"
     };
     console.log(123);
     socket.emit("notifiyPassenger", routeInfo);
     swal({
       text: "已傳送通知",
-      icon: "success",
-      buttons: false
+      icon: "success"
     });
-    document.location.href = "./";
+    document.location.href = `./passenger-tour-info.html?id=${driver.routeId}?tour=${data.tourId}`;
   });
 }
 

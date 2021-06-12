@@ -222,6 +222,31 @@ const getDriverHomepage = async () => {
   }
 };
 
+const getTourInfo = async (tourId) => {
+  const connection = await mysql.connection();
+  await connection.query("START TRANSACTION");
+  const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time,
+  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
+  FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id 
+  INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
+  driverInfo[0].date = await toDateFormat(driverInfo[0].date);
+  console.log("driverInfo", driverInfo);
+
+  const passengerInfo = await query(`SELECT r.route_id, r.origin, r.destination, r.persons, 
+  FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
+  INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id
+  INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId}`);
+  passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
+  console.log("passengerInfo", passengerInfo);
+
+  const result = {};
+  result.driverInfo = driverInfo[0];
+  result.passengerInfo = passengerInfo;
+  result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
+  console.log("getTourInfo Model:", result);
+  return result;
+};
+
 module.exports = {
   insertRouteInfo,
   getAllplacesByPassengers,
@@ -233,5 +258,6 @@ module.exports = {
   driverSearchDetail,
   setDriverTour,
   saveWaypts,
-  getDriverHomepage
+  getDriverHomepage,
+  getTourInfo
 };

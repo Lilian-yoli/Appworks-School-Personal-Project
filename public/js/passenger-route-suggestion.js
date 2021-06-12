@@ -271,7 +271,7 @@ const clickEvent = async (driver, passenger) => {
       url: `./driver-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}`,
       content: `乘客${data.username}已接受你的行程，立即前往查看`,
       type: "match",
-      icon: "./uploads/images/member.png",
+      icon: "./uploads/images/match.svg",
       confirm: 0
     };
     socket.emit("notifiyPassenger", routeInfo);
@@ -279,8 +279,8 @@ const clickEvent = async (driver, passenger) => {
       text: "通知已傳送",
       icon: "success"
     });
-
-    document.location.href = "./";
+    document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
+    &tour=${idInfo.tourId}&passenger=${passenger.route_id}`;
   });
 };
 

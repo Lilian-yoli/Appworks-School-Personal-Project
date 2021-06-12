@@ -5,7 +5,7 @@ const verifyToken = localStorage.getItem("access_token");
 console.log(query);
 
 async function wrapper () {
-  const res = await fetch(`/api/1.0/tour-info${query}`, {
+  const res = await fetch(`/api/1.0/driver-tour-info${query}`, {
     method: "GET",
     headers: new Headers({
       Authorization: "Bearer " + verifyToken
@@ -34,20 +34,25 @@ async function wrapper () {
   const companionRoute = document.getElementById("companion-route");
   for (const i in passengerInfo) {
     if (passengerInfo[0].match_status == 0) {
-      companionRoute.innerHTML =
-      html(passengerInfo, i, "");
-      confirm(driverInfo, passengerInfo);
-      contact(passengerInfo[i].id, driverInfo.id);
+      if (data.tourInfo.sendBy == data.userId) {
+        companionRoute.innerHTML =
+        html(passengerInfo, i, "grayspot");
+      } else {
+        companionRoute.innerHTML =
+        html(passengerInfo, i, "");
+        confirm(driverInfo, passengerInfo);
+      }
     } else if (driverInfo.match_status == 1) {
       companionRoute.innerHTML =
       html(passengerInfo, i, "greenspot");
-      contact(passengerInfo[i].id, driverInfo.id);
     } else {
       companionRoute.innerHTML =
       html(passengerInfo, i, "refuse");
     }
+    contact(passengerInfo[i].id, driverInfo.id);
   }
   initMap(driverInfo, passengerInfo);
+  hompage();
 };
 
 function confirm (driverInfo, passengerInfo) {
@@ -248,3 +253,10 @@ const makeRooom = (userId, receiverId) => {
     return `${userId}WITH${receiverId}`;
   }
 };
+
+function hompage () {
+  const homepage = document.querySelector(".homepage");
+  homepage.addEventListener("click", () => {
+    document.location.href = "./";
+  });
+}

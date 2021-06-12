@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { offerSeatsInfo, routeSuggestion, setMatchedPassengers, getDriverItineraryDetail, getDriverItinerary, driverSearch, driverSearchDetail, setDriverTour, getDriverHomepage } = require("../controllers/path_controllers");
+const { offerSeatsInfo, routeSuggestion, setMatchedPassengers, getDriverItineraryDetail, getDriverItinerary, driverSearch, driverSearchDetail, setDriverTour, getDriverHomepage, getTourInfo } = require("../controllers/path_controllers");
 const { wrapAsync, authentication } = require("../../util/util");
 
 router.route("/api/1.0/offer-seats-info")
@@ -28,6 +28,9 @@ router.route("/api/1.0/driver-search-detail")
 
 router.route("/api/1.0/driver-tour")
   .post(authentication(), wrapAsync(setDriverTour));
+
+router.route("/api/1.0/driver-tour-info")
+  .get(authentication(), wrapAsync(getTourInfo));
 
 router.route("/api/1.0/driver-homepage")
   .get(wrapAsync(getDriverHomepage));
