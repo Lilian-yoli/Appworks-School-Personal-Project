@@ -6,11 +6,25 @@ body {
   min-height: 100% !important;
 }
 
+h2 {
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  margin-top: 2%;
+}
+
+#match, #unmatch {
+  position:relative;
+  z-index:2;
+}
+
 #route-info {
   width: 100%;
   text-align: center;
   flex: 1;
+  margin-bottom: 115px;
   overflow: scroll;
+  z-index: 2;
 }
 
 #match-itinerary, #unmatch-itinerary {
@@ -26,7 +40,8 @@ body {
   margin: 1% 30% 2% 30%;
 }
 
-a.match-itinerary-container:link, a.unmatch-itinerary-container:link {
+a.match-itinerary-container:link, a.match-itinerary-container:visited, 
+a.unmatch-itinerary-container:link, a.match-itinerary-container:visited {
   color: black;
   text-decoration: none;
   font-weight: 400;
@@ -39,12 +54,12 @@ a.match-itinerary-container:link, a.unmatch-itinerary-container:link {
   border: 2px;
   border-radius: 20px;
   box-sizing: border-box;
-  background-color: rgb(255, 255, 255);
-  box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
+  0 10px 10px rgba(0,0,0,0.22);
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  background-color: white;
+  background-color: #f6f5f7
 }
 
 .match-itinerary-upper {
@@ -148,21 +163,24 @@ a.match-itinerary-container:link, a.unmatch-itinerary-container:link {
   text-align: center;
   margin: 1% 30% 2% 30%;
   display: flex;
+  z-index: 2;
 }
 
 .bar-item {
   width: 50%;
   margin: 0 1% 0 1% ;
   height: 40px;
-  background-color: #ffa83e4d;
+  background-color: #ffa83e;
   font-size: 20px;
   border-radius: 6px;
   border: none;
   outline: none;
   border-bottom: 0px;
-  box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
+  box-shadow: rgb(0 0 0 / 24%) 0px 1pt 8pt, rgb(0 0 0 / 8%) 0px 2pt 12pt;
 }
 
 *:focus {
   outline: none;
 }
+
+

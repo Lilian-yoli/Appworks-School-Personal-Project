@@ -37,13 +37,14 @@
         </div> 
       </header>
     <main>
+        <h2>你的行程</h2>
+        <div id="background" src="./uploads/images/bigmainpic.jpeg"></div>
         <div class="bar w3-black">
             <button class="bar-item btn" onclick="openTab('match')">已媒合行程</button>
             <button class="bar-item btn" onclick="openTab('unmatch')">待媒合行程</button>
         </div>
         <div id="match" class="itinerary">
             <div id="route-info">
-                <h2>你的行程</h2>
                 <div id="match-itinerary">
                     <a class="match-itinerary-container" href="./driver-tour-info.html?routid=148&tour=158">
                         <div class="match-itinerary-wrapper">
@@ -62,16 +63,15 @@
                         </div>
                     </a>
                 </div>
+                <div class="btn-container">
+                    <button id="homePage">回首頁</button>
+                </div> 
             </div>
-            <div class="btn-container">
-                <button id="homePage">回首頁</button>
-            </div> 
           </div>
           
         <div id="unmatch" class="itinerary" style="display:none">
             
             <div id="route-info">
-                <h2>你的行程</h2>
             <div id="unmatch-itinerary">
                 <a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=148&tour=158">
                         <div class="match-itinerary-wrapper">

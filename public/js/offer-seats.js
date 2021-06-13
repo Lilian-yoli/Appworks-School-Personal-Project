@@ -16,8 +16,12 @@ window.addEventListener("load", () => {
   const seatsOfferedInfo = {};
 
   next.addEventListener("click", () => {
+    showLoading();
     if (persons.value === "" || date.value === "" || date.value === "") {
-      return alert("乘載人數、日期、費用為必填");
+      return swal({
+        text: "乘載人數、日期、費用為必填",
+        icon: "warning"
+      });
     }
     seatsOfferedInfo.origin = origin;
     seatsOfferedInfo.destination = destination;
@@ -43,10 +47,12 @@ window.addEventListener("load", () => {
     }).then(response => {
       console.log("Success:", response);
       if (response.error) {
-        alert(response.error);
+        swal({
+          text: response.error,
+          icon: "warning"
+        });
       } else {
         const data = response.route;
-        showLoading();
         console.log("data46:", data);
         window.localStorage.setItem("route", JSON.stringify(response.route));
         const url = new URL("http://localhost:3000/path.html");
@@ -55,10 +61,14 @@ window.addEventListener("load", () => {
         });
         url.search = searchParams;
         console.log(url.href);
-        showLoading();
         document.location.href = `./path.html?routeid=${data[0].route_id}`;
       }
     });
+  });
+
+  const test = document.getElementById("test");
+  test.addEventListener("click", () => {
+    showLoading();
   });
 });
 
@@ -137,10 +147,9 @@ const showLoading = function () {
   swal({
     title: "正在計算路程...",
     closeOnEsc: false,
-    allowEscapeKey: false,
     allowOutsideClick: false,
     buttons: false,
-    timer: 2000,
+    timer: 10000,
     onOpen: () => {
       swal.showLoading();
     }

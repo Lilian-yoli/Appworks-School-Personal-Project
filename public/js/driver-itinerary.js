@@ -12,8 +12,9 @@ fetch("/api/1.0/driver-itinerary", {
   const match = data.match;
   const unmatch = data.unmatch;
   const itinerary = document.getElementById("match-itinerary");
-  for (const i in match) {
-    itinerary.innerHTML +=
+  if (!match.empty) {
+    for (const i in match) {
+      itinerary.innerHTML +=
     `<a class="match-itinerary-container" href="./driver-tour-info.html?routid=${match[0].route_id}&tour=${match[0].tourId}">
     <div class="match-itinerary-wrapper">
     <div class="match-itinerary-detail">
@@ -30,10 +31,17 @@ fetch("/api/1.0/driver-itinerary", {
     </div>
 </div>
 </a>`;
+    }
+  } else {
+    itinerary.innerHTML =
+    `<div width="100%" style="margin-right: auto; margin-left: auto;">
+    <h4 style="text-align:center">${unmatch.empty}</h4>
+    <img src="../uploads/images/no-path-suggestion.svg" width="480"></div>`;
   }
   const unmatchItinerary = document.getElementById("unmatch-itinerary");
-  for (const i in unmatch) {
-    unmatchItinerary.innerHTML +=
+  if (!unmatch.empty) {
+    for (const i in unmatch) {
+      unmatchItinerary.innerHTML +=
     `<a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=${match[0].route_id}&tour=${match[0].tourId}">
     <div class="match-itinerary-wrapper">
     <div class="match-itinerary-detail">
@@ -50,6 +58,12 @@ fetch("/api/1.0/driver-itinerary", {
     </div>
 </div>
 </a>`;
+    }
+  } else {
+    unmatchItinerary.innerHTML =
+    `<div width="100%" style="margin-right: auto; margin-left: auto;">
+    <h4 style="text-align:center">${unmatch.empty}</h4>
+    <img src="../uploads/images/no-path-suggestion.svg" width="480"></div>`;
   }
 }).catch((error) => {
   console.error("Error:", error);

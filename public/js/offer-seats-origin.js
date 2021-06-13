@@ -63,16 +63,18 @@ async function siteAuto () {
 
 window.addEventListener("load", () => {
   const button = document.getElementById("btn");
-  const origin = document.getElementById("autocomplete");
 
   initMap();
   siteAuto();
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    if (localStorage.getItem("destination")) {
+    if (localStorage.getItem("driverOrigin")) {
       document.location.href = "./offer-seats-destination.html";
     } else {
-      alert("尚未選擇地點，請確認地圖地址是否正確");
+      swal({
+        text: "尚未選擇地點，請確認地圖地址是否正確",
+        icon: "warning"
+      });
     }
   });
 });

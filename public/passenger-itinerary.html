@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/itinerary.css">
+    <link rel="stylesheet" href="./css/header.css">
     <title>Co-car</title>
 </head>
 <body>
@@ -50,13 +50,14 @@
       </header>
     
     <main>
+        <h2>你的行程</h2>
+        <!-- <div id="background" src="./uploads/images/bigmainpic.jpeg"></div> -->
         <div class="bar w3-black">
             <button class="bar-item btn" onclick="openTab('match')">已媒合行程</button>
             <button class="bar-item btn" onclick="openTab('unmatch')">待媒合行程</button>
         </div>
         <div id="match" class="itinerary">
             <div id="route-info">
-                <h2>你的行程</h2>
                 <div id="match-itinerary">
                     <a class="match-itinerary-container" href="./driver-tour-info.html?routid=148&tour=158">
                         <div class="match-itinerary-wrapper">
@@ -83,7 +84,6 @@
         <div id="unmatch" class="itinerary" style="display:none">
             
             <div id="route-info">
-                <h2>你的行程</h2>
             <div id="unmatch-itinerary">
                 <a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=148&tour=158">
                         <div class="match-itinerary-wrapper">

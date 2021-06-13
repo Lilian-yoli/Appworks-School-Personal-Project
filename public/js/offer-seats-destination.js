@@ -30,7 +30,14 @@ window.addEventListener("load", () => {
   const destination = document.getElementById("autocomplete");
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    document.location.href = "./offer-seats.html";
+    if (localStorage.getItem("driverDestination")) {
+      document.location.href = "./offer-seats.html";
+    } else {
+      swal({
+        text: "尚未選擇地點，請確認地圖地址是否正確",
+        icon: "warning"
+      });
+    }
   });
 });
 
