@@ -105,7 +105,7 @@ const tokenVerify = async (receiverId) => {
 
 const getNotification = async (id) => {
   try {
-    const result = await query("SELECT * FROM notification WHERE user_id = ? AND unread = 0 ORDER BY time DESC", id);
+    const result = await query("SELECT * FROM notification WHERE user_id = ? AND unread = 1 ORDER BY time DESC", id);
     if (result.length < 1) {
       return { empty: "User has no notification" };
     }
@@ -117,7 +117,7 @@ const getNotification = async (id) => {
 };
 
 const updateNotification = async (id) => {
-  const result = await query("UPDATE notification SET unread = 1 WHERE id = ?", [id]);
+  const result = await query("UPDATE notification SET unread = 0 WHERE id = ?", [id]);
   console.log(result);
   if (result < 1) {
     return { error: "Internal server error" };

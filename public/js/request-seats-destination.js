@@ -41,7 +41,10 @@ window.addEventListener("load", () => {
     if (localStorage.getItem("destination")) {
       document.location.href = "./request-seats.html";
     } else {
-      alert("尚未選擇地點，請確認地圖地址是否正確");
+      swal({
+        text: "尚未選擇地點，請確認地圖地址是否正確",
+        icon: "warning"
+      });
     }
   });
 });

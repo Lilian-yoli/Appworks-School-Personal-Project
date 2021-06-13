@@ -56,26 +56,19 @@ async function header () {
 
   socket.on("passengerReceive", data => {
     console.log(data);
-
-    if (data.length) {
+    const dropdownMenu = document.querySelector(".dropdown-menu");
+    dropdownMenu.innerHTML = "";
+    if (data.length > 0) {
       const bell = document.getElementById("bell");
       bell.src = "./uploads/images/notificationOn.png";
       for (const i in data) {
-        const dropdown = document.querySelector(".dropdown-menu");
-        dropdown.append(Object.assign(document.createElement("a"),
-          { className: "dropdown-item" },
-          { href: data[i].url }));
+        dropdownMenu.innerHTML +=
+        `<a href="${data[i].url}" class="dropdown-item">
+          <div class="dropdown-content">
+            <p class="dropdown-content-p">${data[i].content}</p>
+          </div>
+        </a>`;
         const dropdownItem = document.querySelectorAll(".dropdown-item")[i];
-        dropdownItem.append(Object.assign(document.createElement("img"),
-          { className: "dropdown-icon" },
-          { src: data[i].icon }));
-        dropdownItem.append(Object.assign(document.createElement("div"),
-          { className: "dropdown-content" }));
-        const dropdownContent = document.querySelectorAll(".dropdown-content")[i];
-        dropdownContent.append(Object.assign(document.createElement("p"),
-          { className: "dropdown-content-p" },
-          { textContent: data[i].content }));
-
         dropdownItem.onclick = function updateNotification () {
           fetch("/api/1.0/update-notification", {
             method: "POST",

@@ -170,7 +170,7 @@ const driverSearchDetail = async (id) => {
   return result;
 };
 
-const setDriverTour = async (driverRouteId, passengerRouteId) => {
+const setDriverTour = async (driverRouteId, passengerRouteId, userId) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
 
@@ -183,10 +183,10 @@ const setDriverTour = async (driverRouteId, passengerRouteId) => {
     if (checkTour.length > 0) {
       return { error: "Tour had already been created, please check your itinerary" };
     }
-    const routeInfo = [driverRouteId, passengerRouteId[i], "request", 0, 0];
+    const routeInfo = [driverRouteId, passengerRouteId[i], "request", 0, 0, userId];
     insertArr.push(routeInfo);
   }
-  const result = await query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished, match_status) VALUES ?", [insertArr]);
+  const result = await query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished, match_status, send_by) VALUES ?", [insertArr]);
   console.log("-------", result);
   const insertId = result.insertId;
   await connection.query("COMMIT");
@@ -235,7 +235,8 @@ const getTourInfo = async (tourId) => {
   const passengerInfo = await query(`SELECT r.route_id, r.origin, r.destination, r.persons, 
   FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id
-  INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId}`);
+  INNER JOIN users u ON r.user_id = u.id 
+  INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id WHERE o.route_id = ${driverInfo[0].route_id}`);
   passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
   console.log("passengerInfo", passengerInfo);
 

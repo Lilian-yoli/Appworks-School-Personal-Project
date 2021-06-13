@@ -68,6 +68,7 @@ const setPassengerTour = async (req, res) => {
   if (result < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
+  result.username = req.user.name;
   res.status(200).send(result);
 };
 
@@ -99,6 +100,10 @@ const suggestPassengerRoute = async (req, res) => {
   if (filterRoutes.length < 1) {
     return res.status(500).send({ error: "Internal server error" });
   } else if (filterRoutes.msg) {
+    filterRoutes.origin = origin;
+    filterRoutes.destination = destination;
+    filterRoutes.destinationCoordinate = getPassengerDetail.destination_coordinate;
+    filterRoutes.originCoordinate = getPassengerDetail.origin_coordinate;
     return res.status(200).send(filterRoutes);
   }
   getPassengerDetail.id = id;

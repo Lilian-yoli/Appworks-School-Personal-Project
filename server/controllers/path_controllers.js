@@ -131,7 +131,7 @@ const driverSearchDetail = async (req, res) => {
 const setDriverTour = async (req, res) => {
   console.log("req.body", req.body);
   const { driverRouteId, passengerRouteId } = req.body;
-  const result = await Path.setDriverTour(driverRouteId, passengerRouteId);
+  const result = await Path.setDriverTour(driverRouteId, passengerRouteId, req.user.id);
   if (result < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
@@ -156,6 +156,7 @@ const getDriverHomepage = async (req, res) => {
 const getTourInfo = async (req, res) => {
   console.log("tour", req.query);
   const tourId = req.query.tour;
+  console.log(tourId);
   const result = await Path.getTourInfo(tourId);
   result.userId = req.user.id;
   if (result.length < 1) {

@@ -16,6 +16,7 @@ const seatsRequestInfo = {};
 next.onclick = function click () {
   // initMap();
   // next.addEventListener("click", () => {
+  showLoading();
   seatsRequestInfo.origin = origin;
   seatsRequestInfo.destination = destination;
   seatsRequestInfo.persons = persons.value;
@@ -145,8 +146,3 @@ const showLoading = function () {
   );
 };
 // showLoading();
-
-document.getElementById("next")
-  .addEventListener("click", (event) => {
-    showLoading();
-  });

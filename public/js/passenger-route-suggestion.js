@@ -17,8 +17,9 @@ async function wrapper () {
   const driver = data.driverInfo;
   const waypts = [];
   if (data.msg) {
-    const pathSuggestion = document.getElementById("driver-route");
-    pathSuggestion.append(Object.assign(document.createElement("h1"),
+    console.log(123);
+    const pathSuggestion = document.getElementById("path-suggestion");
+    pathSuggestion.append(Object.assign(document.createElement("h2"),
       { id: "sign" },
       { textContent: "尚無合適路線，已儲存需求" }));
     pathSuggestion.append(Object.assign(document.createElement("img"),
@@ -30,9 +31,10 @@ async function wrapper () {
     const back = document.getElementById("back");
     back.append(Object.assign(document.createElement("input"),
       { type: "submit" },
-      { value: "回首頁" }));
+      { value: "回首頁" },
+      { id: "homepage" }));
     const map = document.getElementById("map");
-    map.style.display = "none";
+    initMap([], data.origin, data.destination, true, driver);
   } else {
     const myRoute = document.getElementById("my-route");
     myRoute.innerHTML +=
@@ -75,25 +77,25 @@ async function wrapper () {
     title.textContent = "推薦車主";
     pathSuggestion.insertBefore(title, pathSuggestion.firstChild);
     console.log(myRoute);
+
+    const driverOrigin = driver[0][1].detail.origin;
+    const driverDestination = driver[0][1].detail.destination;
+
+    waypts.push({
+      location: { lat: passenger.origin_coordinate.x, lng: passenger.origin_coordinate.y },
+      stopover: true
+    });
+    waypts.push({
+      location: { lat: passenger.destination_coordinate.x, lng: passenger.destination_coordinate.y },
+      stopover: true
+    });
+
+    initMap(waypts, driverOrigin, driverDestination, true, driver);
+    chooseWypts(driver, waypts);
+    clickEvent(driver, passenger);
+    // matchedBtn(driver, passenger, verifyToken, query);
+    skipBtn();
   }
-
-  const driverOrigin = driver[0][1].detail.origin;
-  const driverDestination = driver[0][1].detail.destination;
-
-  waypts.push({
-    location: { lat: passenger.origin_coordinate.x, lng: passenger.origin_coordinate.y },
-    stopover: true
-  });
-  waypts.push({
-    location: { lat: passenger.destination_coordinate.x, lng: passenger.destination_coordinate.y },
-    stopover: true
-  });
-
-  initMap(waypts, driverOrigin, driverDestination, true, driver);
-  chooseWypts(driver, waypts);
-  clickEvent(driver, passenger);
-  // matchedBtn(driver, passenger, verifyToken, query);
-  skipBtn();
 }
 
 function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) {
@@ -158,8 +160,6 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
     if (status == google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(response);
 
-      console.log(response, response.routes[0].legs[1].start_location);
-
       const wayptsOrigin = new google.maps.LatLng(waypts[0].location);
       let marker = new google.maps.Marker({
         map: map,
@@ -203,8 +203,8 @@ function chooseWypts (driver, waypts) {
       e.preventDefault();
       if (num != index) {
         const lastAdd = document.getElementsByClassName("suggestion-add")[index];
-        lastAdd.src = "http://localhost:3000/uploads/images/graycheck.png";
-        add.src = "http://localhost:3000/uploads/images/check.png";
+        lastAdd.src = "https://www.co-car.site/uploads/images/graycheck.png";
+        add.src = "https://www.co-car.site/uploads/images/check.png";
         const driverOrigin = driver[num][1].detail.origin;
         const driverDestination = driver[num][1].detail.destination;
         localStorage.setItem("index", num);
@@ -218,24 +218,23 @@ const clickEvent = async (driver, passenger) => {
   const socket = io();
   const verifyToken = localStorage.getItem("access_token");
   let data = "";
-  const index = localStorage.getItem("index");
-
-  const res = await fetch("/api/1.0/verify", {
-    method: "POST",
-    body: JSON.stringify({
-      receiverId: driver[index][1].detail.user_id
-    }),
-    headers: new Headers({
-      Authorization: "Bearer " + verifyToken,
-      "Content-Type": "application/json"
-    })
-  });
-  data = await res.json();
-  console.log("verifyAPI:", data);
 
   for (const i in driver) {
     const contact = document.getElementsByClassName("contact")[i];
     contact.addEventListener("click", async () => {
+      const index = localStorage.getItem("index");
+      const res = await fetch("/api/1.0/verify", {
+        method: "POST",
+        body: JSON.stringify({
+          receiverId: driver[index][1].detail.user_id
+        }),
+        headers: new Headers({
+          Authorization: "Bearer " + verifyToken,
+          "Content-Type": "application/json"
+        })
+      });
+      data = await res.json();
+      console.log("verifyAPI:", data);
       const room = makeRooom(data.userId, data.receiverId);
       document.location.href = `./chat.html?room=${room}`;
     });
@@ -243,6 +242,7 @@ const clickEvent = async (driver, passenger) => {
 
   const book = document.getElementById("apply-route");
   book.addEventListener("click", async () => {
+    const index = localStorage.getItem("index");
     const response = await fetch("/api/1.0/passenger-tour", {
       method: "POST",
       body: JSON.stringify({
@@ -269,18 +269,19 @@ const clickEvent = async (driver, passenger) => {
       receiverId: [driver[index][1].detail.user_id],
       passengerRouteId: null,
       url: `./driver-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}`,
-      content: `乘客${data.username}已接受你的行程，立即前往查看`,
+      content: `乘客${idInfo.username}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/match.svg",
       confirm: 0
     };
     socket.emit("notifiyPassenger", routeInfo);
+    console.log(routeInfo);
     swal({
       text: "通知已傳送",
       icon: "success"
     });
-    document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
-    &tour=${idInfo.tourId}&passenger=${passenger.route_id}`;
+    // document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
+    // &tour=${idInfo.tourId}&passenger=${passenger.route_id}`;
   });
 };
 

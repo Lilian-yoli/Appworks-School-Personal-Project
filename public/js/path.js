@@ -22,27 +22,8 @@ async function wrapper () {
 
   socket.emit("login", driver.id);
 
-  if (passenger.length < 1) {
-    const pathSuggestion = document.getElementById("path-suggestion");
-    console.log(pathSuggestion);
-    pathSuggestion.append(Object.assign(document.createElement("h1"),
-      { id: "sign" },
-      { textContent: "尚無合適乘客" }));
-    pathSuggestion.append(Object.assign(document.createElement("img"),
-      { id: "sign-pic" },
-      { src: "../uploads/images/no-path-suggestion.svg" }));
-    pathSuggestion.append(Object.assign(document.createElement("form"),
-      { action: "./" },
-      { id: "back" }));
-    const back = document.getElementById("back");
-    back.append(Object.assign(document.createElement("input"),
-      { type: "submit" },
-      { value: "回首頁" }));
-    const map = document.getElementById("map");
-    map.style.display = "none";
-  } else {
-    const myRoute = document.getElementById("my-route");
-    myRoute.innerHTML +=
+  const myRoute = document.getElementById("my-route");
+  myRoute.innerHTML +=
   `<h2 id="my-title">你的路線</h2>
   <div id="my-wrapper">
       <div id="my-origin">起點：${driver.origin}</div>
@@ -54,6 +35,26 @@ async function wrapper () {
       </div>
   </div>`;
 
+  if (passenger.length < 1) {
+    const pathSuggestion = document.getElementById("path-suggestion");
+    console.log(pathSuggestion);
+    pathSuggestion.append(Object.assign(document.createElement("h2"),
+      { id: "sign" },
+      { textContent: "尚無合適乘客" }));
+    pathSuggestion.append(Object.assign(document.createElement("img"),
+      { id: "sign-pic" },
+      { src: "../uploads/images/no-path-suggestion.svg" }));
+    pathSuggestion.append(Object.assign(document.createElement("form"),
+      { action: "./" },
+      { id: "back" }));
+    const back = document.getElementById("back");
+    back.append(Object.assign(document.createElement("input"),
+      { type: "submit" },
+      { value: "回首頁" },
+      { id: "homepage" }));
+    document.querySelector(".button-container").innerHTML = "";
+    initMap(driver, []);
+  } else {
     let personCounter = 0;
     for (let i = 0; i < passenger.length; i++) {
       const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
@@ -188,7 +189,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
 
       console.log("index", num, index);
       console.log(add, add.src);
-      if (add.src != "http://localhost:3000/uploads/images/check.png") {
+      if (add.src != "https://www.co-car.site/uploads/images/check.png") {
         if (index.indexOf(num.toString()) == -1) {
           if (persons + passenger[num].persons > driver.seats_left) {
             swal({
@@ -252,7 +253,7 @@ function showPickedPassenger (num) {
   console.log(num);
   const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[num];
   const add = document.getElementsByClassName("suggestion-add")[num];
-  if (add.src == "http://localhost:3000/uploads/images/check.png") {
+  if (add.src == "https://www.co-car.site/uploads/images/check.png") {
     add.src = "./uploads/images/graycheck.png";
   } else {
     add.src = "./uploads/images/check.png";
@@ -264,46 +265,55 @@ function matchedBtn (driver, passenger, verifyToken, query) {
   const applyRoute = document.getElementById("apply-route");
   const passengerRouteId = [];
   applyRoute.addEventListener("click", async () => {
-    const index = localStorage.getItem("index");
-    if (index.length < 1) {
-      swal({
+    let index = localStorage.getItem("index");
+    if (index.length < 0) {
+      return swal({
         text: "未選擇乘客",
         icon: "warning"
       });
-    }
-    const passengerId = [];
-    for (const i in index) {
-      passengerRouteId.push(passenger[index[i]].route_id);
-      passengerId.push(passenger[index[i]].user_id);
-    }
+    } else {
+      index = index.split(",");
+      const passengerId = [];
+      for (const i in index) {
+        passengerRouteId.push(passenger[index[i]].route_id);
+        passengerId.push(passenger[index[i]].user_id);
+      }
 
-    localStorage.setItem("passengerRoute", passengerRouteId);
-    localStorage.removeItem("waypts");
-    const res = await fetch("/api/1.0/driver-tour", {
-      method: "POST",
-      body: JSON.stringify({ driverRouteId: driver.routeId, passengerRouteId: passengerRouteId }),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-Type": "application/json"
-      })
-    });
-    const data = await res.json();
-    console.log(data);
-    const routeInfo = {
-      receiverId: passengerId,
-      passengerRouteId: passengerRouteId,
-      url: `./passenger-tour-info.html?id=${driver.routeId}?tour=${data.tourId}`,
-      content: `車主${driver.name}已接受你的行程，立即前往查看`,
-      type: "match",
-      icon: "./uploads/images/match.svg"
-    };
-    console.log(123);
-    socket.emit("notifiyPassenger", routeInfo);
-    swal({
-      text: "已傳送通知",
-      icon: "success"
-    });
-    document.location.href = `./passenger-tour-info.html?id=${driver.routeId}?tour=${data.tourId}`;
+      localStorage.setItem("passengerRoute", passengerRouteId);
+      localStorage.removeItem("waypts");
+      const res = await fetch("/api/1.0/driver-tour", {
+        method: "POST",
+        body: JSON.stringify({ driverRouteId: driver.routeId, passengerRouteId: passengerRouteId }),
+        headers: new Headers({
+          Authorization: "Bearer " + verifyToken,
+          "Content-Type": "application/json"
+        })
+      });
+      const data = await res.json();
+      console.log(data);
+      if (!data.tourId.error) {
+        const routeInfo = {
+          receiverId: passengerId,
+          passengerRouteId: passengerRouteId,
+          url: `./driver-tour-info.html?id=${driver.routeId}&tour=${data.tourId}`,
+          content: `車主${driver.name}已接受你的行程，立即前往查看`,
+          type: "match",
+          icon: "./uploads/images/match.svg"
+        };
+        console.log(123);
+        socket.emit("notifiyPassenger", routeInfo);
+        swal({
+          text: "已傳送通知",
+          icon: "success"
+        });
+        document.location.href = `./driver-tour-info.html?id=${driver.routeId}&tour=${data.tourId}`;
+      } else {
+        swal({
+          text: "路線曾建立過，請至「車主行程」查看",
+          icon: "warning"
+        });
+      }
+    }
   });
 }
 

@@ -15,6 +15,7 @@ async function wrapper () {
   console.log(data);
 
   const { driverInfo, passengerInfo } = data;
+  document.querySelectorAll("h2")[0].innerHTML = "你的行程";
   document.getElementById("my-route").innerHTML =
   `<h3 id="my-title">你的路線</h3>
   <div id="my-wrapper">
@@ -35,22 +36,22 @@ async function wrapper () {
   for (const i in passengerInfo) {
     if (passengerInfo[0].match_status == 0) {
       if (data.tourInfo.sendBy == data.userId) {
-        companionRoute.innerHTML =
+        companionRoute.innerHTML +=
         html(passengerInfo, i, "grayspot");
       } else {
-        companionRoute.innerHTML =
+        companionRoute.innerHTML +=
         html(passengerInfo, i, "");
         confirm(driverInfo, passengerInfo);
       }
     } else if (driverInfo.match_status == 1) {
-      companionRoute.innerHTML =
+      companionRoute.innerHTML +=
       html(passengerInfo, i, "greenspot");
     } else {
-      companionRoute.innerHTML =
+      companionRoute.innerHTML +=
       html(passengerInfo, i, "refuse");
     }
-    contact(passengerInfo[i].id, driverInfo.id);
   }
+  contact(passengerInfo, driverInfo);
   initMap(driverInfo, passengerInfo);
   hompage();
 };
@@ -126,14 +127,12 @@ function confirm (driverInfo, passengerInfo) {
 
 function contact (passengerInfo, driverInfo) {
   for (const i in passengerInfo) {
-    const contact = document.querySelectorAll(".contact")[i];
-    console.log(contact);
-    contact.addEventListener("click", (e) => {
-      let index = e.target.id;
-      index = index.split(".")[0];
-      console.log(index);
-      const room = makeRooom(passengerInfo[index].id, driverInfo.id);
-      document.location.href = `./chat.html?room=${room}`;
+    document.addEventListener("click", (e) => {
+      if (e.target.id == `contact${i}`) {
+        console.log(e.target.id);
+        const room = makeRooom(passengerInfo[i].id, driverInfo.id);
+        document.location.href = `./chat.html?room=${room}`;
+      }
     });
   }
 }
@@ -163,7 +162,7 @@ function initMap (driverInfo, passengerInfo) {
     travelMode: "DRIVING"
   };
   console.log(waypoints);
-  for (let i = 0; i < passengerInfo.length; i += 2) {
+  for (let i = 0; i < waypoints.length; i += 2) {
     marker(i, map, waypoints, google);
   }
 
@@ -225,7 +224,7 @@ function html (passengerInfo, i, confirmStatus) {
     button = "";
   }
   const html =
-  `<h4 id="companion-title">乘客1:</h4>
+  `<h4 id="companion-title">乘客${+i + 1}:</h4>
   <div class="companion-wrapper">
   <div class="companion-upper">
       <img class="companion-img" src="./uploads/images/route.png">
@@ -239,7 +238,7 @@ function html (passengerInfo, i, confirmStatus) {
       <img class="profile" src="./uploads/images/member.png">
       <div class="name">${passengerInfo[i].name}</div>
       <div class="persons">${passengerInfo[i].persons}人</div>
-      <div class="btn-wrap"><button class="contact" id=${i}>聯繫乘客</button></div>
+      <div class="btn-wrap"><button class="contact" id="contact${i}">聯繫乘客</button></div>
   </div>
   ${button}                                     
 </div>`;

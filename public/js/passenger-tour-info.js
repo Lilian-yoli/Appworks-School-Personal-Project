@@ -17,7 +17,7 @@ async function wrapper () {
   <div id="my-wrapper">
       <div id="my-detail">
           <div id="my-date">日期：${passengerInfo[0].date}</div>
-          <div id="my-seats">${passengerInfo[0].persons}個座位</div>
+          <div id="my-seats">${passengerInfo[0].persons}個人</div>
       </div>
       <div class="my-upper">
           <img id="my-route-img" src="./uploads/images/route.png">
@@ -195,9 +195,9 @@ function html (driverInfo, confirmStatus) {
   <div class="under">
       <img class="profile" src="./uploads/images/member.png">
       <div class="name">${driverInfo.name}</div>
-      <div class="persons">${driverInfo.seats_left}人</div>
+      <div class="persons">${driverInfo.seats_left}個座位</div>
       <div class="time">${driverInfo.time}</div>
-      <div class="btn-wrap"><button class="contact">聯繫乘客</button></div>
+      <div class="btn-wrap"><button class="contact">聯繫車主</button></div>
   </div>
   ${button}                                     
 </div>`;

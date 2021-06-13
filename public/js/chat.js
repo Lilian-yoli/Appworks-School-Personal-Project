@@ -18,13 +18,15 @@ window.onload = async () => {
     return response.json();
   }).then((data) => {
     console.log(data);
+    const chatting = document.getElementById("chatting");
+    const chatRecord = document.getElementById("chat-record");
     if (data.firstSidebar) {
       console.log(123);
-      createChatList("on-chat", data.firstSidebar, data.usersInfo, 0);
+      createChatList2(chatting, data.firstSidebar, data.usersInfo, 0);
       const userId = data.usersInfo.userId2;
-      createChatList("chat-record", data.sidebar, data.usersInfo, userId);
+      createChatList2(chatRecord, data.sidebar, data.usersInfo, userId);
     } else {
-      createChatList("chat-record", data.sidebar, data.usersInfo, 0);
+      createChatList2(chatRecord, data.sidebar, data.usersInfo, 0);
     }
 
     if (data.firstChatMsg) {
@@ -33,8 +35,10 @@ window.onload = async () => {
       outputMsg(data.usersInfo, data.chatMsg);
     }
 
-    const chatForm = document.getElementById("chat-form");
-    const chatContent = document.querySelector(".chat-content");
+    const chatForm = document.querySelector(".form-control");
+    const chatContent = document.getElementById("chat-content");
+    chatContent.scrollIntoView(false);
+    const send = document.getElementById("send");
     const senderId = data.usersInfo.userId1;
     const senderName = data.usersInfo.username1;
     const senderPic = data.usersInfo.userPicture1;
@@ -45,10 +49,9 @@ window.onload = async () => {
     console.log("sender", senderId);
     socket.emit("login", senderId);
 
-    chatForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const msg = e.target.elements.msg.value;
+    send.addEventListener("click", () => {
+      const msg = chatForm.value;
+      console.log(msg);
       msg.trim();
       if (!msg) {
         return false;
@@ -64,36 +67,20 @@ window.onload = async () => {
         room: room
       });
 
-      e.target.elements.msg.value = "";
-      e.target.elements.msg.focus();
+      chatForm.value = "";
+      chatForm.focus();
     });
 
     socket.on("receiveMsg", data => {
       console.log(data.msg);
+      console.log(123);
       outputChattingMsg(data, senderId);
       console.log(receiverName, senderName);
       console.log(receiverId, receiverName);
 
-      chatContent.scrollTop = chatContent.scrollHeight;
+      chatContent.scrollIntoView(false);
     });
   });
-  // 2. simply enter chatroom, not yet chatted to anyone
-  // fetch(`/api/1.0/chat-record${query}`, {
-  //   method: "POST",
-  //   headers: new Headers({
-  //     Authorization: "Bearer " + verifyToken,
-  //   })
-  // }).then((response) => {
-  //   return response.json();
-  // }).then((data) => {
-  //   console.log(data);
-  //   createChatList("chat-record", data.sidebar);
-  //   localStorage.setItem(
-  //   if (!query) {
-  //     outputMsg(data.sidebar, data.chatbox);
-  //   }
-  // });
-  // if (receiver) {
 };
 
 const makeLabel = (senderId, receiverId) => {
@@ -104,25 +91,63 @@ const makeLabel = (senderId, receiverId) => {
   }
 };
 
-// const createChatList2 = (chatType, data, users, userId) => {
-//   const sidebar = document.getElementById("sidebar");
-//   for (const i in data) {
-//     // sidebar chatroom not onchat
-//     if (data[i].receiver_id !== userId && data[i].sender_id !== userId) {
-//       const time = toDateFormat(data[i].date)
-//       sidebar.innerHTML +=
-//       `<a href="./chat.html?room=${data[i].room}">
-//                     <li class="clearfix active">
-//                         <img src="${data[i].picture}" alt="avatar">
-//                         <div class="about">
-//                           <div class="upper">
-//                             <div class="name">${data[i].name}</div><div class="date">${time}</div>
-//                           </div>
-//                           <div class="status"> 你：123 </div>
-//                         </div>
-//                     </li>
-//                     </a>`;
+const createChatList2 = (chatType, data, users, userId) => {
+  for (const i in data) {
+    // sidebar chatroom not onchat
+    if (data[i].receiver_id !== userId && data[i].sender_id !== userId) {
+      const time = toDateFormat(data[i].time);
+      let lastChat = "";
+      if (data[i].sender_id == users.userId1) {
+        lastChat = "你：" + data[i].msg;
+      } else {
+        lastChat = users.username2 + "：" + data[i].msg;
+      }
+      chatType.innerHTML +=
+      `<a href="./chat.html?room=${data[i].room}">  
+                    <li class="clearfix">
+                        <img src="${users.userPicture2}" alt="avatar">
+                        <div class="about">
+                          <div class="upper">
+                            <div class="name">${users.username2}</div><div class="date">${time}</div>
+                          </div>
+                          <div class="status">${lastChat}</div><div class="unread"></div>
+                        </div>
+                    </li>
+                    </a>`;
+      if (data[i].not_read > 0) {
+        const unread = document.querySelectorAll(".unread")[i];
+        unread.display = "inline-block";
+        unread.innerHTML = data[i].not_read;
+      }
+    }
+  }
+};
 
+// const createChatList = (chatType, data, users, userId) => {
+//   for (const i in data) {
+//     if (data[0].receiver_id !== userId && data[0].sender_id !== userId) {
+//       const chatList = document.querySelector(".chat-list");
+//       const onChat = document.createElement("a");
+//       onChat.setAttribute("id", chatType);
+//       onChat.href = `./chat.html?room=${data[i].room}`;
+//       chatList.appendChild(onChat);
+//       const listLeft = document.createElement("div");
+//       listLeft.classList.add("list-left");
+//       onChat.appendChild(listLeft);
+//       const profileImg = document.createElement("img");
+//       profileImg.classList.add("list-img");
+//       profileImg.src = "./uploads/images/member.png";
+//       listLeft.appendChild(profileImg);
+//       const listRight = document.createElement("div");
+//       listRight.classList.add("list-right");
+//       onChat.appendChild(listRight);
+//       const listRightUp = document.createElement("div");
+//       listRightUp.classList.add("list-right-up");
+//       listRight.appendChild(listRightUp);
+//       const listRightUpP = document.createElement("p");
+//       listRightUpP.classList.add("list-right-up-p");
+//       listRightUpP.textContent = users.username2;
+//       listRightUp.appendChild(listRightUpP);
 //       if (data[i].not_read > 0) {
 //         const listRightNoti = document.createElement("div");
 //         listRightNoti.classList.add("list-right-notification");
@@ -158,93 +183,29 @@ const makeLabel = (senderId, receiverId) => {
 //   }
 // };
 
-const createChatList = (chatType, data, users, userId) => {
-  for (const i in data) {
-    if (data[0].receiver_id !== userId && data[0].sender_id !== userId) {
-      const chatList = document.querySelector(".chat-list");
-      const onChat = document.createElement("a");
-      onChat.setAttribute("id", chatType);
-      onChat.href = `./chat.html?room=${data[i].room}`;
-      chatList.appendChild(onChat);
-      const listLeft = document.createElement("div");
-      listLeft.classList.add("list-left");
-      onChat.appendChild(listLeft);
-      const profileImg = document.createElement("img");
-      profileImg.classList.add("list-img");
-      profileImg.src = "./uploads/images/member.png";
-      listLeft.appendChild(profileImg);
-      const listRight = document.createElement("div");
-      listRight.classList.add("list-right");
-      onChat.appendChild(listRight);
-      const listRightUp = document.createElement("div");
-      listRightUp.classList.add("list-right-up");
-      listRight.appendChild(listRightUp);
-      const listRightUpP = document.createElement("p");
-      listRightUpP.classList.add("list-right-up-p");
-      listRightUpP.textContent = users.username2;
-      listRightUp.appendChild(listRightUpP);
-      if (data[i].not_read > 0) {
-        const listRightNoti = document.createElement("div");
-        listRightNoti.classList.add("list-right-notification");
-        listRightUp.appendChild(listRightNoti);
-        const listRightNotiP = document.createElement("p");
-        listRightNotiP.classList.add("list-right-notification-num");
-        listRightNotiP.textContent = data[i].not_read;
-        listRightNoti.appendChild("listRightNotiP");
-      }
-      const listRightDown = document.createElement("div");
-      listRightDown.classList.add("list-right-down");
-      listRight.appendChild(listRightDown);
-      const listMsg = document.createElement("div");
-      listMsg.classList.add("list-msg");
-      listRightDown.appendChild(listMsg);
-      const listRightDownP = document.createElement("p");
-      listRightDownP.classList.add("list-right-down-p");
-      if (data[i].sender_id == users.userId1) {
-        listRightDownP.textContent = "你：" + data[i].msg;
-      } else {
-        listRightDownP.textContent = users.username2 + "：" + data[i].msg;
-      }
-      listMsg.appendChild(listRightDownP);
-      const listDate = document.createElement("div");
-      listDate.classList.add("list-date");
-      listRightDown.appendChild(listDate);
-      const listDateP = document.createElement("p");
-      listDateP.classList.add("list-date-p");
-      const time = toDateFormat(data[i].time);
-      listDateP.textContent = time;
-      listDate.appendChild(listDateP);
-    }
-  }
-};
-
 const outputMsg = (users, msg) => {
+  const receiverPic = document.getElementById("receiver-pic");
+  const receiverName = document.getElementById("receiver-name");
+  receiverPic.src = users.userPicture2;
+  receiverName.innerHTML = users.username2;
+  const chatContent = document.getElementById("chat-content");
   for (const i in msg) {
+    chatContent.innerHTML +=
+    `<li class="clearfix">
+      <div class="message-data" id="msgContainer${i}">
+        <img id="profile${i}" alt="avatar">
+      </div>
+      <div class="message" id="msg${i}">${msg[i].msg}</div>                                    
+    </li>`;
     if (msg[i].sender_id == users.userId1) {
-      const chatContent = document.querySelector(".chat-content");
-      const mainDiv = document.createElement("div");
-      mainDiv.classList.add("sender");
-      chatContent.appendChild(mainDiv);
-      const content = document.createElement("div");
-      content.classList.add("sender-msg-content");
-      content.innerHTML = `<p class="msg-p">${msg[i].msg}</p>`;
-      mainDiv.appendChild(content);
+      document.getElementById(`profile${i}`).src = users.userPicture1;
+      document.getElementById(`msgContainer${i}`).classList.add("text-right");
+      document.getElementById(`msg${i}`).classList.add("other-message");
+      document.getElementById(`msg${i}`).classList.add("float-right");
+      document.getElementById(`msg${i}`).classList.add("chat-color");
     } else {
-      const chatContent = document.querySelector(".chat-content");
-      const mainDiv = document.createElement("div");
-      mainDiv.classList.add("receiver");
-      chatContent.appendChild(mainDiv);
-      const img = document.createElement("img");
-      img.src = `${users.userPicture2}`;
-      const name = document.createElement("div");
-      name.classList.add("name");
-      name.innerHTML = `<p class="name-p">${users.username2}</p>`;
-      const content = document.createElement("div");
-      content.classList.add("receiver-msg-content");
-      content.innerHTML = `<p class="msg-p">${msg[i].msg}</p>`;
-      mainDiv.appendChild(img);
-      mainDiv.appendChild(name);
-      mainDiv.appendChild(content);
+      document.getElementById(`profile${i}`).src = users.userPicture2;
+      document.getElementById(`msg${i}`).classList.add("my-message");
     }
   }
 };
@@ -255,30 +216,21 @@ const toDateFormat = (fromUnixtime) => {
 };
 
 const outputChattingMsg = (data, senderId) => {
+  const chatContent = document.getElementById("chat-content");
+  const chat = document.createElement("div");
+  chat.classList.add("clearfix");
   if (data.senderId == senderId) {
-    const chatContent = document.querySelector(".chat-content");
-    const mainDiv = document.createElement("div");
-    mainDiv.classList.add("sender");
-    chatContent.appendChild(mainDiv);
-    const content = document.createElement("div");
-    content.classList.add("sender-msg-content");
-    content.innerHTML = `<p class="msg-p">${data.msg}</p>`;
-    mainDiv.appendChild(content);
+    chat.innerHTML =
+    `<div class="message-data text-right">
+      <img src="${data.senderPicture}" alt="avatar">
+    </div>
+<div class="message other-message float-right">${data.msg}</div>`;
   } else {
-    const chatContent = document.querySelector(".chat-content");
-    const mainDiv = document.createElement("div");
-    mainDiv.classList.add("receiver");
-    chatContent.appendChild(mainDiv);
-    const img = document.createElement("img");
-    img.src = `${data.senderPicture}`;
-    const name = document.createElement("div");
-    name.classList.add("name");
-    name.innerHTML = `<p class="name-p">${data.senderName}</p>`;
-    const content = document.createElement("div");
-    content.classList.add("receiver-msg-content");
-    content.innerHTML = `<p class="msg-p">${data.msg}</p>`;
-    mainDiv.appendChild(img);
-    mainDiv.appendChild(name);
-    mainDiv.appendChild(content);
+    chat.innerHTML =
+    `<div class="message-data">
+      <img src="${data.receiverPicture}" alt="avatar">
+    </div>
+<div class="message my-message">${data.msg}</div>`;
   }
+  chatContent.appendChild(chat);
 };

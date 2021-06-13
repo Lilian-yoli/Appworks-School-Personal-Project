@@ -65,11 +65,6 @@ window.addEventListener("load", () => {
       }
     });
   });
-
-  const test = document.getElementById("test");
-  test.addEventListener("click", () => {
-    showLoading();
-  });
 });
 
 let map;
