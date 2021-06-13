@@ -100,10 +100,21 @@ const getUserProfile = async (req, res) => {
   ;
 };
 
+const getNotification = async (req, res) => {
+  try {
+    console.log(req.user);
+    const result = await User.getNotification(req.user.id);
+    res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   signupInfo,
   signinInfo,
   chatInfo,
   tokenVerify,
-  getUserProfile
+  getUserProfile,
+  getNotification
 };

@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/itinerary.css">
     <script src="./js/driver-itinerary.js"></script>
     <title>Cocar</title>
 </head>
@@ -36,12 +37,63 @@
         </div> 
       </header>
     <main>
-        <div class="route-info">
-            <h2>你的行程</h2>
-           <div id="itinerary">
-           </div>
-           <br> 
-           <button id="homePage">回首頁</button>
+        <div class="bar w3-black">
+            <button class="bar-item btn" onclick="openTab('match')">已媒合行程</button>
+            <button class="bar-item btn" onclick="openTab('unmatch')">待媒合行程</button>
+        </div>
+        <div id="match" class="itinerary">
+            <div id="route-info">
+                <h2>你的行程</h2>
+                <div id="match-itinerary">
+                    <a class="match-itinerary-container" href="./driver-tour-info.html?routid=148&tour=158">
+                        <div class="match-itinerary-wrapper">
+                            <div class="match-itinerary-detail">
+                                <div class="match-itinerary-date">日期：2021/06/30</div>
+                                <div class="match-itinerary-time">時間：08:00</div>
+                                <div class="match-itinerary-seats">5個座位</div>
+                            </div>
+                            <div class="match-itinerary-upper">
+                                <img class="match-itinerary-img-img" src="./uploads/images/route.png">
+                                <div class="match-itinerary-location">
+                                    <div class="match-itinerary-origin">110台灣台北市信義區基隆路一段178號</div>
+                                    <div class="match-itinerary-destination">555台灣南投縣魚池鄉中山路419號</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button id="homePage">回首頁</button>
+            </div> 
+          </div>
+          
+        <div id="unmatch" class="itinerary" style="display:none">
+            
+            <div id="route-info">
+                <h2>你的行程</h2>
+            <div id="unmatch-itinerary">
+                <a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=148&tour=158">
+                        <div class="match-itinerary-wrapper">
+                            <div class="match-itinerary-detail">
+                                <div class="match-itinerary-date">日期：2021/06/30</div>
+                                <div class="match-itinerary-time">時間：08:00</div>
+                                <div class="match-itinerary-seats">5個座位</div>
+                            </div>
+                            <div class="match-itinerary-upper">
+                                <img class="match-itinerary-img-img" src="./uploads/images/route.png">
+                                <div class="match-itinerary-location">
+                                    <div class="match-itinerary-origin">110台灣台北市信義區基隆路一段178號</div>
+                                    <div class="match-itinerary-destination">555台灣南投縣魚池鄉中山路419號</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="btn-container">
+                    <button id="homePage">回首頁</button>
+                </div> 
+            </div>
         </div>
     </main>
     <footer>
@@ -59,10 +111,15 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer> 
-    <style>
-        .route-info {
-            text-align: center;
+    <script>
+        function openTab(tab) {
+            var i;
+            var x = document.getElementsByClassName("itinerary");
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+            }
+            document.getElementById(tab).style.display = "block";
         }
-    </style>    
+    </script>
 </body>
 </html>

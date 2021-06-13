@@ -141,11 +141,12 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
 const getPassengerItinerary = async (id) => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
-    const qryStrMatched = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.fee, r.persons, t.id FROM requested_routes r
+    const qryStrMatched = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, 
+    o.fee, r.persons, o.route_id AS driverRouteId, r.route_id, t.id AS tourId FROM requested_routes r
   INNER JOIN tour t ON r.route_id = t.passenger_routes_id
   INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id
   INNER JOIN users u ON u.id = o.user_id
-  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp} ORDER by date LIMIT 6`;
+  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp} ORDER by date`;
     let matched = await query(qryStrMatched);
     if (matched.length < 1) {
       matched = { empty: "行程尚未進行媒合" };
@@ -157,7 +158,7 @@ const getPassengerItinerary = async (id) => {
 
     const qryStrUnmatched = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons 
     FROM requested_routes r LEFT OUTER JOIN tour t ON r.route_id = t.passenger_routes_id 
-    WHERE t.id IS NULL ORDER by date LIMIT 6`;
+    WHERE t.id IS NULL AND UNIX_TIMESTAMP(r.date) >= ${timestamp} ORDER by date`;
     let unmatched = await query(qryStrUnmatched);
     if (unmatched.length < 1) {
       unmatched = { empty: "尚未建立行程" };
@@ -168,8 +169,8 @@ const getPassengerItinerary = async (id) => {
     }
 
     const result = {};
-    result.matched = matched[0];
-    result.unmatched = unmatched[0];
+    result.matched = matched;
+    result.unmatched = unmatched;
     console.log("getPassengerItinerary", result);
     return result;
   } catch (err) {

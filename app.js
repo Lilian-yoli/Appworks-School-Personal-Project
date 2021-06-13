@@ -4,8 +4,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
-const jwt = require("jsonwebtoken");
-const { TOKEN_SECRET } = process.env;
 // eslint-disable-next-line no-unused-vars
 const API_VERSION = process.env;
 const pathRoutes = require("./server/routes/path_routes");
@@ -13,6 +11,7 @@ const userRoutes = require("./server/routes/user_routes");
 const passengerRoutes = require("./server/routes/passenger_route");
 const chatRoutes = require("./server/routes/chat_route");
 const Chat = require("./server/models/chat_model.js");
+const User = require("./server/models/user_model.js");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extend: true }));
@@ -52,7 +51,11 @@ io.on("connection", socket => {
   usersNum++;
   console.log(`There are ${usersNum} users connected...`);
   socket.on("login", (data) => {
-    users[data] = socket.id;
+    if (!users[data]) {
+      users[data] = [socket.id];
+    } else {
+      users[data].push(socket.id);
+    }
     rusers[socket.id] = data;
     console.log("users", users, rusers);
     socket.emit("loginSuccess", users);
@@ -65,22 +68,36 @@ io.on("connection", socket => {
       data.unread = 0;
     } else {
       data.unread = 1;
-      if (users[data.receiverId + "s"]) {
-        socket.to(users[data.receiverId + "s"]).emit("notify", "test");
-      }
     }
 
     // send data to receiver
-    socket.to(users[data.receiverId]).emit("receiveMsg", data);
+    const receiverArr = users[data.receiverId];
+    for (const i in receiverArr) {
+      console.log(receiverArr[i]);
+      socket.to(receiverArr[i]).emit("receiveMsg", data);
+    }
     // send data to sender
-    io.in(users[data.senderId]).emit("receiveMsg", data);
+    const senderArr = users[data.senderId];
+    for (const i in senderArr) {
+      io.in(senderArr[i]).emit("receiveMsg", data);
+    }
 
+    // eslint-disable-next-line no-unused-vars
     const chatContentToDB = Chat.chatContentToDB(data);
   });
 
   socket.on("disconnect", (data) => {
     usersNum--;
-    delete users[rusers[socket.id]];
+    const userId = rusers[socket.id];
+    const totalSocketId = users[userId];
+    const newSocketArr = [];
+    for (const i in totalSocketId) {
+      if (totalSocketId[i] !== socket.id) {
+        newSocketArr.push(totalSocketId[i]);
+      }
+    }
+    delete users[userId];
+    if (newSocketArr.length > 0) { users[userId] = newSocketArr; }
     delete rusers[socket.id];
     console.log(users, rusers);
     console.log(`There are ${usersNum} users connected...`);
@@ -98,9 +115,22 @@ io.on("connection", socket => {
       if (data.passengerRouteId) {
         url += `&passenger=${data.passengerRouteId[i]}`;
       }
+      // eslint-disable-next-line no-unused-vars
       const notifyContentToDB = await Chat.notifyContentToDB(receiverId[i], data, url);
       const allNotifyContent = await Chat.allNotifyContent(receiverId[i]);
       socket.to(users[receiverId[i]]).emit("passengerReceive", allNotifyContent);
+    }
+  });
+
+  socket.on("updateNotification", async (data) => {
+    console.log("removeNotification", data);
+    const updateNotification = await User.updateNotification(data.id);
+    console.log(updateNotification);
+    if (updateNotification.success) {
+      const UserArr = users[data.userId];
+      for (const i in UserArr) {
+        io.in(UserArr[i]).emit("removeNotification", data);
+      }
     }
   });
   //   // socket.emit("message", "Welcome to chatbox");

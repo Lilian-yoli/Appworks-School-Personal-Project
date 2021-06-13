@@ -104,6 +104,60 @@ const makeLabel = (senderId, receiverId) => {
   }
 };
 
+// const createChatList2 = (chatType, data, users, userId) => {
+//   const sidebar = document.getElementById("sidebar");
+//   for (const i in data) {
+//     // sidebar chatroom not onchat
+//     if (data[i].receiver_id !== userId && data[i].sender_id !== userId) {
+//       const time = toDateFormat(data[i].date)
+//       sidebar.innerHTML +=
+//       `<a href="./chat.html?room=${data[i].room}">
+//                     <li class="clearfix active">
+//                         <img src="${data[i].picture}" alt="avatar">
+//                         <div class="about">
+//                           <div class="upper">
+//                             <div class="name">${data[i].name}</div><div class="date">${time}</div>
+//                           </div>
+//                           <div class="status"> 你：123 </div>
+//                         </div>
+//                     </li>
+//                     </a>`;
+
+//       if (data[i].not_read > 0) {
+//         const listRightNoti = document.createElement("div");
+//         listRightNoti.classList.add("list-right-notification");
+//         listRightUp.appendChild(listRightNoti);
+//         const listRightNotiP = document.createElement("p");
+//         listRightNotiP.classList.add("list-right-notification-num");
+//         listRightNotiP.textContent = data[i].not_read;
+//         listRightNoti.appendChild("listRightNotiP");
+//       }
+//       const listRightDown = document.createElement("div");
+//       listRightDown.classList.add("list-right-down");
+//       listRight.appendChild(listRightDown);
+//       const listMsg = document.createElement("div");
+//       listMsg.classList.add("list-msg");
+//       listRightDown.appendChild(listMsg);
+//       const listRightDownP = document.createElement("p");
+//       listRightDownP.classList.add("list-right-down-p");
+//       if (data[i].sender_id == users.userId1) {
+//         listRightDownP.textContent = "你：" + data[i].msg;
+//       } else {
+//         listRightDownP.textContent = users.username2 + "：" + data[i].msg;
+//       }
+//       listMsg.appendChild(listRightDownP);
+//       const listDate = document.createElement("div");
+//       listDate.classList.add("list-date");
+//       listRightDown.appendChild(listDate);
+//       const listDateP = document.createElement("p");
+//       listDateP.classList.add("list-date-p");
+//       const time = toDateFormat(data[i].time);
+//       listDateP.textContent = time;
+//       listDate.appendChild(listDateP);
+//     }
+//   }
+// };
+
 const createChatList = (chatType, data, users, userId) => {
   for (const i in data) {
     if (data[0].receiver_id !== userId && data[0].sender_id !== userId) {

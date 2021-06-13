@@ -86,8 +86,9 @@
     margin-top: 80px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    max-height: 1500px
+    height: auto;
+    max-height: 1500px;
+    margin-bottom: 115px;
   }
 
   .homePage {
@@ -95,9 +96,11 @@
   }
 
   #notifybell, #bell {
-    width: 26.34px;
+    width: 26.5px;
+    height: 30px;
     margin-right:20px;
     cursor: pointer;
+    position: relative;
   }
 
   .ropdown-item {
@@ -165,3 +168,22 @@ a.footer_link:link, a.footer_link:visited {
     color: rgb(173, 169, 169);
 }
 
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.content {
+  width: 100%;
+  padding: 1% 1% 1% 1%;
+}
+
+
+#bell {
+  width: auto
+  height: auto;
+  margin-right:20px;
+  cursor: pointer;
+  position: relative;
+}

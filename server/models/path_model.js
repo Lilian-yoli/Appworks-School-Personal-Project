@@ -115,7 +115,7 @@ const getDriverItinerary = async (id) => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
     console.log(timestamp);
-    const matchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.time, o.route_id, t.id 
+    const matchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.seats_left, o.time, o.route_id, t.id AS tourId
   FROM offered_routes o INNER JOIN tour t ON o.route_id = t.offered_routes_id 
   WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp} ORDER BY routeTS`;
     let match = await query(matchQryStr);
@@ -126,7 +126,7 @@ const getDriverItinerary = async (id) => {
         match[i].date = await toDateFormat(match[i].date);
       }
     }
-    const unmatchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.available_seats, o.time, o.route_id, t.id 
+    const unmatchQryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.seats_left, o.time, o.route_id
   FROM offered_routes o LEFT OUTER JOIN tour t ON o.route_id = t.offered_routes_id 
   WHERE user_id = ${id} AND UNIX_TIMESTAMP(routeTS) >= ${timestamp} AND t.id IS NULL ORDER BY routeTS`;
     let unmatch = await query(unmatchQryStr);
@@ -134,7 +134,7 @@ const getDriverItinerary = async (id) => {
       unmatch = { empty: "尚未提供行程" };
     } else {
       for (const i in unmatch) {
-        unmatch[i].date = await toDateFormat(match[i].date);
+        unmatch[i].date = await toDateFormat(unmatch[i].date);
       }
     }
     const result = { match, unmatch };

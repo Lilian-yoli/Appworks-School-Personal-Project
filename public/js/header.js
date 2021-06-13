@@ -1,6 +1,6 @@
-function header () {
+const socket = io();
+async function header () {
   const verifyToken = localStorage.getItem("access_token");
-  const socket = io();
 
   if (verifyToken) {
     fetch("/api/1.0/verify", {
@@ -16,13 +16,50 @@ function header () {
         return;
       }
       socket.emit("login", data.userId);
-      console.log(123);
     });
+
+    const response = await fetch("/api/1.0/notification", {
+      method: "GET",
+      headers: new Headers({
+        Authorization: "Bearer " + verifyToken
+      })
+    });
+    const data = await response.json();
+    console.log(data);
+    if (data.length > 0) {
+      const bell = document.getElementById("bell");
+      bell.src = "./uploads/images/notificationOn.png";
+      const dropdownMenu = document.querySelector(".dropdown-menu");
+      for (const i in data) {
+        dropdownMenu.innerHTML +=
+      `<a href="${data[i].url}" class="dropdown-item" >
+      <div class="content" id="dropdown${i}">${data[i].content}</div></a>`;
+      }
+      const noNotification = document.querySelectorAll(".dropdown-content")[0];
+      noNotification.textContent = "";
+
+      for (const i in data) {
+        document.addEventListener("click", (e) => {
+          if (e.target.id == `dropdown${i}`) {
+            console.log(`fire dropdown${i}!!!`);
+            console.log(data[i].id);
+            socket.emit("updateNotification", { id: data[i].id, targetId: i, userId: data[i].user_id });
+          }
+        });
+      }
+    }
   }
+  socket.on("removeNotification", data => {
+    console.log(data);
+    document.getElementById(`dropdown${data.targetId}`).innerHTML = "";
+  });
 
   socket.on("passengerReceive", data => {
     console.log(data);
+
     if (data.length) {
+      const bell = document.getElementById("bell");
+      bell.src = "./uploads/images/notificationOn.png";
       for (const i in data) {
         const dropdown = document.querySelector(".dropdown-menu");
         dropdown.append(Object.assign(document.createElement("a"),
@@ -32,7 +69,6 @@ function header () {
         dropdownItem.append(Object.assign(document.createElement("img"),
           { className: "dropdown-icon" },
           { src: data[i].icon }));
-        const dropdownIcon = document.querySelectorAll(".dropdown-icon")[i];
         dropdownItem.append(Object.assign(document.createElement("div"),
           { className: "dropdown-content" }));
         const dropdownContent = document.querySelectorAll(".dropdown-content")[i];
@@ -79,6 +115,7 @@ function header () {
       return `${userId}WITH${receiverId}`;
     }
   };
+
   const logout = document.getElementById("logout");
   console.log(logout);
   logout.addEventListener("click", () => {
@@ -87,6 +124,7 @@ function header () {
 }
 
 header();
+
 // function updateNotification () {
 //   console.log(window.event);
 //   // const dropdownItem = document.querySelectorAll(".dropdown-item");
