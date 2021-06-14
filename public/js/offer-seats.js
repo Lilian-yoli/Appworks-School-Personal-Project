@@ -5,7 +5,7 @@ const date = document.getElementById("date");
 const time = document.getElementById("time");
 const next = document.getElementById("next");
 
-window.addEventListener("load", () => {
+window.onload = function () {
   console.log("test");
   const url = new URL("http://localhost:3000/path.html");
   const searchParams = new URLSearchParams({ id: 1 });
@@ -65,7 +65,7 @@ window.addEventListener("load", () => {
       }
     });
   });
-});
+};
 
 let map;
 let service;

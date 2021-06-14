@@ -259,3 +259,14 @@ function hompage () {
     document.location.href = "./";
   });
 }
+
+function loadScript () {
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper";
+  document.body.appendChild(script);
+}
+
+window.onload = function () {
+  setTimeout(loadScript(), 1000);
+};

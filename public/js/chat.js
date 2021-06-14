@@ -25,8 +25,39 @@ window.onload = async () => {
       createChatList2(chatting, data.firstSidebar, data.usersInfo, 0);
       const userId = data.usersInfo.userId2;
       createChatList2(chatRecord, data.sidebar, data.usersInfo, userId);
-    } else {
-      createChatList2(chatRecord, data.sidebar, data.usersInfo, 0);
+    } else if (!data.firstSidebar) {
+      chatting.innerHTML =
+      `<a href="./chat.html?room=${data.usersInfo.room}">  
+                    <li class="clearfix">
+                        <img src="${data.usersInfo.userPicture2}" alt="avatar">
+                        <div class="about">
+                          <div class="upper">
+                            <div class="name">${data.usersInfo.username2}</div><div class="date">${data.usersInfo.now}</div>
+                          </div>
+                          <div class="status"></div><div class="unread"></div>
+                        </div>
+                    </li>
+                    </a>`;
+    }
+    if (data.sidebar.length > 0) {
+      for (const i in data.sidebar) {
+        if (data.sidebar[i].room == data.firstSidebar[0].room) {
+          continue;
+        }
+        const time = toDateFormat(data.sidebar[i].time);
+        chatRecord.innerHTML +=
+      `<a href="./chat.html?room=${data.sidebar[i].room}">  
+                    <li class="clearfix">
+                        <img src="${data.sidebar[i].picture}" alt="avatar">
+                        <div class="about">
+                          <div class="upper">
+                            <div class="name">${data.sidebar[i].name}</div><div class="date">${time}</div>
+                          </div>
+                          <div class="status">${data.sidebar[i].msg}</div><div class="unread"></div>
+                        </div>
+                    </li>
+                    </a>`;
+      }
     }
 
     if (data.firstChatMsg) {
@@ -102,6 +133,7 @@ const createChatList2 = (chatType, data, users, userId) => {
       } else {
         lastChat = users.username2 + "：" + data[i].msg;
       }
+
       chatType.innerHTML +=
       `<a href="./chat.html?room=${data[i].room}">  
                     <li class="clearfix">

@@ -145,4 +145,3 @@ const showLoading = function () {
     }
   );
 };
-// showLoading();
