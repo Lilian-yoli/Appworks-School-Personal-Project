@@ -231,6 +231,9 @@ const trimAddress = async (address) => {
   address = address.split("台灣")[1];
   let newAddress = "";
   for (let i = 0; i < 6; i++) {
+    if (address[i] == undefined) {
+      continue;
+    }
     newAddress += address[i];
   }
   return newAddress;
