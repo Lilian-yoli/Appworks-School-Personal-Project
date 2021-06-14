@@ -189,7 +189,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
 
       console.log("index", num, index);
       console.log(add, add.src);
-      if (add.src != "https://www.co-car.site/uploads/images/check.png") {
+      if (add.src != "http://localhost:3000/uploads/images/check.png") {
         if (index.indexOf(num.toString()) == -1) {
           if (persons + passenger[num].persons > driver.seats_left) {
             swal({
@@ -253,7 +253,7 @@ function showPickedPassenger (num) {
   console.log(num);
   const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[num];
   const add = document.getElementsByClassName("suggestion-add")[num];
-  if (add.src == "https://www.co-car.site/uploads/images/check.png") {
+  if (add.src == "http://localhost:3000/uploads/images/check.png") {
     add.src = "./uploads/images/graycheck.png";
   } else {
     add.src = "./uploads/images/check.png";
@@ -346,4 +346,15 @@ const makeRooom = (userId, receiverId) => {
   } else {
     return `${userId}WITH${receiverId}`;
   }
+};
+
+function loadScript () {
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper";
+  document.body.appendChild(script);
+}
+
+window.onload = function () {
+  setTimeout(loadScript(), 1000);
 };
