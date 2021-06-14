@@ -59,9 +59,9 @@ async function wrapper () {
 function confirm (driverInfo, passengerInfo) {
   for (const i in passengerInfo) {
     document.addEventListener("click", async (e) => {
-      if(e.target.id == `confirm${i}`){
+      if(e.target.id == `confirm.${i}`){
       let index = e.target.id;
-      index = index.split(".")[0];
+      index = index.split(".")[1];
       console.log(index);
       const res = await fetch(`/api/1.0/tour-confirm${query}`, {
         method: "POST",
@@ -95,9 +95,9 @@ function confirm (driverInfo, passengerInfo) {
   for (const i in passengerInfo) {
     const refuse = document.querySelectorAll(".refuse")[i];
     document.addEventListener("click", async (e) => {
-      if(e.target.id == `refuse${i}`){
+      if(e.target.id == `refuse.${i}`){
       let index = e.target.id;
-      index = index.split(".")[0];
+      index = index.split(".")[1];
       console.log(index);
       const res = await fetch(`/api/1.0/tour-confirm${query}`, {
         method: "POST",
@@ -219,8 +219,8 @@ function html (passengerInfo, i, confirmStatus) {
   if (confirmStatus == 0) {
     confirmSign = "";
     button = `<div class="button-container">
-    <button class="confirm" id="confirm${i}">確認</button>
-    <button class="refuse" id="refuse${i}">謝絕</button></div>`;
+    <button class="confirm" id="confirm.${i}">確認</button>
+    <button class="refuse" id="refuse.${i}">謝絕</button></div>`;
   } else {
     confirmSign = `<div class="companion-confirm">
   <img class="companion-confirm-status" src="./uploads/images/${confirmStatus}.png"></div>`;
