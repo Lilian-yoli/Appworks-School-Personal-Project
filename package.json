@@ -29,6 +29,7 @@
     "nodemon": "^2.0.7",
     "openrouteservice-js": "^0.1.18",
     "r": "^0.0.5",
+    "redis": "^3.1.2",
     "rei": "^1.0.4",
     "request": "^2.88.2",
     "require": "^2.4.20",

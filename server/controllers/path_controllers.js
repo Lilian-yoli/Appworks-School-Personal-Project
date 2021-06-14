@@ -4,12 +4,12 @@ const Util = require("../../util/path");
 
 const offerSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
-  const { origin, destination, persons, date, time, fee } = req.body;
+  const { origin, destination, persons, date, time } = req.body;
   if (!origin || !destination || !persons || !date) {
     res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
     return;
   }
-  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id, fee);
+  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id);
   if (result.error) {
     res.status(500).send({ error: result.error });
     return;
@@ -47,7 +47,6 @@ const routeSuggestion = async (req, res) => {
     origin: origin,
     destination: destination,
     seats_left: availableSeats,
-    fee: getDriverDetail.fee,
     date: date,
     time: getDriverDetail.time,
     name: name,
@@ -90,9 +89,13 @@ const getDriverItineraryDetail = async (req, res) => {
 };
 
 const getDriverItinerary = async (req, res) => {
-  console.log("req.user123", req.user);
-  const result = await Path.getDriverItinerary(req.user.id);
-  res.status(200).send(result);
+  try {
+    console.log("req.user123", req.user);
+    const result = await Path.getDriverItinerary(req.user.id);
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const getPlaceId = async (req, res) => {
@@ -128,7 +131,7 @@ const driverSearchDetail = async (req, res) => {
 const setDriverTour = async (req, res) => {
   console.log("req.body", req.body);
   const { driverRouteId, passengerRouteId } = req.body;
-  const result = await Path.setDriverTour(driverRouteId, passengerRouteId);
+  const result = await Path.setDriverTour(driverRouteId, passengerRouteId, req.user.id);
   if (result < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
@@ -141,6 +144,27 @@ const setDriverTour = async (req, res) => {
 //   const
 // };
 
+const getDriverHomepage = async (req, res) => {
+  try {
+    const result = await Path.getDriverHomepage();
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getTourInfo = async (req, res) => {
+  console.log("tour", req.query);
+  const tourId = req.query.tour;
+  console.log(tourId);
+  const result = await Path.getTourInfo(tourId);
+  result.userId = req.user.id;
+  if (result.length < 1) {
+    res.status(500).send({ error: "Internal server error" });
+  }
+  res.status(200).send(result);
+};
+
 module.exports = {
   offerSeatsInfo,
   routeSuggestion,
@@ -150,5 +174,7 @@ module.exports = {
   getPlaceId,
   driverSearch,
   driverSearchDetail,
-  setDriverTour
+  setDriverTour,
+  getDriverHomepage,
+  getTourInfo
 };

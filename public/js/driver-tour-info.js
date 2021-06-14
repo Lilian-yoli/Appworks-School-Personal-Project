@@ -3,8 +3,9 @@ const query = window.location.search;
 const socket = io();
 const verifyToken = localStorage.getItem("access_token");
 console.log(query);
+
 async function wrapper () {
-  const res = await fetch(`/api/1.0/tour-info${query}`, {
+  const res = await fetch(`/api/1.0/driver-tour-info${query}`, {
     method: "GET",
     headers: new Headers({
       Authorization: "Bearer " + verifyToken
@@ -12,117 +13,126 @@ async function wrapper () {
   });
   const data = await res.json();
   console.log(data);
+
   const { driverInfo, passengerInfo } = data;
   document.querySelectorAll("h2")[0].innerHTML = "你的行程";
-  document.getElementById("a-location").innerHTML =
-      `<h4>起點：${driverInfo.origin}</h4>
-        <h4>終點：${driverInfo.destination}</h4>`;
-  document.getElementById("a-detail").innerHTML =
-      `<h5>日期：${driverInfo.date}</h5>
-      <h5>時間：${driverInfo.time}</h5>
-      <h5>人數：${driverInfo.seats_left}</h5>
-      <h5>單人費用：${driverInfo.fee}</h5>`;
+  document.getElementById("my-route").innerHTML =
+  `<h3 id="my-title">你的路線</h3>
+  <div id="my-wrapper">
+      <div id="my-detail">
+          <div id="my-date">日期：${driverInfo.date}</div>
+          <div id="my-time">時間：${driverInfo.time}</div>
+          <div id="my-seats">${driverInfo.seats_left}個座位</div>
+      </div>
+      <div class="my-upper">
+          <img id="my-route-img" src="./uploads/images/route.png">
+          <div id="my-location">
+              <div id="my-origin">起點：${driverInfo.origin}</div>
+              <div id="my-destination">終點：${driverInfo.destination}</div>
+          </div>
+      </div>
+  </div>`;
+  const companionRoute = document.getElementById("companion-route");
   for (const i in passengerInfo) {
-    document.getElementById("b-location").innerHTML =
-      `<br><h2>乘客資訊</h2>
-      <h4>起點：${passengerInfo[i].origin}</h4>
-      <h4>終點：${passengerInfo[i].destination}</h4>`;
-    document.getElementById("b-detail").innerHTML =
-      `<h5>日期：${passengerInfo[i].date}</h5>
-      <h5>人數：${passengerInfo[i].persons}</h5>`;
-    if (driverInfo.match_status == 0) {
-      document.getElementById("b-role").innerHTML =
-      `<div><img src="../uploads/images/member.png"></div>
-      <div>${passengerInfo[i].name}</div>
-      <button class="contact btn" id="${i}.1">聯繫乘客</button>
-      <button class="confirm btn" id="${i}.2">確認</button>
-      <button class="refuse btn" id="${i}.3">謝絕</button>`;
-      confirm(driverInfo, passengerInfo);
-      contact(passengerInfo[i].id, driverInfo.id);
+    if (passengerInfo[0].match_status == 0) {
+      if (data.tourInfo.sendBy == data.userId) {
+        companionRoute.innerHTML +=
+        html(passengerInfo, i, "grayspot");
+      } else {
+        companionRoute.innerHTML +=
+        html(passengerInfo, i, "");
+        confirm(driverInfo, passengerInfo);
+      }
     } else if (driverInfo.match_status == 1) {
-      document.getElementById("b-role").innerHTML =
-        // <div>${data[0].picture}</div>
-        `<div><img src="../uploads/images/member.png"></div>
-        <div>${passengerInfo[i].name}</div>
-        <button class="contact btn" id="${i}.1">聯繫乘客</button>
-        <h3>乘客已確認</h3>`;
-      contact(passengerInfo[i].id, driverInfo.id);
+      companionRoute.innerHTML +=
+      html(passengerInfo, i, "greenspot");
     } else {
-      document.getElementById("b-role").innerHTML =
-    `<div><img src="../uploads/images/member.png"></div>
-    <div>${driverInfo.name}</div>
-    <button class="contact btn" id="${i}.1">聯繫乘客</button>
-    <h3>車主已謝絕</h3>`;
+      companionRoute.innerHTML +=
+      html(passengerInfo, i, "refuse");
     }
   }
+  contact(passengerInfo, driverInfo);
   initMap(driverInfo, passengerInfo);
+  hompage();
 };
 
 function confirm (driverInfo, passengerInfo) {
-  const confirm = document.querySelector(".confirm");
-  confirm.addEventListener("click", async (e) => {
-    let index = e.target.id;
-    index = index.split(".")[0];
-    console.log(index);
-    const res = await fetch(`/api/1.0/tour-confirm${query}`, {
-      method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: 1 }),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-type": "application/json"
-      })
+  for (const i in passengerInfo) {
+    const confirm = document.querySelectorAll(".confirm")[i];
+    confirm.addEventListener("click", async (e) => {
+      let index = e.target.id;
+      index = index.split(".")[0];
+      console.log(index);
+      const res = await fetch(`/api/1.0/tour-confirm${query}`, {
+        method: "POST",
+        body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: 1 }),
+        headers: new Headers({
+          Authorization: "Bearer " + verifyToken,
+          "Content-type": "application/json"
+        })
+      });
+      const data = await res.json();
+      console.log(data);
+      const routeInfo = {
+        receiverId: [passengerInfo[index].id],
+        passengerRouteId: [passengerInfo[index].route_id],
+        url: `./passenger-tour-info.html${query}`,
+        content: `車主${driverInfo.name}已接受你的行程，立即前往查看`,
+        type: "match",
+        icon: "./uploads/images/member.png"
+      };
+      if (!data.error) {
+        socket.emit("notifiyPassenger", routeInfo);
+      }
+      swal({
+        text: "已傳送通知",
+        icon: "success",
+        buttons: false
+      });
     });
-    const data = await res.json();
-    console.log(data);
-    const routeInfo = {
-      receiverId: [passengerInfo[index].id],
-      passengerRouteId: [passengerInfo[index].route_id],
-      url: `./passenger-tour-info.html${query}`,
-      content: `車主${driverInfo.name}已接受你的行程，立即前往查看`,
-      type: "match",
-      icon: "./uploads/images/member.png"
-    };
-    if (!data.error) {
+  }
+  for (const i in passengerInfo) {
+    const refuse = document.querySelectorAll(".refuse")[i];
+    refuse.addEventListener("click", async (e) => {
+      let index = e.target.id;
+      index = index.split(".")[0];
+      console.log(index);
+      const res = await fetch(`/api/1.0/tour-confirm${query}`, {
+        method: "POST",
+        body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: -1 }),
+        headers: new Headers({
+          Authorization: "Bearer " + verifyToken,
+          "Content-type": "application/json"
+        })
+      });
+      const data = await res.json();
+      console.log(data);
+      const routeInfo = {
+        receiverId: [passengerInfo[index].id],
+        passengerRouteId: [driverInfo.route_id],
+        url: `./passenger-tour-info.html${query}`,
+        content: `車主${passengerInfo.name}已謝絕你的行程`,
+        type: "match",
+        icon: "./uploads/images/member.png"
+      };
       socket.emit("notifiyPassenger", routeInfo);
-    }
-  });
-  const refuse = document.querySelector(".refuse");
-  refuse.addEventListener("click", async (e) => {
-    let index = e.target.id;
-    index = index.split(".")[0];
-    console.log(index);
-    const res = await fetch(`/api/1.0/tour-confirm${query}`, {
-      method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: -1 }),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-type": "application/json"
-      })
+      swal({
+        text: "已傳送通知",
+        icon: "success",
+        buttons: false
+      });
     });
-    const data = await res.json();
-    console.log(data);
-    const routeInfo = {
-      receiverId: [passengerInfo[index].id],
-      passengerRouteId: [driverInfo.route_id],
-      url: `./passenger-tour-info.html${query}`,
-      content: `車主${passengerInfo.name}已謝絕你的行程`,
-      type: "match",
-      icon: "./uploads/images/member.png"
-    };
-    socket.emit("notifiyPassenger", routeInfo);
-  });
+  }
 }
 
 function contact (passengerInfo, driverInfo) {
   for (const i in passengerInfo) {
-    const contact = document.querySelectorAll(".contact")[i];
-    console.log(contact);
-    contact.addEventListener("click", (e) => {
-      let index = e.target.id;
-      index = index.split(".")[0];
-      console.log(index);
-      const room = makeRooom(passengerInfo[index].id, driverInfo.id);
-      document.location.href = `./chat.html?room=${room}`;
+    document.addEventListener("click", (e) => {
+      if (e.target.id == `contact${i}`) {
+        console.log(e.target.id);
+        const room = makeRooom(passengerInfo[i].id, driverInfo.id);
+        document.location.href = `./chat.html?room=${room}`;
+      }
     });
   }
 }
@@ -152,7 +162,7 @@ function initMap (driverInfo, passengerInfo) {
     travelMode: "DRIVING"
   };
   console.log(waypoints);
-  for (let i = 0; i < passengerInfo.length; i += 2) {
+  for (let i = 0; i < waypoints.length; i += 2) {
     marker(i, map, waypoints, google);
   }
 
@@ -198,4 +208,54 @@ function marker (i, map, waypoints, google) {
     label: `${i + 1}`
   });
   marker.setPosition(wayptsDestination);
+}
+
+function html (passengerInfo, i, confirmStatus) {
+  let confirmSign = "";
+  let button = "";
+  if (confirmStatus == 0) {
+    confirmSign = "";
+    button = `<div class="button-container">
+    <button class="confirm" id="${i}">確認</button>
+    <button class="refuse" id="${i}">謝絕</button></div>`;
+  } else {
+    confirmSign = `<div class="companion-confirm">
+  <img class="companion-confirm-status" src="./uploads/images/${confirmStatus}.png"></div>`;
+    button = "";
+  }
+  const html =
+  `<h4 id="companion-title">乘客${+i + 1}:</h4>
+  <div class="companion-wrapper">
+  <div class="companion-upper">
+      <img class="companion-img" src="./uploads/images/route.png">
+      <div class="companion-location">
+          <div class="companion-origin">${passengerInfo[i].origin}</div>
+          <div class="companion-destination">${passengerInfo[i].destination}</div>
+      </div>
+      ${confirmSign}     
+  </div>
+  <div class="under">
+      <img class="profile" src="./uploads/images/member.png">
+      <div class="name">${passengerInfo[i].name}</div>
+      <div class="persons">${passengerInfo[i].persons}人</div>
+      <div class="btn-wrap"><button class="contact" id="contact${i}">聯繫乘客</button></div>
+  </div>
+  ${button}                                     
+</div>`;
+  return html;
+}
+
+const makeRooom = (userId, receiverId) => {
+  if (userId > receiverId) {
+    return `${receiverId}WITH${userId}`;
+  } else {
+    return `${userId}WITH${receiverId}`;
+  }
+};
+
+function hompage () {
+  const homepage = document.querySelector(".homepage");
+  homepage.addEventListener("click", () => {
+    document.location.href = "./";
+  });
 }

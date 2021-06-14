@@ -102,10 +102,35 @@ const tokenVerify = async (receiverId) => {
   const result = await query(`SELECT name FROM users WHERE id = ${receiverId}`);
   return result[0];
 };
+
+const getNotification = async (id) => {
+  try {
+    const result = await query("SELECT * FROM notification WHERE user_id = ? AND unread = 1 ORDER BY time DESC", id);
+    if (result.length < 1) {
+      return { empty: "User has no notification" };
+    }
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const updateNotification = async (id) => {
+  const result = await query("UPDATE notification SET unread = 0 WHERE id = ?", [id]);
+  console.log(result);
+  if (result < 1) {
+    return { error: "Internal server error" };
+  }
+  return { success: "success" };
+};
+
 module.exports = {
   signUp,
   signIn,
   getUserDetail,
   chatInfo,
-  tokenVerify
+  tokenVerify,
+  getNotification,
+  updateNotification
 };

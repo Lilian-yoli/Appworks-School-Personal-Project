@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/login.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <title>Co-Car</title>
 </head>
 <body>
@@ -24,7 +26,7 @@
             </a>
             <div class="dropdown">
                 <a id="notify-bell" id="dropdownMenuButton" data-toggle="dropdown">
-                    <img src="./uploads/images/notification.png" id="bell">
+                    <img src="./uploads/images/notification.png" width="26.5px" id="bell">
                   </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
                   
@@ -37,43 +39,38 @@
         </div> 
     </header>
     <main>
-        <h1>Sign Up</h1>
-        <div id="signupMsg"></div>
-        <div>
-            <label>Name:</label>
-            <input type="text" name='signupName' id="signupName">
-            <br>
-            <br>
-
-            <label>Email:</label>
-            <input type="text" name='signupEmail' id="signupEmail">
-            <br>
-            <br>
-
-            <label>Password:</label>
-            <input type="text" name='signupPassword' id="signupPassword">
-            <br><br>
-
-            <label>Phone:</label>
-            <input type="text" name='signupPhone' id="signupPhone">
-            <br><br>
-            <button type="submit" id="signupSubmit" >Submit</button>
-            <br><br>
-            
-        </div>
-        <h1>Sign In</h1>
-        <div id="signinMsg"></div>
-        <div>
-            <label>Email:</label>
-            <input type="text" name='signinEmail' id="signinEmail">
-            <br>
-            <br>
-
-            <label>Password:</label>
-            <input type="text" name='signinPassword' id="signinPassword" >
-            <br><br>
-            <button type="submit" id="signinSubmit" >Submit</button>
-            <br><br>
+        <div class="container" id="container">
+            <div class="form-container sign-up-container">
+                <form onsubmit="return false">
+                    <h1>Create Account</h1>
+                    <input type="text" placeholder="Name" id="signupName"/>
+                    <input type="email" placeholder="Email" id="signupEmail"/>
+                    <input type="password" placeholder="Password" id="signupPassword"/>
+                    <button id="signupSubmit">Sign Up</button>
+                </form>
+            </div>
+            <div class="form-container sign-in-container">
+                <form onsubmit="return false">
+                    <h1>Sign in</h1>
+                    <input type="email" placeholder="Email" id="signinEmail"/>
+                    <input type="password" placeholder="Password" id="signinPassword"/>
+                    <button id="signinSubmit">Sign In</button>
+                </form>
+            </div>
+            <div class="overlay-container">
+                <div class="overlay">
+                    <div class="overlay-panel overlay-left">
+                        <h1>Welcome Back!</h1>
+                        <p>輸入你的帳號密碼和我們重新連線</p>
+                        <button class="ghost" id="signIn">Sign In</button>
+                    </div>
+                    <div class="overlay-panel overlay-right">
+                        <h1>Hello, Friend!</h1>
+                        <p>註冊你的帳號密碼，與我們一起展開旅程</p>
+                        <button class="ghost" id="signUp">Sign Up</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     <footer>

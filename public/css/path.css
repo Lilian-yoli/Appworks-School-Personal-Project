@@ -1,0 +1,263 @@
+body {
+    display: block;
+    overflow: auto;
+    position: relative;
+    height: auto;
+    min-height: 100% !important;
+}
+
+.route-info {
+    width: 30%;
+    text-align: center;
+    flex: 1;
+    min-height: 573px;
+    max-height: 880px;
+    overflow: scroll;
+}
+
+#my-route {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#my-title {
+    width: 100%;
+    margin: 1% 0 1% 5%; 
+}
+
+#my-wrapper {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#my-origin, #my-destination {
+    width: 100%;
+    margin: 1% 5% 1% 5%;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.my-detail {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: left;
+}
+
+#my-date, #my-time, #my-seats {
+    width: 25%;
+    margin: 1% 0 1% -4%;
+    font-size: 18px;
+    display:flex;
+    text-align: left;
+    align-items: center;
+}
+
+#my-date {
+    margin-left: 5%;
+    width: 30%;
+    margin-right: 2%;    
+}
+
+#path-suggestion {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-bottom: 115px;
+}
+
+.suggestion-title {
+    width: 100%;
+    margin: 1% 0 1% 5%; 
+    text-align: left;
+}
+
+.suggestion-wrapper {
+    width: 100%;
+    margin: 1% 5% 1% 5%;
+    border: 2px;
+    border-radius: 20px;
+    box-sizing: border-box;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgb(0 0 0 / 16%) 0px 1pt 4pt, rgb(0 0 0 / 8%) 0px 2pt 8pt;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background-color: white ;
+}
+
+.suggestion-upper {
+    width: 100%;
+    margin: 5% 5% 5% 5%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.suggestion-img-img {
+    width: 12px;
+    size: 20px;
+}
+
+.suggestion-location {
+    width: 75%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    text-align: left;
+    margin-left: 2%;
+}
+
+.suggestion-origin {
+    width:100%;
+    margin-top: -5px;
+    font-size:18px;
+}
+
+.suggestion-destination {
+    width:100%;
+    margin-top: 5%;
+    font-size:18px;
+    margin-bottom: -3%;
+}
+
+
+.suggestion-option {
+    width: 15%;
+    cursor: pointer;
+}
+
+.under {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0% 5% 2% 5%;
+}
+
+.profile {
+    width: 15%;
+    text-align: left;
+}
+
+.name {
+    width:20%;
+    text-align: left;
+    display: flex;
+    align-items: center; 
+    margin-left:3%;
+    font-size: 18px;
+    margin-right: 0;
+}
+
+.btn-wrap {
+    display: flex;
+    align-items: center;
+    width: 25%;
+}
+
+.contact {
+    width: 80%;
+    background-color: #ffa83e;
+    color: black;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    padding: 0px 24px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 48px;
+    min-width: 72px;
+    max-width: 100%;
+    overflow: hidden;
+    user-select: none;
+    -webkit-box-align: center;
+    align-items: center;
+    transition: max-width 500ms ease-in 0s, background-color 200ms ease-in 0s;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.persons {
+    width:5%;
+    text-align: left;
+    display: flex;
+    align-items: center; 
+    margin-left: 0;
+    font-size: 18px;
+    margin-right: 0;
+}
+
+.time {
+    width:5%;
+    text-align: left;
+    display: flex;
+    align-items: center; 
+    margin-left:3%;
+    font-size: 18px;
+    margin-right: auto;
+}
+
+.button-container {
+    margin: 3% 5% 2% 5%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.button, #homepage {
+    width: 35%;
+    background-color: #ffa83e;
+    color: black;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    padding: 0px 24px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 48px;
+    min-width: 72px;
+    max-width: 35%;
+    overflow: hidden;
+    user-select: none;
+    -webkit-box-align: center;
+    align-items: center;
+    transition: max-width 500ms ease-in 0s, background-color 200ms ease-in 0s;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: 7.5%; 
+    margin-bottom: 5%;
+}
+
+#sign {
+    width: 40%;
+    text-align: center;
+    margin: 1% 30% 1% 30%;
+}
+
+#homepage, #back {
+    margin: 2% 35% 5% 35%;
+}
+
+hr {
+    height: 8px;
+    border: none;
+    background-color: rgb(237, 237, 237);
+    margin-top: 0;
+}

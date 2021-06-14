@@ -11,92 +11,22 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    height: 100%;
-    margin-bottom: 115px;
+    display: block;
+    overflow: auto;
+    position: relative;
+    height: auto;
+    min-height: 100% !important;
   }
 
   /* =================================
     header Styles
   ==================================== */  
-header {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
-
-.navbar {
-  position: fixed;
-  width: 100%;
-  background-color: rgb(255, 255, 255);
-  display: flex;
-  -webkit-box-align: center;
-  align-items: center;
-  top: 0px;
-  z-index: 60;
-  height: 80px;
-  margin: 0;
-}
-
-#logo-car {
-  width: 60px;
-  margin-left: 15px;
-}
-#logo {
-  width: 120px;
-
-}
-
-.logo {
-  margin-right: auto;
-}
-
-.tags {
-  display: flex;
-  justify-content: flex-end;
-  margin-left: auto;
-  align-items: center;
-  margin-right: 30px;
-}
-
-.tag {
-  margin:0;
-  padding-right: 20px;
-  width: 125px;
-  align-items: center;
-  vertical-align: text-top;
-}
-
-.icon {
-  width: 25%;
-}
-
-#notifybell, #bell {
-  width: 26.34px;
-  margin-right:20px;
-} 
-
-#member {
-  width: auto;
-  margin-right:15px;
-} 
-
-a,a:link,a:visited, a:hover {
-  color:#FE646F;
-  text-decoration: none;
-  font-weight: 400;
-  align-items: center;
-}
-
 .searchbar {
-  width: 100%;
-  margin: 0;
-  margin-top: 7%;
+  margin-top: 6%;
 }
 
 .wrapper {
   width: 80%;
-  
   margin-right: auto;
   margin-left: auto;
   box-sizing: border-box;
@@ -229,7 +159,7 @@ a,a:link,a:visited, a:hover {
   width: 100%;
   margin-top: 80px;
   padding: 0;
-  height: 720px;
+  height: 540px;
   background: url(../uploads/images/mainpic.jpeg) center repeat;
   text-align: center;
   background-size: cover;
@@ -248,60 +178,142 @@ a,a:link,a:visited, a:hover {
   ==================================== */ 
 
 main {
-  margin: 80px 0 115px 0;
+  margin:0;
+  background: #f6f5f7;
+  height: auto;
+  overflow: auto;
+}
+
+.container {
+  width: 100%;
+  max-width: 2456px;;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1%;
+  margin-bottom: 115px;;
+}
+
+.row {
+  width: 100%;
+  margin: 0 3% 1% 3%;
+  text-align: left;
+}
+
+.passenger-route {
+  margin: 0 0 0 5%;
+  width:100%;
+  height: 360px;
+  z-index: 1;
   display: flex;
 }
 
-
-
-
-
-/* =================================
-    footer Styles
-  ==================================== */ 
-footer {
-    background-color:#FE646F;
-    position:fixed;
-    bottom: 0;
-    width: 100%;
-    height: 115px;
-    display: flex;
-    align-items: center;
-    justify-content:  center;
-    z-index: 1;
+.route-detail {
+  margin: 10px 5% 10px 0;
+  width: 20%;
+  border-radius: 20px;  
+  z-index: 2;
+  height:auto;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
+			0 10px 10px rgba(0,0,0,0.22);
 }
 
-.footer_link {
-    width: 130px;
-    padding: 0 20px;
-    text-align: center;
-    line-height: 16px;
-    font-size: 16px;
-    border-right: 1px solid #f5f5f5;
+.head {
+  width: 100%;
+  display:flex;
+  height: 15%;
 }
 
-li {
-  list-style-type: none;
+.title {
+  margin-top: 3%;
 }
 
-a.footer_link:link, a.footer_link:visited {
-    color: white;
-    text-decoration: none;
+.date {
+  width: 70%;
+  margin: 0 5% 3% 5%;
+  padding:7.5px 5px 7.5px 0;
+  font-size: 24px;
 }
 
-#footer-ul {
-    display: flex;
-    margin-right: 80px;
+.persons {
+  width: 30%;
+  padding:12px 10px 7.5px 0;
+  font-size: 18px;
+  margin: 0 2% 3% 2%;
+  text-align: right;
 }
 
-.link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 160px;
-    margin-right: 30px;    
+.route-photo {
+  width: 100%;
+  padding: 0 2px 0 2px;
+  margin: 0;
+  height: 65%;
+  display: flex;
 }
 
-.rights {
-    color: rgb(173, 169, 169);
+.route-photo img {
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 2% 0 2%;
+  border-radius: 20px;
+}
+
+
+.route-location {
+  width: 100%;
+  padding: 3px 5% 5px 4%; 
+  display: flex;
+  flex-wrap: wrap;
+  justify-content:space-between;
+}
+
+.origin {
+  width: 30%;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0.5% 0 4% 5%; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.destination {
+  width: 30%;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0.5% 4% 4% 7%; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.direction {
+  width: 20%;
+  text-align: center;
+  padding: 0 3px 2% 3px;
+  z-index: 4;
+  margin: 1px;
+}
+
+.direction img {
+  width: 56px;
+}
+
+.driver-route {
+  margin: 0 0 5% 5%;
+  width:100%;
+  height: 360px;
+  z-index: 1;
+  display: flex;
+}
+
+*:focus {
+  outline: none;
 }

@@ -88,9 +88,33 @@ const tokenVerify = async (req, res) => {
   res.status(200).send(usersInfo);
 };
 
+const getUserProfile = async (req, res) => {
+  console.log(req.user);
+  res.status(200).send({
+    data: {
+      name: req.user.name,
+      email: req.user.email,
+      picture: req.user.picture
+    }
+  })
+  ;
+};
+
+const getNotification = async (req, res) => {
+  try {
+    console.log(req.user);
+    const result = await User.getNotification(req.user.id);
+    res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   signupInfo,
   signinInfo,
   chatInfo,
-  tokenVerify
+  tokenVerify,
+  getUserProfile,
+  getNotification
 };

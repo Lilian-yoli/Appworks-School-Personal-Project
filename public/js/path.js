@@ -1,6 +1,6 @@
-const socket = io();
 
 async function wrapper () {
+  const socket = io();
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
 
@@ -22,10 +22,23 @@ async function wrapper () {
 
   socket.emit("login", driver.id);
 
+  const myRoute = document.getElementById("my-route");
+  myRoute.innerHTML +=
+  `<h2 id="my-title">你的路線</h2>
+  <div id="my-wrapper">
+      <div id="my-origin">起點：${driver.origin}</div>
+      <div id="my-destination">終點：${driver.destination}</div>
+      <div class="my-detail">
+          <div id="my-date">日期：${driver.date}</div>
+          <div id="my-time">時間：${driver.time}</div>
+          <div id="my-seats">${driver.seats_left}個座位</div>
+      </div>
+  </div>`;
+
   if (passenger.length < 1) {
     const pathSuggestion = document.getElementById("path-suggestion");
     console.log(pathSuggestion);
-    pathSuggestion.append(Object.assign(document.createElement("h1"),
+    pathSuggestion.append(Object.assign(document.createElement("h2"),
       { id: "sign" },
       { textContent: "尚無合適乘客" }));
     pathSuggestion.append(Object.assign(document.createElement("img"),
@@ -37,44 +50,64 @@ async function wrapper () {
     const back = document.getElementById("back");
     back.append(Object.assign(document.createElement("input"),
       { type: "submit" },
-      { value: "回首頁" }));
-    const map = document.getElementById("map");
-    map.style.display = "none";
-  }
-  document.getElementById("driver-route").innerHTML =
-    `<h3>起點：${driver.origin}</h3><h3>終點：${driver.destination}</h3>`;
-  let personCounter = 0;
-  for (let i = 0; i < passenger.length; i++) {
-    personCounter += passenger[i].persons;
-    // if seats enough, add waypts
-    if (personCounter <= driver.seats_left) {
+      { value: "回首頁" },
+      { id: "homepage" }));
+    document.querySelector(".button-container").innerHTML = "";
+    initMap(driver, []);
+  } else {
+    let personCounter = 0;
+    for (let i = 0; i < passenger.length; i++) {
       const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
       const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
-      pickedWaypts.push(originObj);
-      pickedWaypts.push(destinationObj);
-      index[i * 2] = i * 2;
-      index[i * 2 + 1] = i * 2 + 1;
-      passengerArr.push(passenger[i].route_id);
-    }
-    const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
-    const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
-    dict[i * 2] = originObj;
-    dict[i * 2 + 1] = destinationObj;
+      dict[i * 2] = originObj;
+      dict[i * 2 + 1] = destinationObj;
 
+      const pathSuggestion = document.getElementById("path-suggestion");
+      pathSuggestion.innerHTML +=
+      `<div class="suggestion-wrapper">
+          <div class="suggestion-upper">
+              <img class="suggestion-img-img" src="./uploads/images/route.png">
+              <div class="suggestion-location">
+                  <div class="suggestion-origin">${passenger[i].origin}</div>
+                  <div class="suggestion-destination">${passenger[i].destination}</div>
+              </div>
+              <div class="suggestion-option">
+                  <img class="suggestion-add" id=${i} src="./uploads/images/graycheck.png">
+              </div>     
+          </div>
+          <div class="under">
+              <img class="profile" src="${passenger[i].picture}">
+              <div class="name">${passenger[i].name}</div>
+              <div class="persons">${passenger[i].persons}人</div>
+              <div class="btn-wrap"><button class="contact" id="${i}">聯繫乘客</button></div>
+          </div>                        
+      </div>`;
+      console.log(pathSuggestion);
+      personCounter += passenger[i].persons;
+      // if seats enough, add waypts
+      if (personCounter <= driver.seats_left) {
+        const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
+        const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
+        pickedWaypts.push(originObj);
+        pickedWaypts.push(destinationObj);
+        index[i] = i;
+        passengerArr.push(passenger[i].route_id);
+        showPickedPassenger(i);
+      }
+    };
     const pathSuggestion = document.getElementById("path-suggestion");
-    pathSuggestion.innerHTML += `<li>乘客${i + 1}: ${passenger[i].origin} 到 <br>
-        ${passenger[i].destination} ｜ 人數：${passenger[i].persons}人</li>
-        <button class="btn" id="${i}.0" >+</button> <button class="btn" id="${i}.1">-</button>`;
-    console.log(pathSuggestion);
-  };
-  localStorage.setItem("index", index);
-  console.log("index,passengerArr", dict, index, passengerArr);
-  showPickedPassenger(passenger, index);
-
-  initMap(driver, pickedWaypts);
-  chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr, query, verifyToken);
-  matchedBtn(driver, passenger, verifyToken, query);
-  skipBtn(query);
+    const title = document.createElement("h2");
+    title.className = "suggestion-title";
+    title.textContent = "推薦乘客";
+    pathSuggestion.insertBefore(title, pathSuggestion.firstChild);
+    console.log("index,passengerArr", dict, index, passengerArr);
+    localStorage.setItem("index", index);
+    initMap(driver, pickedWaypts);
+    chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr);
+    contact(passenger, driver);
+    matchedBtn(driver, passenger, verifyToken, query);
+    skipBtn(query);
+  }
 }
 
 function initMap (driver, pickedWaypts) {
@@ -137,71 +170,69 @@ function initMap (driver, pickedWaypts) {
 //   });
 // }
 
-function chooseWypts (passenger, driver, pickedWaypts, dict) {
-  for (let i = 0; i < passenger.length * 2; i++) {
-    const btn = document.querySelectorAll(".btn")[i];
-    btn.addEventListener("click", (e) => {
-      let index = localStorage.getItem("index");
-      if (index.length > 0) {
-        index = index.split(",");
-      } else {
-        index = [];
-      }
+function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
+  for (let i = 0; i < passenger.length; i++) {
+    const add = document.querySelectorAll(".suggestion-add")[i];
+    add.addEventListener("click", (e) => {
       e.preventDefault();
+      let index = localStorage.getItem("index");
+      console.log("index", index);
+      if (index.length < 1) {
+        index = [];
+      } else {
+        index = index.split(",");
+      }
+      const num = e.target.id;
       const newIndex = [];
-      const passengerArr = [];
-      const numInfo = (e.target.id).split(".");
-      const num = numInfo[0] * 2;
+
       const persons = countCurrentPersons(passenger, index);
-      pickedWaypts = [];
-      console.log("num, index", num, index);
-      if (numInfo[1] != 1) {
+
+      console.log("index", num, index);
+      console.log(add, add.src);
+      if (add.src != "http://localhost:3000/uploads/images/check.png") {
         if (index.indexOf(num.toString()) == -1) {
-          if (index.indexOf((num + 1).toString()) == -1) {
-            if (persons + passenger[num / 2].persons > driver.seats_left) {
-              alert("人數超過可提供空位");
-            } else {
-              index.push(num.toString());
-              index.push((num + 1).toString());
+          if (persons + passenger[num].persons > driver.seats_left) {
+            swal({
+              text: "選擇人數超過可提供座位",
+              icon: "warning"
+            });
+          } else {
+            index.push(num.toString());
+            passengerArr = [];
+            pickedWaypts = [];
+            for (const j in index) {
+              console.log(dict[index[j] * 2], index[j]);
+              pickedWaypts.push(dict[index[j] * 2]);
+              pickedWaypts.push(dict[index[j] * 2 + 1]);
+              console.log("index[j]", index[j]);
+              passengerArr.push(passenger[index[j]].route_id);
             }
+            showPickedPassenger(num);
           }
         }
-        for (const j in index) {
-          pickedWaypts.push(dict[index[j]]);
-          if (j % 2 == 0) {
-            console.log("index[j]", index[j]);
-            passengerArr.push(passenger[index[j] / 2].route_id);
-          }
-        }
+
         console.log("localStorage.setItem", index);
         console.log("result", pickedWaypts, passengerArr);
         localStorage.setItem("index", index);
         initMap(driver, pickedWaypts);
-        showPickedPassenger(passenger, index);
       } else {
-        if (persons == 0) {
-          alert("未選擇乘客");
-        } else {
-          for (const j in index) {
-            if (index[j] != num.toString()) {
-              if (index[j] != (num + 1).toString()) {
-                console.log("- button", index[j], num, (index[j] != num));
-                newIndex.push(index[j].toString());
-              }
-            }
+        for (const i in index) {
+          if (index[i] != num) {
+            newIndex.push(index[i]);
           }
+          passengerArr = [];
+          pickedWaypts = [];
           console.log(newIndex);
-          for (const j in newIndex) {
-            pickedWaypts.push(dict[newIndex[j]]);
-            if (j % 2 == 0) {
-              passengerArr.push(passenger[index[j] / 2].route_id);
-            }
+          for (const i in newIndex) {
+            pickedWaypts.push(dict[index[i] * 2]);
+            pickedWaypts.push(dict[index[i] * 2 + 1]);
+            passengerArr.push(passenger[index[i]].route_id);
           }
-          console.log("result", pickedWaypts, passengerArr);
-          localStorage.setItem("index", newIndex);
-          showPickedPassenger(passenger, newIndex);
-          initMap(driver, pickedWaypts);
         }
+
+        localStorage.setItem("index", newIndex);
+        initMap(driver, pickedWaypts);
+        showPickedPassenger(num);
       }
     });
   }
@@ -211,76 +242,119 @@ function countCurrentPersons (passenger, index) {
   let counter = 0;
   for (const i in index) {
     console.log("Number(index[i])", Number(index[i]));
-    if (Number(index[i]) % 2 == 0) {
-      const num = Number(index[i]) / 2;
-      console.log("passenger[num].persons", passenger[num].persons, counter);
-      counter += passenger[num].persons;
-    }
+    console.log("passenger[num].persons", passenger[index[i]].persons, counter);
+    counter += passenger[index[i]].persons;
   }
   console.log("countCurrentPersons", counter);
   return counter;
 }
 
-function showPickedPassenger (passenger, index) {
-  const newIndex = [];
-  console.log(index);
-  for (let i = 0; i < index.length; i += 2) {
-    newIndex.push(index[i]);
-  }
-  const pickedPassenger = document.getElementById("picked-passenger");
-  pickedPassenger.innerHTML = "";
-  for (const i in newIndex) {
-    const num = newIndex[i] / 2;
-    pickedPassenger.innerHTML += `<li>乘客${num + 1}:<br> 起點：${passenger[num].origin} <br>
-    終點：${passenger[num].destination} ｜ 人數：${passenger[num].persons}人</li>`;
+function showPickedPassenger (num) {
+  console.log(num);
+  const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[num];
+  const add = document.getElementsByClassName("suggestion-add")[num];
+  if (add.src == "http://localhost:3000/uploads/images/check.png") {
+    add.src = "./uploads/images/graycheck.png";
+  } else {
+    add.src = "./uploads/images/check.png";
   }
 }
 
 // socket send notification
 function matchedBtn (driver, passenger, verifyToken, query) {
-  const applyRoute = document.querySelectorAll(".button")[0];
+  const applyRoute = document.getElementById("apply-route");
   const passengerRouteId = [];
   applyRoute.addEventListener("click", async () => {
-    const index = (localStorage.getItem("index")).split(",");
+    let index = localStorage.getItem("index");
+    if (index.length < 0) {
+      return swal({
+        text: "未選擇乘客",
+        icon: "warning"
+      });
+    } else {
+      index = index.split(",");
+      const passengerId = [];
+      for (const i in index) {
+        passengerRouteId.push(passenger[index[i]].route_id);
+        passengerId.push(passenger[index[i]].user_id);
+      }
 
-    const passengerId = [];
-    for (const i in index) {
-      if (index[i] % 2 == 0) {
-        passengerRouteId.push(passenger[index[i] / 2].route_id);
-        passengerId.push(passenger[index[i] / 2].user_id);
+      localStorage.setItem("passengerRoute", passengerRouteId);
+      localStorage.removeItem("waypts");
+      const res = await fetch("/api/1.0/driver-tour", {
+        method: "POST",
+        body: JSON.stringify({ driverRouteId: driver.routeId, passengerRouteId: passengerRouteId }),
+        headers: new Headers({
+          Authorization: "Bearer " + verifyToken,
+          "Content-Type": "application/json"
+        })
+      });
+      const data = await res.json();
+      console.log(data);
+      if (!data.tourId.error) {
+        const routeInfo = {
+          receiverId: passengerId,
+          passengerRouteId: passengerRouteId,
+          url: `./driver-tour-info.html?id=${driver.routeId}&tour=${data.tourId}`,
+          content: `車主${driver.name}已接受你的行程，立即前往查看`,
+          type: "match",
+          icon: "./uploads/images/match.svg"
+        };
+        console.log(123);
+        socket.emit("notifiyPassenger", routeInfo);
+        swal({
+          text: "已傳送通知",
+          icon: "success"
+        });
+        document.location.href = `./driver-tour-info.html?id=${driver.routeId}&tour=${data.tourId}`;
+      } else {
+        swal({
+          text: "路線曾建立過，請至「車主行程」查看",
+          icon: "warning"
+        });
       }
     }
-
-    localStorage.setItem("passengerRoute", passengerRouteId);
-    localStorage.removeItem("waypts");
-    const res = await fetch("/api/1.0/driver-tour", {
-      method: "POST",
-      body: JSON.stringify({ driverRouteId: driver.routeId, passengerRouteId: passengerRouteId }),
-      headers: new Headers({
-        Authorization: "Bearer " + verifyToken,
-        "Content-Type": "application/json"
-      })
-    });
-    const data = await res.json();
-    console.log(data);
-    const routeInfo = {
-      receiverId: passengerId,
-      passengerRouteId: passengerRouteId,
-      url: `./passenger-tour-info.html?id=${driver.routeId}?tour=${data.tourId}`,
-      content: `車主${driver.name}已接受你的行程，立即前往查看`,
-      type: "match",
-      icon: "./uploads/images/member.png"
-    };
-    console.log(123);
-    socket.emit("notifiyPassenger", routeInfo);
-    alert("通知已傳送");
-    document.location.href = "./";
   });
 }
 
 function skipBtn (query) {
-  const skipRoute = document.querySelectorAll(".button")[1];
+  const skipRoute = document.getElementById("skip");
   skipRoute.addEventListener("click", () => {
+    swal({
+      text: "路線已儲存",
+      icon: "success"
+    });
     document.location.href = "./";
   });
 }
+
+function contact (passenger, driver) {
+  for (const i in passenger) {
+    const contact = document.getElementsByClassName("contact")[i];
+    contact.addEventListener("click", async (e) => {
+      const num = e.target.id;
+      console.log(num, driver.id, passenger[num].user_id);
+      const room = makeRooom(driver.id, passenger[num].user_id);
+      document.location.href = `./chat.html?room=${room}`;
+    });
+  }
+}
+
+const makeRooom = (userId, receiverId) => {
+  if (userId > receiverId) {
+    return `${receiverId}WITH${userId}`;
+  } else {
+    return `${userId}WITH${receiverId}`;
+  }
+};
+
+function loadScript () {
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper";
+  document.body.appendChild(script);
+}
+
+window.onload = function () {
+  setTimeout(loadScript(), 1000);
+};

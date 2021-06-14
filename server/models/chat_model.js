@@ -29,6 +29,7 @@ const getChatRecord = async (receiverId, id, name, room) => {
     (SELECT receiver_id, sender_id, msg, room, unread, FROM_UNIXTIME(send_at) AS time,
       RANK() OVER (PARTITION BY room ORDER BY send_at DESC) ran FROM chat_msg) a
       CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg WHERE receiver_id = ${id}) b
+      INNER JOIN users u ON a.receiver_id = u.id
       WHERE sender_id = ${id} OR receiver_id = ${id}) c
       WHERE ran = 1 ORDER BY time DESC;`;
   const chatInfo = await query(qryStr);

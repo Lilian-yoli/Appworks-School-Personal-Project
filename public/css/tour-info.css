@@ -1,0 +1,277 @@
+body {
+    display: block;
+    overflow: auto;
+    position: relative;
+    height: auto;
+    min-height: 100% !important;
+}
+
+#route-info {
+    width: 30%;
+    text-align: center;
+    flex: 1;
+    height:1000px;
+    overflow: scroll;
+}
+
+#my-route, .companion-route {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#my-title, #companion-title {
+    width: 100%;
+    margin: 1% 0 1% 5%; 
+    text-align:left ;
+}
+
+#my-wrapper, .companion-wrapper {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.my-upper, .companion-upper {
+    width: 100%;
+    margin: 3% 5% 5% 5%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#my-route-img, .companion-img {
+    width: 12px;
+    size: 20px;
+    margin-top: 1.5%;
+}
+
+#my-location, .companion-location {
+    width: 95%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#my-origin, #my-destination {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    text-align: left;
+    margin-left: 2%;
+    font-size:  20px;
+    margin-top: 0;
+}
+
+#my-destination, .companion-destination {
+    margin-top: 5%;
+    margin-bottom: -2%;
+}
+
+#my-detail {
+    width: 100%;
+    margin-top: 1%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: left;
+}
+
+#my-date, #my-time, #my-seats {
+    width: 25%;
+    margin: 1% 0 1% -4%;
+    font-size: 20px;
+    display:flex;
+    text-align: left;
+    align-items: center;
+}
+
+#my-time {
+    margin-right: auto;
+    margin-left: 3%;
+    width: 25%
+}
+
+#my-seats {
+    margin-right: 5%;
+}
+
+#my-date {
+    margin-left: 5%;
+    width: 30%;
+    margin-right: 2%;    
+}
+
+hr {
+    height: 8px;
+    border: none;
+    background-color: rgb(237, 237, 237);
+    margin-top: 0;
+}
+
+.companion-upper {
+    margin-top: 1%;
+}
+
+.companion-origin, .companion-destination {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    text-align: left;
+    margin-left: 2%;
+    font-size:  20px;
+    margin-top: 0;
+}
+
+.companion-destination {
+    margin-top: 5%;
+    margin-bottom: -2%;
+}
+
+.companion-location {
+    width: 80%;
+}
+
+.companion-confirm {
+    width: 15%;
+    margin-right: 1%;
+}
+
+.companion-confirm-status {
+    width: 100%;
+}
+
+.under {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin: 0% 5% 2% 5%;
+}
+
+.profile {
+    width: 15%;
+    text-align: left;
+}
+
+.name {
+    width:20%;
+    text-align: left;
+    display: flex;
+    align-items: center; 
+    margin-left:3%;
+    font-size: 18px;
+    margin-right: 0;
+}
+
+.btn-wrap {
+    display: flex;
+    align-items: center;
+    width: 25%;
+    margin-left: auto;
+    margin-right: -2%;
+}
+
+.contact {
+    width: 80%;
+    background-color: #ffa83e;
+    color: black;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    padding: 0px 24px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 48px;
+    min-width: 72px;
+    max-width: 100%;
+    overflow: hidden;
+    user-select: none;
+    -webkit-box-align: center;
+    align-items: center;
+    transition: max-width 500ms ease-in 0s, background-color 200ms ease-in 0s;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.persons {
+    width:10%;
+    text-align: left;
+    display: flex;
+    align-items: center; 
+    margin-left: 0;
+    font-size: 18px;
+    margin-right: 0;
+}
+
+.time {
+    width:5%;
+    text-align: left;
+    display: flex;
+    align-items: center; 
+    margin-left:5%;
+    font-size: 18px;
+    margin-right: auto;
+}
+
+.button-container {
+    margin: 2% 5% 1% 5%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width:100%;
+}
+
+.homepage, .confirm, .refuse {
+    width: 35%;
+    background-color: #ffa83e;
+    color: black;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    padding: 0px 24px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    height: 48px;
+    min-width: 72px;
+    max-width: 35%;
+    overflow: hidden;
+    user-select: none;
+    -webkit-box-align: center;
+    align-items: center;
+    transition: max-width 500ms ease-in 0s, background-color 200ms ease-in 0s;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: 7.5%; 
+    margin-bottom: 5%;
+}
+
+.confirm, .refuse {
+    width:20%;
+    background-color: #FE646F;
+    color: white;
+    font-weight: bold;
+}
+
+.refuse {
+    margin-right: auto;
+}
+
+.confirm {
+    margin-left: auto;
+}

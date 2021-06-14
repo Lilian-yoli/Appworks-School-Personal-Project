@@ -62,26 +62,21 @@ const setPassengerTour = async (req, res) => {
   console.log("req.body", req.body);
   const userId = req.user.id;
 
-  const {
-    driverRouteId, persons, date, passengerRouteId,
-    passengerOriginCoordinate, passengerDestinationCoordinate,
-    driverOriginCoordinate, driverDestinationCoordinate
-  } = req.body;
+  const { driverRouteId, persons, date, passengerRouteId } = req.body;
   console.log(driverRouteId);
-  const result = await Passenger.setPassengerTour(driverRouteId, passengerRouteId, userId, persons, date,
-    passengerOriginCoordinate, passengerDestinationCoordinate, driverOriginCoordinate, driverDestinationCoordinate);
+  const result = await Passenger.setPassengerTour(driverRouteId, passengerRouteId, userId, persons, date);
   if (result < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
+  result.username = req.user.name;
   res.status(200).send(result);
 };
 
 const getTourInfo = async (req, res) => {
   console.log("tour", req.query);
   const tourId = req.query.tour;
-  const result = await Passenger.getTourInfo(tourId);
+  const result = await Passenger.getTourInfo(tourId, req.user.id);
   result.userId = req.user.id;
-  result.tourInfo = { tourId: tourId };
   if (result.length < 1) {
     res.status(500).send({ error: "Internal server error" });
   }
@@ -105,6 +100,10 @@ const suggestPassengerRoute = async (req, res) => {
   if (filterRoutes.length < 1) {
     return res.status(500).send({ error: "Internal server error" });
   } else if (filterRoutes.msg) {
+    filterRoutes.origin = origin;
+    filterRoutes.destination = destination;
+    filterRoutes.destinationCoordinate = getPassengerDetail.destination_coordinate;
+    filterRoutes.originCoordinate = getPassengerDetail.origin_coordinate;
     return res.status(200).send(filterRoutes);
   }
   getPassengerDetail.id = id;
@@ -125,6 +124,15 @@ const confirmTour = async (req, res) => {
   res.status(200).send({ status: "updated" });
 };
 
+const getPassengerHomepage = async (req, res) => {
+  try {
+    const result = await Passenger.getPassengerHomepage();
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   passengerSearch,
   passengerSearchDetail,
@@ -135,5 +143,6 @@ module.exports = {
   setPassengerTour,
   getTourInfo,
   suggestPassengerRoute,
-  confirmTour
+  confirmTour,
+  getPassengerHomepage
 };

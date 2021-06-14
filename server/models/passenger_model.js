@@ -1,7 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute } = require("../../util/util");
+const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute, getphoto, trimAddress, getGooglePhoto } = require("../../util/util");
+const { get, set, del } = require("../../util/redis");
 
 const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   const connection = await mysql.connection();
@@ -51,8 +52,8 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
 };
 
 const passengerSearch = async (origin, destination, date, persons) => {
-  // const timestamp = await toTimestamp(date);
-  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date) AS date, time, available_seats, fee, route_id FROM offered_routes WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}`;
+  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date) AS date, time, available_seats, fee, route_id 
+  FROM offered_routes WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}`;
   const result = await query(qryStr);
   for (const i in result) {
     result[i].date = await toDateFormat(result[i].date);
@@ -138,18 +139,43 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
 };
 
 const getPassengerItinerary = async (id) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const qryStr = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.fee, o.seats_left, t.id FROM requested_routes r
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const qryStrMatched = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, 
+    o.fee, r.persons, o.route_id AS driverRouteId, r.route_id, t.id AS tourId FROM requested_routes r
   INNER JOIN tour t ON r.route_id = t.passenger_routes_id
   INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id
   INNER JOIN users u ON u.id = o.user_id
-  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp}`;
-  const result = await query(qryStr);
-  for (const i in result) {
-    result[i].date = await toDateFormat(result[i].date);
+  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp} ORDER by date`;
+    let matched = await query(qryStrMatched);
+    if (matched.length < 1) {
+      matched = { empty: "行程尚未進行媒合" };
+    } else {
+      for (const i in matched) {
+        matched[i].date = await toDateFormat(matched[i].date);
+      }
+    }
+
+    const qryStrUnmatched = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons 
+    FROM requested_routes r LEFT OUTER JOIN tour t ON r.route_id = t.passenger_routes_id 
+    WHERE t.id IS NULL AND UNIX_TIMESTAMP(r.date) >= ${timestamp} ORDER by date`;
+    let unmatched = await query(qryStrUnmatched);
+    if (unmatched.length < 1) {
+      unmatched = { empty: "尚未建立行程" };
+    } else {
+      for (const i in unmatched) {
+        unmatched[i].date = await toDateFormat(unmatched[i].date);
+      }
+    }
+
+    const result = {};
+    result.matched = matched;
+    result.unmatched = unmatched;
+    console.log("getPassengerItinerary", result);
+    return result;
+  } catch (err) {
+    console.log(err);
   }
-  console.log("getPassengerItinerary", result);
-  return result;
 };
 
 const passengerRequestDetail = async (id) => {
@@ -163,8 +189,7 @@ const passengerRequestDetail = async (id) => {
   return result;
 };
 
-const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date,
-  passengerOriginCoordinate, passengerDestinationCoordinate, driverOriginCoordinate, driverDestinationCoordinate) => {
+const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons, date) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverRoute = await query(`SELECT * FROM offered_routes WHERE route_id = ${driverRouteId}`);
@@ -173,6 +198,7 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons
   const checkTour = await query(`SELECT * FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id 
   WHERE t.offered_routes_id = ${driverRouteId} AND r.user_id = ${userId} FOR UPDATE`);
+  console.log(checkTour);
   if (checkTour.length > 0) {
     return { error: "Tour had already been created, please check your itinerary" };
   }
@@ -181,7 +207,8 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons
     passenger_routes_id: passengerRouteId,
     finished: 0,
     passenger_type: "request",
-    match_status: 0
+    match_status: 0,
+    send_by: userId
   };
   const insertInfo = await query("INSERT INTO tour SET ?", tour);
   await connection.query("COMMIT");
@@ -190,11 +217,11 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId, persons
   return { userId, tourId };
 };
 
-const getTourInfo = async (tourId) => {
+const getTourInfo = async (tourId, userId) => {
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time,
-  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status, o.origin_coordinate, o.destination_coordinate
+  o.seats_left, o.fee, o.user_id, o.route_id, u.id, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
   FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.route_id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
   driverInfo[0].date = await toDateFormat(driverInfo[0].date);
@@ -203,14 +230,14 @@ const getTourInfo = async (tourId) => {
   const passengerInfo = await query(`SELECT r.route_id, r.origin, r.destination, r.persons, 
   FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.route_id
-  INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId}`);
+  INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId} AND r.user_id = ${userId}`);
   passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
   console.log("passengerInfo", passengerInfo);
 
   const result = {};
   result.driverInfo = driverInfo[0];
   result.passengerInfo = passengerInfo;
-  result.tourInfo = { matchStatus: driverInfo[0].match_status };
+  result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
   console.log("getTourInfo Model:", result);
   return result;
 };
@@ -286,6 +313,27 @@ const confirmTour = async (driverRouteId, tourId, passengerRouteId, matchStatus)
   return result;
 };
 
+const getPassengerHomepage = async () => {
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const route = await query(`SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons
+    FROM requested_routes r LEFT OUTER JOIN tour t ON route_id = passenger_routes_id
+    WHERE r.date > ${timestamp} AND t.id IS NULL ORDER BY date LIMIT 4`);
+    console.log(route);
+    for (const i in route) {
+      route[i].date = await toDateFormat(route[i].date);
+      route[i].photo = await getGooglePhoto(route[i].destination);
+      route[i].origin = await trimAddress(route[i].origin);
+      route[i].destination = await trimAddress(route[i].destination);
+    }
+
+    console.log(route);
+    return { route };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   requestSeatsInfo,
   passengerSearch,
@@ -297,5 +345,6 @@ module.exports = {
   getTourInfo,
   getPassengerDetail,
   filterRoutes,
-  confirmTour
+  confirmTour,
+  getPassengerHomepage
 };

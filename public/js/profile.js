@@ -1,13 +1,13 @@
-const verifyToken = localStorage.getItem("access_token");
-fetch("api/1.0/profile", {
+
+fetch("api/1.0/user-profile", {
   method: "GET",
-  header: new Headers({
+  headers: new Headers({
     Authorization: "Bearer " + verifyToken
   })
 }).then((response) => {
-  response.json();
+  return response.json();
 }).then((data) => {
-
+  console.log(data);
 }).catch((error) => {
   console.error("Error:", error);
 });
