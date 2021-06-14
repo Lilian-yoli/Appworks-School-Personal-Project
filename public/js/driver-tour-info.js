@@ -58,8 +58,8 @@ async function wrapper () {
 
 function confirm (driverInfo, passengerInfo) {
   for (const i in passengerInfo) {
-    const confirm = document.querySelectorAll(".confirm")[i];
-    confirm.addEventListener("click", async (e) => {
+    document.addEventListener("click", async (e) => {
+      if(e.target.id == `confirm${i}`){
       let index = e.target.id;
       index = index.split(".")[0];
       console.log(index);
@@ -89,11 +89,13 @@ function confirm (driverInfo, passengerInfo) {
         icon: "success",
         buttons: false
       });
+    }
     });
   }
   for (const i in passengerInfo) {
     const refuse = document.querySelectorAll(".refuse")[i];
-    refuse.addEventListener("click", async (e) => {
+    document.addEventListener("click", async (e) => {
+      if(e.target.id == `refuse${i}`){
       let index = e.target.id;
       index = index.split(".")[0];
       console.log(index);
@@ -121,6 +123,7 @@ function confirm (driverInfo, passengerInfo) {
         icon: "success",
         buttons: false
       });
+    }
     });
   }
 }
@@ -216,8 +219,8 @@ function html (passengerInfo, i, confirmStatus) {
   if (confirmStatus == 0) {
     confirmSign = "";
     button = `<div class="button-container">
-    <button class="confirm" id="${i}">確認</button>
-    <button class="refuse" id="${i}">謝絕</button></div>`;
+    <button class="confirm" id="confirm${i}">確認</button>
+    <button class="refuse" id="refuse${i}">謝絕</button></div>`;
   } else {
     confirmSign = `<div class="companion-confirm">
   <img class="companion-confirm-status" src="./uploads/images/${confirmStatus}.png"></div>`;
@@ -235,13 +238,14 @@ function html (passengerInfo, i, confirmStatus) {
       ${confirmSign}     
   </div>
   <div class="under">
-      <img class="profile" src="./uploads/images/member.png">
+      <img class="profile" src="${passengerInfo[i].picture}">
       <div class="name">${passengerInfo[i].name}</div>
       <div class="persons">${passengerInfo[i].persons}人</div>
       <div class="btn-wrap"><button class="contact" id="contact${i}">聯繫乘客</button></div>
   </div>
   ${button}                                     
-</div>`;
+</div>
+<hr>`;
   return html;
 }
 

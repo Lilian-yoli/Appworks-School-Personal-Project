@@ -97,6 +97,10 @@ async function header () {
   }).then((data) => {
     console.log(data);
     document.getElementById("username").innerHTML = data.data.name;
+    const member = document.getElementById("member")
+    member.src = data.data.picture
+    member.style.width = "48px"
+
   }).catch((error) => {
     console.error("Error:", error);
   });

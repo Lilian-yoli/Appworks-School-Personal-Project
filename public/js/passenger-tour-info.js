@@ -193,7 +193,7 @@ function html (driverInfo, confirmStatus) {
       ${confirmSign}     
   </div>
   <div class="under">
-      <img class="profile" src="./uploads/images/member.png">
+      <img class="profile" src="${driverInfo.picture}">
       <div class="name">${driverInfo.name}</div>
       <div class="persons">${driverInfo.seats_left}個座位</div>
       <div class="time">${driverInfo.time}</div>

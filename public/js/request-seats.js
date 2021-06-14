@@ -1,17 +1,3 @@
-
-const verifyToken = localStorage.getItem("access_token");
-const origin = localStorage.getItem("origin");
-console.log(origin, typeof (origin));
-const destination = localStorage.getItem("destination");
-
-if (!verifyToken) {
-  document.location.href = "./login.html";
-}
-
-const persons = document.getElementById("persons");
-const date = document.getElementById("date");
-const next = document.getElementById("next");
-
 let map;
 let service;
 let infowindow;
@@ -36,6 +22,19 @@ function initMap () {
   findPlace(originQuery);
   findPlace(destinationQuery);
 };
+
+const verifyToken = localStorage.getItem("access_token");
+const origin = localStorage.getItem("origin");
+console.log(origin, typeof (origin));
+const destination = localStorage.getItem("destination");
+
+if (!verifyToken) {
+  document.location.href = "./login.html";
+}
+
+const persons = document.getElementById("persons");
+const date = document.getElementById("date");
+const next = document.getElementById("next");
 
 const seatsRequestInfo = {};
 next.onclick = function click () {
