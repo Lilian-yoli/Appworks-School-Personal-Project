@@ -121,8 +121,29 @@
 
             today = [year, month, day].join('-');
             document.getElementById("date").setAttribute("min", today)
-        }     
-    </script>   
+        }
+        function initMap () {
+  const taiwan = new google.maps.LatLng(23.69781, 120.960515);
+
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: taiwan,
+    zoom: 7
+  });
+
+  const originQuery = {
+    query: origin,
+    fields: ["name", "geometry", "place_id"]
+  };
+  const destinationQuery = {
+    query: destination,
+    fields: ["name", "geometry", "place_id"]
+  };
+  findPlace(originQuery);
+  findPlace(destinationQuery);
+};
+     
+    </script>
+       
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>
 </body>
 </html>
