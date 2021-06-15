@@ -1,6 +1,5 @@
 
 const query = window.location.search;
-const socket = io();
 const verifyToken = localStorage.getItem("access_token");
 console.log(query);
 
@@ -59,71 +58,71 @@ async function wrapper () {
 function confirm (driverInfo, passengerInfo) {
   for (const i in passengerInfo) {
     document.addEventListener("click", async (e) => {
-      if(e.target.id == `confirm.${i}`){
-      let index = e.target.id;
-      index = index.split(".")[1];
-      console.log(index);
-      const res = await fetch(`/api/1.0/tour-confirm${query}`, {
-        method: "POST",
-        body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: 1 }),
-        headers: new Headers({
-          Authorization: "Bearer " + verifyToken,
-          "Content-type": "application/json"
-        })
-      });
-      const data = await res.json();
-      console.log(data);
-      const routeInfo = {
-        receiverId: [passengerInfo[index].id],
-        passengerRouteId: [passengerInfo[index].route_id],
-        url: `./passenger-tour-info.html${query}`,
-        content: `車主${driverInfo.name}已接受你的行程，立即前往查看`,
-        type: "match",
-        icon: "./uploads/images/member.png"
-      };
-      if (!data.error) {
-        socket.emit("notifiyPassenger", routeInfo);
+      if (e.target.id == `confirm.${i}`) {
+        let index = e.target.id;
+        index = index.split(".")[1];
+        console.log(index);
+        const res = await fetch(`/api/1.0/tour-confirm${query}`, {
+          method: "POST",
+          body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: 1 }),
+          headers: new Headers({
+            Authorization: "Bearer " + verifyToken,
+            "Content-type": "application/json"
+          })
+        });
+        const data = await res.json();
+        console.log(data);
+        const routeInfo = {
+          receiverId: [passengerInfo[index].id],
+          passengerRouteId: [passengerInfo[index].route_id],
+          url: `./passenger-tour-info.html${query}`,
+          content: `車主${driverInfo.name}已接受你的行程，立即前往查看`,
+          type: "match",
+          icon: "./uploads/images/member.png"
+        };
+        if (!data.error) {
+          socket.emit("notifiyPassenger", routeInfo);
+        }
+        swal({
+          text: "已傳送通知",
+          icon: "success",
+          buttons: false
+        });
       }
-      swal({
-        text: "已傳送通知",
-        icon: "success",
-        buttons: false
-      });
-    }
     });
   }
   for (const i in passengerInfo) {
     const refuse = document.querySelectorAll(".refuse")[i];
     document.addEventListener("click", async (e) => {
-      if(e.target.id == `refuse.${i}`){
-      let index = e.target.id;
-      index = index.split(".")[1];
-      console.log(index);
-      const res = await fetch(`/api/1.0/tour-confirm${query}`, {
-        method: "POST",
-        body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: -1 }),
-        headers: new Headers({
-          Authorization: "Bearer " + verifyToken,
-          "Content-type": "application/json"
-        })
-      });
-      const data = await res.json();
-      console.log(data);
-      const routeInfo = {
-        receiverId: [passengerInfo[index].id],
-        passengerRouteId: [driverInfo.route_id],
-        url: `./passenger-tour-info.html${query}`,
-        content: `車主${passengerInfo.name}已謝絕你的行程`,
-        type: "match",
-        icon: "./uploads/images/member.png"
-      };
-      socket.emit("notifiyPassenger", routeInfo);
-      swal({
-        text: "已傳送通知",
-        icon: "success",
-        buttons: false
-      });
-    }
+      if (e.target.id == `refuse.${i}`) {
+        let index = e.target.id;
+        index = index.split(".")[1];
+        console.log(index);
+        const res = await fetch(`/api/1.0/tour-confirm${query}`, {
+          method: "POST",
+          body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: -1 }),
+          headers: new Headers({
+            Authorization: "Bearer " + verifyToken,
+            "Content-type": "application/json"
+          })
+        });
+        const data = await res.json();
+        console.log(data);
+        const routeInfo = {
+          receiverId: [passengerInfo[index].id],
+          passengerRouteId: [driverInfo.route_id],
+          url: `./passenger-tour-info.html${query}`,
+          content: `車主${passengerInfo.name}已謝絕你的行程`,
+          type: "match",
+          icon: "./uploads/images/member.png"
+        };
+        socket.emit("notifiyPassenger", routeInfo);
+        swal({
+          text: "已傳送通知",
+          icon: "success",
+          buttons: false
+        });
+      }
     });
   }
 }
