@@ -1,3 +1,27 @@
+let map;
+let service;
+let infowindow;
+const geometry = [];
+let counter = 0;
+function initMap () {
+  const taiwan = new google.maps.LatLng(23.69781, 120.960515);
+
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: taiwan,
+    zoom: 7
+  });
+
+  const originQuery = {
+    query: origin,
+    fields: ["name", "geometry", "place_id"]
+  };
+  const destinationQuery = {
+    query: destination,
+    fields: ["name", "geometry", "place_id"]
+  };
+  findPlace(originQuery);
+  findPlace(destinationQuery);
+};
 
 const verifyToken = localStorage.getItem("access_token");
 const origin = localStorage.getItem("origin");
@@ -38,38 +62,13 @@ next.onclick = function click () {
       if (!response.error) {
         localStorage.removeItem("origin");
         localStorage.removeItem("destination");
-        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].route_id}`;
+        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].id}`;
       } else {
         alert(response.error);
       }
     });
   // });
   console.log(origin, destination);
-};
-
-let map;
-let service;
-let infowindow;
-const geometry = [];
-let counter = 0;
-function initMap () {
-  const taiwan = new google.maps.LatLng(23.69781, 120.960515);
-
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: taiwan,
-    zoom: 7
-  });
-
-  const originQuery = {
-    query: origin,
-    fields: ["name", "geometry", "place_id"]
-  };
-  const destinationQuery = {
-    query: destination,
-    fields: ["name", "geometry", "place_id"]
-  };
-  findPlace(originQuery);
-  findPlace(destinationQuery);
 };
 
 function createMarker (place, address) {
@@ -145,4 +144,3 @@ const showLoading = function () {
     }
   );
 };
-// showLoading();

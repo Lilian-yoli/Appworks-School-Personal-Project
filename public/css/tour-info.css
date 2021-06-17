@@ -12,6 +12,8 @@ body {
     flex: 1;
     height:1000px;
     overflow: scroll;
+    margin-bottom: 115px;
+    padding-bottom: 115px;
 }
 
 #my-route, .companion-route {

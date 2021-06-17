@@ -1,4 +1,6 @@
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const { TOKEN_SECRET } = process.env;
 const Path = require("../models/path_model");
 const Util = require("../../util/path");
 
@@ -19,7 +21,7 @@ const offerSeatsInfo = async (req, res) => {
     result.route[0].destination_coordinate.x + "," + result.route[0].destination_coordinate.y);
   console.log("waypoints", waypoints);
   const getCity = await Util.wayptsCity(waypoints);
-  const saveWaypts = await Path.saveWaypts(getCity, result.route[0].route_id);
+  const saveWaypts = await Path.saveWaypts(getCity, result.route[0].id);
   console.log("saveWaypts", saveWaypts);
   return res.status(200).send(result);
 };
@@ -79,12 +81,21 @@ const setMatchedPassengers = async (req, res) => {
 };
 
 const getDriverItineraryDetail = async (req, res) => {
-  console.log(req.user);
+  let accessToken = req.get("Authorization");
+  console.log("Authorization", accessToken);
+  let user = "";
+  if (accessToken) {
+    accessToken = accessToken.replace("Bearer ", "");
+    user = jwt.verify(accessToken, TOKEN_SECRET);
+    console.log("jwt.verify:", user);
+  }
   const routeId = req.query.routeid;
   console.log(routeId);
-  const result = await Path.getDriverItineraryDetail(routeId);
-  console.log("result", result);
+  const result = await Path.getDriverItineraryDetail(routeId, user.email);
   console.log("getDriversItinerary", result);
+  if (result.error) {
+    return res.status(500).send(result);
+  }
   res.status(200).send(result);
 };
 
@@ -131,18 +142,14 @@ const driverSearchDetail = async (req, res) => {
 const setDriverTour = async (req, res) => {
   console.log("req.body", req.body);
   const { driverRouteId, passengerRouteId } = req.body;
-  const result = await Path.setDriverTour(driverRouteId, passengerRouteId, req.user.id);
-  if (result < 1) {
+  const driverName = req.user.name;
+  const tourId = await Path.setDriverTour(driverRouteId, passengerRouteId, req.user.id);
+  if (!tourId) {
     res.status(500).send({ error: "Internal server error" });
   }
-  res.status(200).send({ tourId: result });
+
+  res.status(200).send({ tourId, driverInfo: driverName });
 };
-// const matchSearchedPassengers = async (req, res) => {
-//   console.log(req.body);
-//   const {id}
-//   const {routeId, persons, userId, origin} =req.body
-//   const
-// };
 
 const getDriverHomepage = async (req, res) => {
   try {
@@ -165,6 +172,21 @@ const getTourInfo = async (req, res) => {
   res.status(200).send(result);
 };
 
+const selectDriverRoute = async (req, res) => {
+  try {
+    console.log("selectDriverRoute", req.body);
+    console.log(req.user);
+    const { date, persons } = req.body;
+    const driverRoute = await Path.selectDriverRoute(date, persons, req.user.id);
+    if (driverRoute.error) {
+      return res.status(200).send(driverRoute);
+    }
+    res.status(200).send(driverRoute);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   offerSeatsInfo,
   routeSuggestion,
@@ -176,5 +198,6 @@ module.exports = {
   driverSearchDetail,
   setDriverTour,
   getDriverHomepage,
-  getTourInfo
+  getTourInfo,
+  selectDriverRoute
 };

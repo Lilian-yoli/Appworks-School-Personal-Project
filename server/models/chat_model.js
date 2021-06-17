@@ -36,55 +36,37 @@ const getChatRecord = async (receiverId, id, name, room) => {
   result.sidebar = chatInfo;
   console.log("result", chatInfo);
 
-  if (receiverId) {
-    const updateUnread = await query(`UPDATE chat_msg SET unread = 0 WHERE room = "${room}"`);
-    const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, FROM_UNIXTIME(a.send_at + 28800) AS time FROM chat_msg a
+  if (chatInfo.length > 0) {
+    if (receiverId) {
+      const updateUnread = await query(`UPDATE chat_msg SET unread = 0 WHERE room = "${room}"`);
+      const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, FROM_UNIXTIME(a.send_at + 28800) AS time FROM chat_msg a
             CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg) b 
             WHERE a.room = "${room}" ORDER BY time DESC LIMIT 1`);
-    const getTheChat = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at + 28800) AS time FROM chat_msg
+      const getTheChat = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at + 28800) AS time FROM chat_msg
     WHERE room = "${room}" ORDER BY time`);
-    result.firstSidebar = getTheSidebar;
-    result.firstChatMsg = getTheChat;
-    console.log("getChatRecord", result);
-  } else {
-    const updateUnread = await query(`UPDATE chat_msg SET unread = 0 WHERE room = "${room}"`);
-    const lastChatContent = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time, unread
+      result.firstSidebar = getTheSidebar;
+      result.firstChatMsg = getTheChat;
+      console.log("getChatRecord", result);
+    } else {
+      const updateUnread = await query(`UPDATE chat_msg SET unread = 0 WHERE room = "${room}"`);
+      const lastChatContent = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time, unread
   FROM chat_msg WHERE room = "${chatInfo[0].room}" ORDER BY time`);
-    result.chatMsg = lastChatContent;
-  }
+      result.chatMsg = lastChatContent;
+    }
 
-  //   for (const i in chatInfo) {
-  //     // exculde on-chatting one
-  //     if (chatInfo[i].receiver_id != receiverId) {
-  //       if (chatInfo[i].receiver_id != id) {
-  //         const userInfo = await query(`SELECT name, picture FROM users
-  //                 WHERE id = ${chatInfo[i].receiver_id} `);
-  //         chatInfo[i].userId = id;
-  //         chatInfo[i].sidebarName = userInfo[0].name;
-  //         chatInfo[i].sidebar_pic = userInfo[0].picture;
-  //         chatInfo[i].time = await toDateFormat(chatInfo[i].time);
-  //         chatInfo[i].msg = "我： " + chatInfo[i].msg;
-  //         (result.sidebar).push(chatInfo[i]);
-  //       } else {
-  //         const userInfo = await query(`SELECT name, picture FROM users
-  //                 WHERE id = ${chatInfo[i].sender_id}`);
-  //         chatInfo[i].userId = id;
-  //         chatInfo[i].sidebarName = userInfo[0].name;
-  //         chatInfo[i].sidebarPic = userInfo[0].picture;
-  //         chatInfo[i].time = await toDateFormat(chatInfo[i].time);
-  //         chatInfo[i].msg = userInfo[0].name + ": " + chatInfo[i].msg;
-  //         (result.sidebar).push(chatInfo[i]);
-  //       }
-  //     }
-  //   }
-  if (id != chatInfo[0].sender_id) {
-    receiverId = chatInfo[0].sender_id;
-  } else {
-    receiverId = chatInfo[0].receiver_id;
+    if (id != chatInfo[0].sender_id) {
+      receiverId = chatInfo[0].sender_id;
+    } else {
+      receiverId = chatInfo[0].receiver_id;
+    }
+    if (!room) {
+      room = chatInfo[0].room;
+    }
   }
-  if (!room) {
-    room = chatInfo[0].room;
-  }
+  let now = new Date().toLocaleString();
+  now = now.split(" ")[0];
+  now = now.replace("/", "-");
+  now = now.replace("/", "-");
   const usersInfo = await query(`SELECT name, picture FROM users 
   WHERE id = ${id} OR id = ${receiverId} ORDER BY FIELD(id, ${id}, ${receiverId})`);
   result.usersInfo = {
@@ -94,7 +76,8 @@ const getChatRecord = async (receiverId, id, name, room) => {
     username2: usersInfo[1].name,
     userPicture1: usersInfo[0].picture,
     userPicture2: usersInfo[1].picture,
-    room: room
+    room: room,
+    now
   };
   return result;
 

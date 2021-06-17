@@ -34,7 +34,7 @@ async function wrapper () {
       { value: "回首頁" },
       { id: "homepage" }));
     const map = document.getElementById("map");
-    initMap([], data.origin, data.destination, true, driver);
+    initMap([], data.origin, data.destination, true, data);
   } else {
     const myRoute = document.getElementById("my-route");
     myRoute.innerHTML +=
@@ -125,14 +125,6 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
     return;
   }
 
-  // 繪製兩點的路線
-  // directionsService.route(request, function (result, status) {
-  //   if (status == "OK") {
-  //     directionsRenderer.setDirections(result);
-  //   } else {
-  //     console.log(status);
-  //   }
-  // });
   const icons = {
     start: new google.maps.MarkerImage(
       // URL
@@ -155,42 +147,69 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
       new google.maps.Point(22, 32)
     )
   };
+  if (waypts.length < 1) {
+    directionsService.route(request, function (response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsRenderer.setDirections(response);
 
-  directionsService.route(request, function (response, status) {
-    if (status == google.maps.DirectionsStatus.OK) {
-      directionsRenderer.setDirections(response);
+        const wayptsOrigin = new google.maps.LatLng({ lat: driver.originCoordinate.x, lng: driver.originCoordinate.y });
+        let marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          label: "起點"
+        });
+        marker.setPosition(wayptsOrigin);
 
-      const wayptsOrigin = new google.maps.LatLng(waypts[0].location);
-      let marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        label: "起點"
-      });
-      marker.setPosition(wayptsOrigin);
-      const index = localStorage.getItem("index");
-      const origin = { lat: driver[index][1].detail.origin_coordinate.x, lng: driver[index][1].detail.origin_coordinate.y };
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        position: new google.maps.LatLng(origin)
-      });
+        const wayptsDestination = new google.maps.LatLng({ lat: driver.destinationCoordinate.x, lng: driver.destinationCoordinate.y });
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          label: "終點"
+        });
+        marker.setPosition(wayptsDestination);
+      }
+    });
+  } else {
+    directionsService.route(request, function (response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsRenderer.setDirections(response);
 
-      const destination = { lat: driver[index][1].detail.destination_coordinate.x, lng: driver[index][1].detail.destination_coordinate.y };
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        position: new google.maps.LatLng(destination)
-      });
+        const wayptsOrigin = new google.maps.LatLng(waypts[0].location);
+        let marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          label: "起點"
+        });
+        marker.setPosition(wayptsOrigin);
+        const index = localStorage.getItem("index");
+        const origin = { lat: driver[index][1].detail.origin_coordinate.x, lng: driver[index][1].detail.origin_coordinate.y };
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          position: new google.maps.LatLng(origin)
+        });
 
-      const wayptsDestination = new google.maps.LatLng(waypts[1].location);
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        label: "終點"
-      });
-      marker.setPosition(wayptsDestination);
-    }
-  });
+        const destination = { lat: driver[index][1].detail.destination_coordinate.x, lng: driver[index][1].detail.destination_coordinate.y };
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          position: new google.maps.LatLng(destination)
+        });
+
+        const wayptsDestination = new google.maps.LatLng(waypts[1].location);
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          label: "終點"
+        });
+        marker.setPosition(wayptsDestination);
+      }
+    });
+  }
+}
+
+function drawDirection () {
+
 }
 
 function chooseWypts (driver, waypts) {
@@ -249,7 +268,7 @@ const clickEvent = async (driver, passenger) => {
         driverRouteId: driver[index][1].detail.offered_routes_id,
         persons: passenger.persons,
         date: passenger.date,
-        passengerRouteId: passenger.route_id
+        passengerRouteId: passenger.id
       }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
@@ -280,8 +299,8 @@ const clickEvent = async (driver, passenger) => {
       text: "通知已傳送",
       icon: "success"
     });
-    // document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
-    // &tour=${idInfo.tourId}&passenger=${passenger.route_id}`;
+    document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
+    &tour=${idInfo.tourId}&passenger=${passenger.id}`;
   });
 };
 
@@ -302,4 +321,15 @@ const makeRooom = (userId, receiverId) => {
   } else {
     return `${userId}WITH${receiverId}`;
   }
+};
+
+function loadScript () {
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper";
+  document.body.appendChild(script);
+}
+
+window.onload = function () {
+  setTimeout(loadScript(), 1000);
 };

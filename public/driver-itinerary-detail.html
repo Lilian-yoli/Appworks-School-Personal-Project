@@ -11,15 +11,14 @@
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/googleMap.css">
     <link rel="stylesheet" href="./css/path.css">
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     
     <title>Co-Car</title>
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/driver-itinerary-detail.js" defer></script>
     <script src="./js/header.js" defer></script>
-    <script src="./js/passenger-route-suggestion.js" defer></script>
     <header>
         <div class="navbar">
             <a href="/" class="logo">
@@ -62,17 +61,35 @@
     <main>
         <div class="wrapper">
             <div class="route-info">
-                <div id="my-route">
-
+                <hr>
+                <h2 class="detail-title">詳細行程</h2>
+                <hr>
+                <div id="the-route">
+                    <!-- <div class="route-wrapper">
+                        <div class="route-upper">
+                            <img class="route-img-img" src="./uploads/images/route.png">
+                            <div class="route-location">
+                                <div class="route-origin">${passenger[i].origin}</div>
+                                <div class="route-destination">${passenger[i].destination}</div>
+                            </div>
+                        </div>
+                        <div class="under">
+                            <img class="profile" src="${passenger[i].picture}">
+                            <div class="name">${passenger[i].name}</div>
+                            <div class="persons">${passenger[i].persons}人</div>
+                            <div class="time">${passenger[i].persons}人</div>
+                            <div class="btn-wrap"><button class="contact" id="${i}">聯繫乘客</button></div>
+                        </div>                        
+                    </div> -->
+                    
                 </div>
                 <hr>
-                <div id="path-suggestion">
-                </div>
                 <div class="button-container">
                     <button type="button" class="button" id="apply-route">套用路線</button>
                     <button type="button" class="button" id="skip">略過路線</button>
                 </div>
-        </div>
+            </div>
+           
             <div id="map-wrapper">
                 <div id="map"></div>
             </div>
@@ -93,8 +110,7 @@
         </div>
         <div class="rights">© 2021. All rights reserved.</div>      
     </footer>
-</div>
-    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper" async defer></script> 
 </body>
 
 </html>

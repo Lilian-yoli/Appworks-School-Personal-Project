@@ -16,7 +16,7 @@
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/request-seats.js" defer></script>
+    
     <script src="./js/header.js"></script>
     <header>
         <div class="navbar">
@@ -78,7 +78,7 @@
                 <br>
                 <div class="form">
                     <h3 class="label">日期</h3>
-                    <input type="date" name='date' id='date' onclick="formatDate()" value="2021-06-30">
+                    <input type="date" name='date' id='date' onclick="formatDate()" value="2021-07-01">
                 </div>
                 <br>
                 <br>
@@ -121,8 +121,11 @@
 
             today = [year, month, day].join('-');
             document.getElementById("date").setAttribute("min", today)
-        }     
-    </script>   
+        }
+        
+     
+    </script>
+     <script src="./js/request-seats.js"></script>  
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>
 </body>
 </html>

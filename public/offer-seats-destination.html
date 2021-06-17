@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/map-search.css">
     <link rel="stylesheet" href="./css/googleMap.css">
-    <script src="./js/offer-seats-destination.js" defer></script> <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <title>Co-Car</title>
 </head>
 <body>
@@ -53,7 +53,7 @@
       <div class="wrapper">
         <div class="route-info">
             <h2>路線資訊-目的地</h2>
-            <input type="text" name='destination' id='autocomplete' value="台東">
+            <input type="text" name='destination' id='autocomplete' value="花蓮">
             <br>
             <br>
             <button id="btn">確認</button>
@@ -78,6 +78,7 @@
       </div>
       <div class="rights">© 2021. All rights reserved.</div>      
   </footer>
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>    
+    <script src="./js/offer-seats-destination.js" defer></script> 
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>    
 </body>
 </html>

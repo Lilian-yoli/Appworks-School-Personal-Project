@@ -17,7 +17,6 @@
 </head>
 <body>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="./js/request-seats-destination.js"></script>
     <script src="./js/header.js"></script>
     <header>
       <div class="navbar">
@@ -71,7 +70,23 @@
           <div id="map"></div>
         </div>
       </div> 
-    </main> 
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
+    </main>
+    <footer>
+      <ul id="footer-ul">
+          <li><a href="#" class="footer_link">關於 Cocar</a></li>
+          <li><a href="#" class="footer_link">服務條款</a></li>
+          <li><a href="#" class="footer_link">隱私政策</a></li>
+          <li><a href="#" class="footer_link">聯絡我們</a></li>
+          <li><a href="#" class="footer_link">FAQ</a></li>
+      </ul>
+      <div class="link">
+          <img src="./uploads/images/line.png">
+          <img src="./uploads/images/twitter.png">
+          <img src="./uploads/images/facebook.png">
+      </div>
+      <div class="rights">© 2021. All rights reserved.</div>      
+  </footer>
+    <script src="./js/request-seats-destination.js"></script> 
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&libraries=places&callback=initMap"></script>   
 </body>
 </html>
