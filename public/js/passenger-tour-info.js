@@ -55,7 +55,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
   confirm.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[0].route_id, matchStatus: 1 }),
+      body: JSON.stringify({ passengerRouteId: passengerInfo[0].id, matchStatus: 1 }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
         "Content-type": "application/json"
@@ -65,7 +65,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     console.log(data);
     const routeInfo = {
       receiverId: [driverInfo.id],
-      passengerRouteId: [driverInfo.route_id],
+      passengerRouteId: [driverInfo.id],
       url: `./driver-tour-info.html${query}`,
       content: `乘客${passengerInfo[0].name}已接受你的行程，立即前往查看`,
       type: "match",
@@ -79,7 +79,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
   refuse.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[0].route_id, matchStatus: -1 }),
+      body: JSON.stringify({ passengerRouteId: passengerInfo[0].id, matchStatus: -1 }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
         "Content-type": "application/json"
@@ -89,7 +89,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     console.log(data);
     const routeInfo = {
       receiverId: [driverInfo.id],
-      passengerRouteId: [driverInfo.route_id],
+      passengerRouteId: [driverInfo.id],
       url: `./driver-tour-info.html${query}`,
       content: `乘客${passengerInfo[0].name}已謝絕你的行程`,
       type: "match",
@@ -136,26 +136,13 @@ function initMap (driverInfo, passengerInfo) {
       console.log(response, response.routes[0].legs[1].start_location);
 
       const wayptsOrigin = new google.maps.LatLng(waypoints[0].location);
+      console.log(wayptsOrigin);
       let marker = new google.maps.Marker({
         map: map,
         title: "title",
         label: "起點"
       });
       marker.setPosition(wayptsOrigin);
-
-      const origin = { lat: driverInfo.origin_coordinate.x, lng: driverInfo.origin_coordinate.y };
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        position: new google.maps.LatLng(origin)
-      });
-
-      const destination = { lat: driverInfo.destination_coordinate.x, lng: driverInfo.destination_coordinate.y };
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        position: new google.maps.LatLng(destination)
-      });
 
       const wayptsDestination = new google.maps.LatLng(waypoints[1].location);
       marker = new google.maps.Marker({
@@ -164,7 +151,30 @@ function initMap (driverInfo, passengerInfo) {
         label: "終點"
       });
       marker.setPosition(wayptsDestination);
+
+      const origin = { lat: driverInfo.origin_coordinate.x, lng: driverInfo.origin_coordinate.y };
+      const destination = { lat: driverInfo.destination_coordinate.x, lng: driverInfo.destination_coordinate.y };
+
+      marker = new google.maps.Marker({
+        map: map,
+        title: "title",
+        position: new google.maps.LatLng(origin)
+      });
+
+      marker = new google.maps.Marker({
+        map: map,
+        title: "title",
+        position: new google.maps.LatLng(destination)
+      });
     }
+  });
+}
+
+function waypointsMarker (google, location) {
+  const marker = new google.maps.Marker({
+    map: map,
+    title: "title",
+    position: new google.maps.LatLng(location)
   });
 }
 

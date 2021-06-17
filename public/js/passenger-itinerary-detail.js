@@ -3,12 +3,13 @@ const query = window.location.search;
 const verifyToken = localStorage.getItem("access_token");
 
 async function wrapper () {
-  const response = await fetch(`/api/1.0/driver-itinerary-detail${query}`, {
+  const response = await fetch(`/api/1.0/passenger-itinerary-detail${query}`, {
     method: "GET",
     headers: new Headers({
       Authorization: "Bearer " + verifyToken
     })
   });
+
   const data = await response.json();
   console.log(data);
   createDriverInfo(data);
@@ -21,20 +22,19 @@ async function wrapper () {
 function createDriverInfo (data) {
   document.getElementById("the-route").innerHTML =
   `<div class="route-wrapper">
-  <div class="detail-date">日期：${data.driverInfo[0].date}</div>
+  <div class="detail-date">日期：${data.passengerInfo[0].date}</div>
   <div class="route-upper">
       <img class="route-img" src="./uploads/images/route.png">
       <div class="route-location">
-          <div class="route-origin">${data.driverInfo[0].origin}</div>
-          <div class="route-destination">${data.driverInfo[0].destination}</div>
+          <div class="route-origin">${data.passengerInfo[0].origin}</div>
+          <div class="route-destination">${data.passengerInfo[0].destination}</div>
       </div>
   </div>
   <div class="under">
-      <img class="profile" src="${data.driverInfo[0].picture}">
-      <div class="name">${data.driverInfo[0].name}</div>
-      <div class="persons">${data.driverInfo[0].seats_left}人</div>
-      <div class="time">${data.driverInfo[0].time}</div>
-      <div class="btn-wrap"><button class="contact" id="contact">聯繫車主</button></div>
+      <img class="profile" src="${data.passengerInfo[0].picture}">
+      <div class="name">${data.passengerInfo[0].name}</div>
+      <div class="persons">${data.passengerInfo[0].persons}人</div>
+      <div class="btn-wrap"><button class="contact" id="contact">聯繫乘客</button></div>
   </div>                        
 </div>`;
 }
@@ -45,7 +45,7 @@ function contact (data) {
     if (!data.userInfo) {
       document.location.href = "./login.html";
     }
-    const room = makeRooom(data.driverInfo[0].id, data.userInfo[0].id);
+    const room = makeRooom(data.passengerInfo[0].id, data.userInfo[0].id);
     document.location.href = `./chat.html?room=${room}`;
   });
 };
@@ -53,74 +53,67 @@ function contact (data) {
 const applyRoute = (data) => {
   const applyRoute = document.getElementById("apply-route");
   applyRoute.addEventListener("click", async () => {
+    const driverRoute = selectDriverRoute(data.passengerInfo[0].date, data.passengerInfo[0].persons);
     Swal.fire({
-      title: "輸入搭乘人數",
+      title: "選擇你的路線",
       input: "select",
-      inputOptions: {
-        1: "1",
-        2: "2",
-        3: "3",
-        4: "4",
-        5: "5"
-      },
+      inputOptions: driverRoute,
       button: true,
       allowOutsideClick: () => !Swal.isLoading(),
       function (value) {
         return new Promise(function (resolve, reject) {
-          console.log(data.driverInfo[0].seats_lef);
-          if (value <= data.driverInfo[0].seats_left) {
+          if (value !== "") {
             resolve();
           } else {
-            resolve("人數超過座位上線");
+            resolve("行程為必填欄位");
           }
         });
       }
     }).then(async function (result) {
       if (result.isConfirmed) {
+        console.log(result);
         Swal.fire({
           icon: "success",
-          html: "人數為：" + result.value
-
+          html: "選擇行程：" + result.value
         });
-        if (result.value > data.driverInfo[0].seats_left) {
-          Swal.fire({
-            text: "選擇人數超過車位上線",
-            icon: "warning"
-          });
-          return;
-        }
-        const passengerId = await insertPassengerInfo(data, result.value);
-        if (passengerId) {
-          await setTourInfo(data, passengerId);
-        }
+
+        await setTourInfo(data, result.value);
       }
     });
   });
 };
 
-const insertPassengerInfo = async (data, persons) => {
-  const responseInsert = await fetch(`/api/1.0/passenger-search${query}`, {
+const selectDriverRoute = async (date, persons) => {
+  const responseSelect = await fetch("/api/1.0/driver-route-selection", {
     method: "POST",
     body: JSON.stringify({
-      persons: persons,
-      date: data.driverInfo[0].date
+      date,
+      persons
     }),
     headers: new Headers({
       Authorization: "Bearer " + verifyToken,
       "Content-type": "application/json"
     })
   });
-  const insertData = await responseInsert.json();
-  console.log(insertData);
-  return insertData;
+  const selectData = await responseSelect.json();
+  console.log(selectData);
+  if (selectData.error) {
+    return "當日尚未提供路線";
+  }
+  const routes = {};
+  for (const route of selectData) {
+    routes[route.id] = `${route.time} ${route.origin}～${route.destination}`;
+  }
+  console.log(routes);
+  return routes;
 };
 
-const setTourInfo = async (data, passengerId) => {
-  const responseTour = await fetch("/api/1.0/passenger-tour", {
+const setTourInfo = async (data, driverRouteId) => {
+  const responseTour = await fetch("/api/1.0/driver-tour", {
     method: "POST",
     body: JSON.stringify({
-      driverRouteId: data.driverInfo[0].id,
-      passengerRouteId: passengerId.routeInfo
+      driverRouteId,
+      passengerRouteId: [data.passengerInfo[0].id]
     }),
     headers: new Headers({
       Authorization: "Bearer " + verifyToken,
@@ -132,10 +125,10 @@ const setTourInfo = async (data, passengerId) => {
 
   if (!tourData.error) {
     const routeInfo = {
-      receiverId: data.driverInfo[0].id,
-      passengerRouteId: passengerId.routeInfo,
-      url: `./passenger-tour-info.html?id=${data.driverInfo[0].id}&tour=${tourData.tourId}`,
-      content: `乘客${data.driverInfo[0].name}已接受你的行程，立即前往查看`,
+      receiverId: data.passengerInfo[0].id,
+      passengerRouteId: data.passengerInfo[0].id,
+      url: `./passenger-tour-info.html?id=${driverRouteId}&tour=${tourData.tourId}`,
+      content: `車主${tourData.driverInfo}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/match.svg"
     };
@@ -144,10 +137,10 @@ const setTourInfo = async (data, passengerId) => {
       text: "已傳送通知",
       icon: "success"
     });
-    document.location.href = `./passenger-tour-info.html?id=${data.driverInfo[0].id}&tour=${tourData.tourId}`;
+    document.location.href = `./driver-tour-info.html?id=${driverRouteId}&tour=${tourData.tourId}`;
   } else {
     swal.fire({
-      text: "路線曾建立過，請至「乘客行程」查看",
+      text: "路線曾建立過，請至「車主行程」查看",
       icon: "warning"
     });
   }
@@ -169,8 +162,8 @@ const makeRooom = (userId, receiverId) => {
 };
 
 function initMap (data) {
-  const originCoordinate = data.driverInfo[0].origin;
-  const destinationCoordinate = data.driverInfo[0].destination;
+  const originCoordinate = data.passengerInfo[0].origin;
+  const destinationCoordinate = data.passengerInfo[0].destination;
 
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true });
@@ -192,7 +185,7 @@ function initMap (data) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(response);
 
-      const origin = { lat: data.driverInfo[0].origin_coordinate.x, lng: data.driverInfo[0].origin_coordinate.y };
+      const origin = { lat: data.passengerInfo[0].origin_coordinate.x, lng: data.passengerInfo[0].origin_coordinate.y };
       let marker = new google.maps.Marker({
         map: map,
         title: "title",
@@ -200,7 +193,7 @@ function initMap (data) {
         position: new google.maps.LatLng(origin)
       });
 
-      const destination = { lat: data.driverInfo[0].destination_coordinate.x, lng: data.driverInfo[0].destination_coordinate.y };
+      const destination = { lat: data.passengerInfo[0].destination_coordinate.x, lng: data.passengerInfo[0].destination_coordinate.y };
       marker = new google.maps.Marker({
         map: map,
         title: "title",

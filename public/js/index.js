@@ -29,6 +29,7 @@ window.onload = function () {
         const passengerRoute = document.querySelector(".passenger-route");
         passengerRoute.innerHTML +=
         `<div class="route-detail">
+        <a class="detail-link" href="./passenger-itinerary-detail.html?routeid=${route[i].id}">
           <div class="head">
               <div class="date">${route[i].date}</div>
               <div class="persons">${route[i].persons}人</div>
@@ -43,7 +44,7 @@ window.onload = function () {
             </div>
                 <div class="destination">${route[i].destination}</div>
             </div>
-          </div>
+          </div></a>
         </div>`;
       }
     });
@@ -57,6 +58,7 @@ window.onload = function () {
         const passengerRoute = document.querySelector(".driver-route");
         passengerRoute.innerHTML +=
         `<div class="route-detail">
+        <a class="detail-link" href="./driver-itinerary-detail.html?routeid=${route[i].id}">
           <div class="head">
               <div class="date">${route[i].date}</div>
               <div class="persons">${route[i].seats_left}人</div>
@@ -71,7 +73,7 @@ window.onload = function () {
             </div>
                 <div class="destination">${route[i].destination}</div>
             </div>
-          </div>
+          </div></a>
         </div>`;
       }
     });

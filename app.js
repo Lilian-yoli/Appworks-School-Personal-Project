@@ -4,6 +4,8 @@ const app = express();
 const bodyParser = require("body-parser");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
+const { query } = require("./server/models/mysqlcon");
+const mysql = require("./server/models/mysqlcon");
 // eslint-disable-next-line no-unused-vars
 const API_VERSION = process.env;
 const pathRoutes = require("./server/routes/path_routes");
@@ -133,61 +135,7 @@ io.on("connection", socket => {
       }
     }
   });
-  //   // socket.emit("message", "Welcome to chatbox");
-
-  //   // // broadcast when a user connects
-  //   // socket.broadcast.emit("message", "A user has joinde the chat");
-
-// // // Runs when client disconnects
-// // socket.on("disconnect", () => {
-// //   io.emit("message", "A user has left the chat");
-// // });
-// // socket.on("chatMessage", msg => {
-// //   io.emit("message", msg);
-// //   console.log(msg);
-// // });
 });
-
-// const sockets = [];
-// const people = {};
-// io.on("connection", socket => {
-//   sockets.push(socket);
-//   // console.log(sockets);
-//   io.on("join", id => {
-//     people[socket.id] = { id };
-//     console.log(people);
-//   });
-//   io.on("disconnect", () => {
-//     delete people[socket.id];
-//     sockets.splice(sockets.indexOf(socket), 1);
-//   });
-//   io.on("initiate private message", (receiverId, message) => {
-//     const receiverSocketId = findUserByName(receiverId);
-//     console.log(receiverSocketId);
-//     if (receiverSocketId) {
-//       const receiver = people[receiverSocketId];
-//       const room = getARoom(people[socket.id], receiver);
-
-//       socket.join(room);
-//       sockets[receiverSocketId].join(room);
-
-//       io.sockets.in(room).emit("private room created", room, message);
-//     }
-//   });
-// });
-
-// const findUserByName = id => {
-//   for (const i in people) {
-//     if (people[i].id === id) {
-//       return i;
-//     }
-//   }
-//   return false;
-// };
-
-// const getARoom = (user1, user2) => {
-//   return user1 + "With" + user2;
-// };
 
 server.listen(3000, () => {
   console.log("Server Started...");

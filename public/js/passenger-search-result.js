@@ -1,50 +1,49 @@
 const query = window.location.search;
-fetch(`/api/1.0/passenger-search${query}`, {
-  method: "GET"
-}).then((response) => {
-  return response.json();
-}).catch((error) => {
-  console.error("Error:", error);
-}).then((data) => {
-  console.log(data);
-  if (data.error) {
-    const routeInfo = document.querySelector(".route-info");
-    routeInfo.append(Object.assign(document.createElement("h2"),
-      { id: "sign" },
-      { textContent: "輸入地點尚無路線，請至「尋找路線」發出需求" }));
-    routeInfo.append(Object.assign(document.createElement("img"),
-      { id: "sign-pic" },
-      { src: "../uploads/images/passenger_nosuitable_route.svg" }));
-  } else {
-    for (const i in data) {
-      const driverItinerary = document.getElementById("driver-itinerary");
-      const locations = document.createElement("div");
-      const details = document.createElement("details");
-      const origin = document.createElement("h4");
-      const destination = document.createElement("h4");
-      const date = document.createElement("h5");
-      const availableSeats = document.createElement("h5");
-      const time = document.createElement("h5");
-      const fee = document.createElement("h5");
-      const link = document.createElement("a");
-      link.href = `http://localhost:3000/passenger-search-detail.html${query}&id=${data[i].route_id}`;
-      origin.textContent = "起點：" + data[i].origin;
-      destination.textContent = "終點：" + data[i].destination;
-      date.textContent = "日期：" + data[i].date;
-      availableSeats.textContent = "空餘車位：" + data[i].available_seats;
-      time.textContent = "時間：" + data[i].time;
-      fee.textContent = "費用：" + data[i].fee;
-      locations.appendChild(origin);
-      locations.appendChild(destination);
-      details.appendChild(date);
-      details.appendChild(time);
-      details.appendChild(availableSeats);
-      details.appendChild(fee);
-      link.appendChild(locations);
-      link.appendChild(details);
-      driverItinerary.appendChild(link);
-    }
-  }
 
-//
-});
+window.onload = async function () {
+  const driverRoutes = await getDriverRoutes(query);
+  console.log(driverRoutes);
+  const routeInfo = document.getElementById("match-itinerary");
+  if (driverRoutes.error) {
+    showNoResult(routeInfo);
+  }
+  showSearchResult(driverRoutes, routeInfo);
+};
+
+async function getDriverRoutes (query) {
+  const response = await fetch(`/api/1.0/search${query}`, {
+    method: "GET"
+  });
+  const data = await response.json();
+  return data;
+}
+
+async function showNoResult (routeInfo) {
+  routeInfo.append(Object.assign(document.createElement("h3"),
+    { id: "sign" },
+    { textContent: "輸入地點尚無路線，請至「尋找路線」發出需求" }));
+  routeInfo.append(Object.assign(document.createElement("img"),
+    { id: "sign-pic" },
+    { src: "../uploads/images/passenger_nosuitable_route.svg" }));
+}
+
+function showSearchResult (data, routeInfo) {
+  for (const route of data) {
+    routeInfo.innerHTML +=
+  `<a class="match-itinerary-container" href="./driver-itinerary-detail.html?routeid=${route.id}">
+      <div class="match-itinerary-wrapper">
+      <div class="match-itinerary-detail">
+          <div class="match-itinerary-date">日期：${route.date}</div>
+          <div class="match-itinerary-date">出發時間：${route.time}</div>
+          <div class="match-itinerary-seats">${route.seats_left}個人</div>
+      </div>
+      <div class="match-itinerary-upper">
+          <img class="match-itinerary-img-img" src="./uploads/images/route.png">
+          <div class="match-itinerary-location">
+              <div class="match-itinerary-origin">${route.origin}</div>
+              <div class="match-itinerary-destination">${route.destination}</div>
+          </div>
+        </div>
+      </div></a>`;
+  }
+}

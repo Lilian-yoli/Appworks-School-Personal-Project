@@ -57,11 +57,11 @@ window.onload = function () {
         window.localStorage.setItem("route", JSON.stringify(response.route));
         const url = new URL("http://localhost:3000/path.html");
         const searchParams = new URLSearchParams({
-          routeid: data[0].route_id
+          routeid: data[0].id
         });
         url.search = searchParams;
         console.log(url.href);
-        document.location.href = `./path.html?routeid=${data[0].route_id}`;
+        document.location.href = `./path.html?routeid=${data[0].id}`;
       }
     });
   });

@@ -4,13 +4,16 @@ body {
   position: relative;
   height: auto;
   min-height: 100% !important;
+  background-image: url(../uploads/images/backgroundImage.png);
+  background-repeat: repeat;
 }
 
-h2 {
+h2, h3 {
   width: 100%;
   text-align: center;
   z-index: 2;
   margin-top: 2%;
+  text-shadow: 1.5px 1.5px #FFFFFF;
 }
 
 #match, #unmatch {
@@ -22,9 +25,9 @@ h2 {
   width: 100%;
   text-align: center;
   flex: 1;
-  margin-bottom: 115px;
   overflow: scroll;
   z-index: 2;
+  justify-content: center;
 }
 
 #match-itinerary, #unmatch-itinerary {
@@ -183,4 +186,7 @@ a.unmatch-itinerary-container:link, a.match-itinerary-container:visited {
   outline: none;
 }
 
-
+#sign-pic {
+  max-height: 800px;
+  margin: 2% 35% 2% 35%;
+}

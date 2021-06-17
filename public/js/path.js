@@ -91,7 +91,7 @@ async function wrapper () {
         pickedWaypts.push(originObj);
         pickedWaypts.push(destinationObj);
         index[i] = i;
-        passengerArr.push(passenger[i].route_id);
+        passengerArr.push(passenger[i].id);
         showPickedPassenger(i);
       }
     };
@@ -205,7 +205,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
               pickedWaypts.push(dict[index[j] * 2]);
               pickedWaypts.push(dict[index[j] * 2 + 1]);
               console.log("index[j]", index[j]);
-              passengerArr.push(passenger[index[j]].route_id);
+              passengerArr.push(passenger[index[j]].id);
             }
             showPickedPassenger(num);
           }
@@ -226,7 +226,7 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
           for (const i in newIndex) {
             pickedWaypts.push(dict[index[i] * 2]);
             pickedWaypts.push(dict[index[i] * 2 + 1]);
-            passengerArr.push(passenger[index[i]].route_id);
+            passengerArr.push(passenger[index[i]].id);
           }
         }
 
@@ -275,7 +275,7 @@ function matchedBtn (driver, passenger, verifyToken, query) {
       index = index.split(",");
       const passengerId = [];
       for (const i in index) {
-        passengerRouteId.push(passenger[index[i]].route_id);
+        passengerRouteId.push(passenger[index[i]].id);
         passengerId.push(passenger[index[i]].user_id);
       }
 

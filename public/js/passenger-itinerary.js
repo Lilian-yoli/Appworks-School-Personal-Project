@@ -16,7 +16,7 @@ fetch("/api/1.0/passenger-itinerary", {
     for (const i in match) {
       itinerary.innerHTML +=
       `<a class="match-itinerary-container" href="./driver-tour-info.html?
-      routid=${match[0].route_id}&tour=${match[0].tourId}&passenger=${match[0].route_id}">
+      routid=${match[0].id}&tour=${match[0].tourId}&passenger=${match[0].id}">
       <div class="match-itinerary-wrapper">
       <div class="match-itinerary-detail">
           <div class="match-itinerary-date">日期：${match[i].date}</div>
@@ -43,7 +43,7 @@ fetch("/api/1.0/passenger-itinerary", {
   if (!unmatch.empty) {
     for (const i in unmatch) {
       unmatchItinerary.innerHTML +=
-    `<a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=${match[0].route_id}&tour=${match[0].tourId}">
+    `<a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=${match[0].id}&tour=${match[0].tourId}">
     <div class="match-itinerary-wrapper">
     <div class="match-itinerary-detail">
         <div class="match-itinerary-date">日期：${unmatch[i].date}</div>

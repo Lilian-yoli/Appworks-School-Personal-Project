@@ -89,7 +89,7 @@ const transferToLatLng = async (location) => {
 const toDateFormat = async (fromUnixtime) => {
   fromUnixtime = fromUnixtime + "";
   const date = fromUnixtime.split(" ");
-  const month = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
+  const month = { Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06", Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12" };
   return date[3] + "/" + month[date[1]] + "/" + date[2];
 };
 
@@ -178,11 +178,6 @@ const dbToDateformat = async (dbResult) => {
   return dbResult;
 };
 
-// const trimLocationName =async(dbResult)=>{
-//   for(const i in dbResult){
-//     const city = (dbResult[i].origin).split("台灣")
-//   }
-
 const getphoto = async (place) => {
   place = place.split("台灣")[1];
   const city = place[0] + place[1] + place[2];
@@ -239,6 +234,25 @@ const trimAddress = async (address) => {
   return newAddress;
 };
 
+const checkLogin = () => {
+  return async function (req, res, next) {
+    try {
+      let accessToken = req.get("Authorization");
+      console.log("Authorization", accessToken);
+      let user = "";
+      if (accessToken) {
+        accessToken = accessToken.replace("Bearer ", "");
+        user = await jwt.verify(accessToken, TOKEN_SECRET);
+        console.log("jwt.verify:", user);
+      }
+      req.user = user;
+      next();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
+
 module.exports = {
   wrapAsync,
   authentication,
@@ -252,5 +266,6 @@ module.exports = {
   dbToDateformat,
   getphoto,
   trimAddress,
-  getGooglePhoto
+  getGooglePhoto,
+  checkLogin
 };

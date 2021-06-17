@@ -62,7 +62,7 @@ next.onclick = function click () {
       if (!response.error) {
         localStorage.removeItem("origin");
         localStorage.removeItem("destination");
-        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].route_id}`;
+        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].id}`;
       } else {
         alert(response.error);
       }

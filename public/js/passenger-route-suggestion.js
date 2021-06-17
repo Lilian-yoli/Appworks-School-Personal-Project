@@ -147,20 +147,20 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
       new google.maps.Point(22, 32)
     )
   };
-  if(waypts.length< 1){
+  if (waypts.length < 1) {
     directionsService.route(request, function (response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsRenderer.setDirections(response);
-  
-        const wayptsOrigin = new google.maps.LatLng({lat: driver.originCoordinate.x, lng: driver.originCoordinate.y});
+
+        const wayptsOrigin = new google.maps.LatLng({ lat: driver.originCoordinate.x, lng: driver.originCoordinate.y });
         let marker = new google.maps.Marker({
           map: map,
           title: "title",
           label: "起點"
         });
         marker.setPosition(wayptsOrigin);
-        
-        const wayptsDestination = new google.maps.LatLng({lat: driver.destinationCoordinate.x, lng: driver.destinationCoordinate.y});
+
+        const wayptsDestination = new google.maps.LatLng({ lat: driver.destinationCoordinate.x, lng: driver.destinationCoordinate.y });
         marker = new google.maps.Marker({
           map: map,
           title: "title",
@@ -170,46 +170,45 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
       }
     });
   } else {
+    directionsService.route(request, function (response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsRenderer.setDirections(response);
 
-  directionsService.route(request, function (response, status) {
-    if (status == google.maps.DirectionsStatus.OK) {
-      directionsRenderer.setDirections(response);
+        const wayptsOrigin = new google.maps.LatLng(waypts[0].location);
+        let marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          label: "起點"
+        });
+        marker.setPosition(wayptsOrigin);
+        const index = localStorage.getItem("index");
+        const origin = { lat: driver[index][1].detail.origin_coordinate.x, lng: driver[index][1].detail.origin_coordinate.y };
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          position: new google.maps.LatLng(origin)
+        });
 
-      const wayptsOrigin = new google.maps.LatLng(waypts[0].location);
-      let marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        label: "起點"
-      });
-      marker.setPosition(wayptsOrigin);
-      const index = localStorage.getItem("index");
-      const origin = { lat: driver[index][1].detail.origin_coordinate.x, lng: driver[index][1].detail.origin_coordinate.y };
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        position: new google.maps.LatLng(origin)
-      });
+        const destination = { lat: driver[index][1].detail.destination_coordinate.x, lng: driver[index][1].detail.destination_coordinate.y };
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          position: new google.maps.LatLng(destination)
+        });
 
-      const destination = { lat: driver[index][1].detail.destination_coordinate.x, lng: driver[index][1].detail.destination_coordinate.y };
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        position: new google.maps.LatLng(destination)
-      });
-
-      const wayptsDestination = new google.maps.LatLng(waypts[1].location);
-      marker = new google.maps.Marker({
-        map: map,
-        title: "title",
-        label: "終點"
-      });
-      marker.setPosition(wayptsDestination);
-    }
-  });
+        const wayptsDestination = new google.maps.LatLng(waypts[1].location);
+        marker = new google.maps.Marker({
+          map: map,
+          title: "title",
+          label: "終點"
+        });
+        marker.setPosition(wayptsDestination);
+      }
+    });
+  }
 }
-}
 
-function drawDirection(){
+function drawDirection () {
 
 }
 
@@ -269,7 +268,7 @@ const clickEvent = async (driver, passenger) => {
         driverRouteId: driver[index][1].detail.offered_routes_id,
         persons: passenger.persons,
         date: passenger.date,
-        passengerRouteId: passenger.route_id
+        passengerRouteId: passenger.id
       }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
@@ -301,7 +300,7 @@ const clickEvent = async (driver, passenger) => {
       icon: "success"
     });
     document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
-    &tour=${idInfo.tourId}&passenger=${passenger.route_id}`;
+    &tour=${idInfo.tourId}&passenger=${passenger.id}`;
   });
 };
 

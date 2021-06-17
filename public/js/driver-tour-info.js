@@ -64,7 +64,7 @@ function confirm (driverInfo, passengerInfo) {
         console.log(index);
         const res = await fetch(`/api/1.0/tour-confirm${query}`, {
           method: "POST",
-          body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: 1 }),
+          body: JSON.stringify({ passengerRouteId: passengerInfo[index].id, matchStatus: 1 }),
           headers: new Headers({
             Authorization: "Bearer " + verifyToken,
             "Content-type": "application/json"
@@ -74,7 +74,7 @@ function confirm (driverInfo, passengerInfo) {
         console.log(data);
         const routeInfo = {
           receiverId: [passengerInfo[index].id],
-          passengerRouteId: [passengerInfo[index].route_id],
+          passengerRouteId: [passengerInfo[index].id],
           url: `./passenger-tour-info.html${query}`,
           content: `車主${driverInfo.name}已接受你的行程，立即前往查看`,
           type: "match",
@@ -100,7 +100,7 @@ function confirm (driverInfo, passengerInfo) {
         console.log(index);
         const res = await fetch(`/api/1.0/tour-confirm${query}`, {
           method: "POST",
-          body: JSON.stringify({ passengerRouteId: passengerInfo[index].route_id, matchStatus: -1 }),
+          body: JSON.stringify({ passengerRouteId: passengerInfo[index].id, matchStatus: -1 }),
           headers: new Headers({
             Authorization: "Bearer " + verifyToken,
             "Content-type": "application/json"
@@ -110,7 +110,7 @@ function confirm (driverInfo, passengerInfo) {
         console.log(data);
         const routeInfo = {
           receiverId: [passengerInfo[index].id],
-          passengerRouteId: [driverInfo.route_id],
+          passengerRouteId: [driverInfo.id],
           url: `./passenger-tour-info.html${query}`,
           content: `車主${passengerInfo.name}已謝絕你的行程`,
           type: "match",
@@ -165,7 +165,8 @@ function initMap (driverInfo, passengerInfo) {
   };
   console.log(waypoints);
   for (let i = 0; i < waypoints.length; i += 2) {
-    marker(i, map, waypoints, google);
+    const num = Math.ceil((i + 1) / 2);
+    marker(num, map, waypoints, google, num);
   }
 
   directionsService.route(request, function (response, status) {
@@ -192,13 +193,13 @@ function initMap (driverInfo, passengerInfo) {
   });
 }
 
-function marker (i, map, waypoints, google) {
+function marker (i, map, waypoints, google, num) {
   const wayptsOrigin = new google.maps.LatLng(waypoints[i].location);
   console.log(wayptsOrigin, i);
   let marker = new google.maps.Marker({
     map: map,
     title: "title",
-    label: `${i + 1}`
+    label: `${num}`
   });
   marker.setPosition(wayptsOrigin);
 
@@ -207,7 +208,7 @@ function marker (i, map, waypoints, google) {
   marker = new google.maps.Marker({
     map: map,
     title: "title",
-    label: `${i + 1}`
+    label: `${num}`
   });
   marker.setPosition(wayptsDestination);
 }
