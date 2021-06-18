@@ -2,10 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const path = require("path");
+const { redisClient } = require("./util/redis");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
-const { query } = require("./server/models/mysqlcon");
-const mysql = require("./server/models/mysqlcon");
 // eslint-disable-next-line no-unused-vars
 const API_VERSION = process.env;
 const pathRoutes = require("./server/routes/path_routes");
@@ -18,31 +18,15 @@ const User = require("./server/models/user_model.js");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extend: true }));
 app.use(express.static("public"));
+app.use("/api/" + API_VERSION,
+  [
+    require("./server/routes/user_routes")
+  ]
+);
 app.use(pathRoutes);
 app.use(userRoutes);
 app.use(passengerRoutes);
 app.use(chatRoutes);
-
-// app.use("/api/" + API_VERSION, [pathRoutes]);
-// io.use((socket, next) => {
-//   const token = socket.handshake.auth.verifyToken;
-//   console.log(socket.handshake.auth);
-//   if (token === null) {
-//     const err = new Error("未登入");
-//     next(err);
-//   } else {
-//     jwt.verify(token, "secretkey", async (error, result) => {
-//       if (error) {
-//         console.log(error);
-//         const err = new Error("登入逾期");
-//         next(err);
-//       }
-//       console.log("socket middleware:", result);
-//       socket.userInfo = result;
-//       next();
-//     });
-//   }
-// });
 
 const users = {};
 const rusers = {};
@@ -135,6 +119,28 @@ io.on("connection", socket => {
       }
     }
   });
+});
+
+// app.get("/test", (req, res) => {
+//   console.log(123);
+//   redisClient.set("test", JSON.stringify({ test: 123 }), "EX", 60 * 60 * 24, err => {
+//     if (err) {
+//       console.log(err);
+//     }
+//     console.log("redis set successfully");
+//   });
+//   res.send("HELLO");
+// });
+
+// Page not found
+app.use(function (req, res, next) {
+  res.status(404).sendFile(path.join(__dirname, "/public/404.html"));
+});
+
+// Error handling
+app.use(function (err, req, res, next) {
+  console.log(err);
+  res.status(500).send("Internal Server Error");
 });
 
 server.listen(3000, () => {

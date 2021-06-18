@@ -33,6 +33,8 @@ async function wrapper () {
       { type: "submit" },
       { value: "回首頁" },
       { id: "homepage" }));
+    const buttons = document.querySelector(".button-container");
+    buttons.style.display = "none";
     const map = document.getElementById("map");
     initMap([], data.origin, data.destination, true, data);
   } else {

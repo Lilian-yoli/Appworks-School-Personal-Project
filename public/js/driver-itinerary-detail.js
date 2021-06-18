@@ -1,7 +1,9 @@
 
 const query = window.location.search;
 const verifyToken = localStorage.getItem("access_token");
-
+if (!query) {
+  window.location.href = "./404.html";
+}
 async function wrapper () {
   const response = await fetch(`/api/1.0/driver-itinerary-detail${query}`, {
     method: "GET",
@@ -9,6 +11,7 @@ async function wrapper () {
       Authorization: "Bearer " + verifyToken
     })
   });
+  console.log(response);
   const data = await response.json();
   console.log(data);
   createDriverInfo(data);

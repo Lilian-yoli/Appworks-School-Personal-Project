@@ -6,59 +6,69 @@ const Util = require("../../util/path");
 
 const offerSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
-  const { origin, destination, persons, date, time } = req.body;
-  if (!origin || !destination || !persons || !date) {
-    res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
-    return;
+  try {
+    const { origin, destination, persons, date, time } = req.body;
+    if (!origin || !destination || !persons || !date) {
+      res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
+      return;
+    }
+    const [routeInfo] = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id);
+    if (routeInfo.error) {
+      res.status(500).send({ error: routeInfo.error });
+      return;
+    }
+    console.log("path_controller:", routeInfo);
+    const waypoints = await Util.getDirection(routeInfo.origin_coordinate.x + "," + routeInfo.origin_coordinate.y,
+      routeInfo.destination_coordinate.x + "," + routeInfo.destination_coordinate.y);
+    console.log("waypoints", waypoints);
+    const wayptsCity = await Util.getWayptsCity(waypoints);
+    const saveWaypts = await Path.saveWaypts(wayptsCity, routeInfo.id);
+    console.log("saveWaypts", saveWaypts);
+    return res.status(200).send(routeInfo);
+  } catch (err) {
+    console.log(err);
+    res.redirect("./404.html");
   }
-  const result = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id);
-  if (result.error) {
-    res.status(500).send({ error: result.error });
-    return;
-  }
-  console.log("path_controller:", result);
-  const waypoints = await Util.getDirection(result.route[0].origin_coordinate.x + "," + result.route[0].origin_coordinate.y,
-    result.route[0].destination_coordinate.x + "," + result.route[0].destination_coordinate.y);
-  console.log("waypoints", waypoints);
-  const getCity = await Util.wayptsCity(waypoints);
-  const saveWaypts = await Path.saveWaypts(getCity, result.route[0].id);
-  console.log("saveWaypts", saveWaypts);
-  return res.status(200).send(result);
 };
 
 const routeSuggestion = async (req, res) => {
   console.log("routeSuggestion", (req.query));
-  const routeId = req.query.routeid;
-  const { name, picture, id } = req.user;
-  const getDriverDetail = await Path.getDriverDetail(routeId);
-  console.log("getDriverDetail", getDriverDetail);
+  try {
+    const routeId = req.query.routeid;
+    const { name, picture, id } = req.user;
+    const getDriverDetail = await Path.getDriverRouteDetail(routeId);
+    if (getDriverDetail.error) {
+      res.status(400).send(getDriverDetail.error);
+    }
+    console.log("getDriverDetail", getDriverDetail);
 
-  const { date, origin, destination } = getDriverDetail;
-  const availableSeats = getDriverDetail.seats_left;
-  const originLatLon = `${getDriverDetail.origin_coordinate.x}, ${getDriverDetail.origin_coordinate.y}`;
-  const destinationLatLon = `${getDriverDetail.destination_coordinate.x}, ${getDriverDetail.destination_coordinate.y}`;
-  console.log("originLatLon", originLatLon);
+    const { date, origin, destination } = getDriverDetail;
+    const availableSeats = getDriverDetail.seats_left;
+    const originLatLon = `${getDriverDetail.origin_coordinate.x}, ${getDriverDetail.origin_coordinate.y}`;
+    const destinationLatLon = `${getDriverDetail.destination_coordinate.x}, ${getDriverDetail.destination_coordinate.y}`;
+    console.log("originLatLon", originLatLon);
 
-  const filterRoutesIn5km = await Util.filterRoutesIn5km(originLatLon, destinationLatLon, date, availableSeats);
-  // const sortAllPassengerByDistance = await Util.sortAllPassengerByDistance(filterRoutesIn5km);
-  const result = { passengerInfo: filterRoutesIn5km };
-  result.driverInfo = {
-    routeId: routeId,
-    originLatLon: originLatLon,
-    destinationLatLon: destinationLatLon,
-    origin: origin,
-    destination: destination,
-    seats_left: availableSeats,
-    date: date,
-    time: getDriverDetail.time,
-    name: name,
-    picture: picture,
-    id: id
-  };
-
-  filterRoutesIn5km.push();
-  console.log("sortAllPassengerByDistance", result);
-  res.status(200).send(result);
+    const filterRoutesIn5km = await Util.filterRoutesIn5km(originLatLon, destinationLatLon, date, availableSeats);
+    // const sortAllPassengerByDistance = await Util.sortAllPassengerByDistance(filterRoutesIn5km);
+    const result = { passengerInfo: filterRoutesIn5km };
+    result.driverInfo = {
+      routeId,
+      originLatLon,
+      destinationLatLon,
+      origin,
+      destination,
+      date,
+      name,
+      picture,
+      id,
+      seats_left: availableSeats,
+      time: getDriverDetail.time
+    };
+    console.log("sortAllPassengerByDistance", result);
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const setMatchedPassengers = async (req, res) => {
@@ -81,29 +91,27 @@ const setMatchedPassengers = async (req, res) => {
 };
 
 const getDriverItineraryDetail = async (req, res) => {
-  let accessToken = req.get("Authorization");
-  console.log("Authorization", accessToken);
-  let user = "";
-  if (accessToken) {
-    accessToken = accessToken.replace("Bearer ", "");
-    user = jwt.verify(accessToken, TOKEN_SECRET);
-    console.log("jwt.verify:", user);
+  try {
+    const { user } = req;
+    const routeId = req.query.routeid;
+    console.log(routeId);
+    const result = await Path.getDriverItineraryDetail(routeId, user);
+    console.log("getDriversItinerary", result);
+    if (result.error) {
+      return res.status(500).send(result);
+    }
+
+    res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
   }
-  const routeId = req.query.routeid;
-  console.log(routeId);
-  const result = await Path.getDriverItineraryDetail(routeId, user.email);
-  console.log("getDriversItinerary", result);
-  if (result.error) {
-    return res.status(500).send(result);
-  }
-  res.status(200).send(result);
 };
 
 const getDriverItinerary = async (req, res) => {
   try {
     console.log("req.user123", req.user);
-    const result = await Path.getDriverItinerary(req.user.id);
-    res.status(200).send(result);
+    const DriversItinerary = await Path.getDriverItinerary(req.user.id);
+    res.status(200).send(DriversItinerary);
   } catch (error) {
     console.log(error);
   }

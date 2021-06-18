@@ -52,16 +52,8 @@ window.onload = function () {
           icon: "warning"
         });
       } else {
-        const data = response.route;
-        console.log("data46:", data);
-        window.localStorage.setItem("route", JSON.stringify(response.route));
-        const url = new URL("http://localhost:3000/path.html");
-        const searchParams = new URLSearchParams({
-          routeid: data[0].id
-        });
-        url.search = searchParams;
-        console.log(url.href);
-        document.location.href = `./path.html?routeid=${data[0].id}`;
+        window.localStorage.setItem("route", JSON.stringify(response));
+        document.location.href = `./path.html?routeid=${response.id}`;
       }
     });
   });

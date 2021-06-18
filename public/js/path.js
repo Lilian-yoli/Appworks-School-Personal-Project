@@ -4,6 +4,9 @@ async function wrapper () {
   const query = window.location.search;
   const verifyToken = localStorage.getItem("access_token");
 
+  if (!query) {
+    window.location.href = "./404.html";
+  }
   const response = await fetch(`/api/1.0/route-suggestion${query}`, {
     method: "GET",
     headers: new Headers({
@@ -13,6 +16,13 @@ async function wrapper () {
   });
   const data = await response.json();
   console.log("data", data);
+  if (data.error) {
+    swal({
+      text: "data.error",
+      icon: "warning"
+    });
+    window.location.href = "./";
+  }
   const driver = data.driverInfo;
   const passenger = data.passengerInfo;
   const index = [];

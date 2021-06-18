@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 const { query } = require("./mysqlcon");
 const mysql = require("./mysqlcon");
-const { toDateFormat, toTimestamp, transferToLatLng, getDistanceFromLatLonInKm, getCity, getShortestRoute, orderShortestRoute, getphoto, trimAddress, getGooglePhoto } = require("../../util/util");
-const { get, set, del } = require("../../util/redis");
+const Util = require("../../util/util");
+const { redisClient, getHomepageRoutes, setHomepageRoutes } = require("../../util/redis");
 
 const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   const connection = await mysql.connection();
@@ -15,8 +15,8 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
     await connection.query("COMMIT");
     return { error: "Routes had already been created, please check your itinerary" };
   }
-  const originLatLng = await transferToLatLng(origin);
-  const destinationLatLng = await transferToLatLng(destination);
+  const originLatLng = await Util.transferToLatLng(origin);
+  const destinationLatLng = await Util.transferToLatLng(destination);
 
   const now = Math.floor(Date.now() / 1000);
   console.log("originLatLng", originLatLng.lat, originLatLng.lng);
@@ -25,10 +25,10 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   } else if (!destinationLatLng) {
     return { error: "Couldn't find the destination. Try to type the address." };
   }
-  const distance = getDistanceFromLatLonInKm(originLatLng.lat, originLatLng.lng, destinationLatLng.lat, destinationLatLng.lng);
+  const distance = Util.getDistanceFromLatLonInKm(originLatLng.lat, originLatLng.lng, destinationLatLng.lat, destinationLatLng.lng);
 
   const columns = `(origin, destination, persons, date, user_id, origin_coordinate, 
-      destination_coordinate, passenger_type, isMatched, createdAt, updatedAt, distance)`;
+      destination_coordinate, passenger_type, matched, created_at, updated_at, distance)`;
 
   const setValue = `("${origin}", "${destination}", "${persons}",
     UNIX_TIMESTAMP("${date}"), ${id}, Point("${originLatLng.lat}", "${originLatLng.lng}"),
@@ -39,8 +39,8 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   const routeId = insertRoute.insertId;
   const route = await query(`SELECT * FROM requested_routes WHERE id = ${routeId}`);
 
-  const originCity = await getCity(originLatLng);
-  const destinationCity = await getCity(destinationLatLng);
+  const originCity = await Util.getCity(originLatLng);
+  const destinationCity = await Util.getCity(destinationLatLng);
   const city = [[routeId, originCity, "origin", now], [routeId, destinationCity, "destination", now]];
   const insertCity = await query(`INSERT INTO requested_routes_cities 
   (requested_routes_id, city, coordinate_type, created_at) VALUES ?`, [city]);
@@ -56,7 +56,7 @@ const routesBySearch = async (origin, destination, date, persons) => {
   FROM offered_routes WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}`;
   const result = await query(qryStr);
   for (const i in result) {
-    result[i].date = await toDateFormat(result[i].date);
+    result[i].date = await Util.toDateFormat(result[i].date);
   }
   console.log("passengerSearch", result);
   if (result.length < 1) {
@@ -71,12 +71,12 @@ const passengerSearchDetail = async (id, passenger) => {
   FROM offered_routes o INNER JOIN users u ON o.user_id = u.id WHERE o.id = ${id}`;
   const driverRoute = await query(qryStr);
   console.log("passengerSearchDetail", driverRoute);
-  driverRoute[0].date = await toDateFormat(driverRoute[0].date);
+  driverRoute[0].date = await Util.toDateFormat(driverRoute[0].date);
 
   if (passenger) {
     const passengerRoute = await query(`SELECT origin, destination, FROM_UNIXTIME(date) AS date, persons 
   FROM requested_routes WHERE id = ${passenger}`);
-    passengerRoute[0].date = await toDateFormat(passengerRoute[0].date);
+    passengerRoute[0].date = await Util.toDateFormat(passengerRoute[0].date);
     return {
       driverRoute: driverRoute[0],
       passengerRoute: passengerRoute[0]
@@ -95,10 +95,10 @@ const saveSearchPassenger = async (driverRouteId, persons, date, userId) => {
   try {
     const now = Math.floor(Date.now() / 1000);
     // distance update for search type passengers
-    const distance = await getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
+    const distance = await Util.getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
       driverRoute[0].destination_coordinate.x, driverRoute[0].destination_coordinate.y);
     const column = `(origin, destination, persons, date, origin_coordinate, destination_coordinate, 
-    passenger_type, user_id, createdAt, updatedAt, distance)`;
+    passenger_type, user_id, created_at, updated_at, distance)`;
     const setValue = `("${driverRoute[0].origin}", "${driverRoute[0].destination}", ${persons},
   UNIX_TIMESTAMP("${date}"), Point("${driverRoute[0].origin_coordinate.x}", "${driverRoute[0].origin_coordinate.y}"),
 Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destination_coordinate.y}"), 
@@ -123,13 +123,13 @@ const getPassengerItinerary = async (id) => {
   INNER JOIN tour t ON r.id = t.passenger_routes_id
   INNER JOIN offered_routes o ON t.offered_routes_id = o.id
   INNER JOIN users u ON u.id = o.user_id
-  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.routeTS) >= ${timestamp} ORDER by date`;
+  WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.route_timestamp) >= ${timestamp} ORDER by date`;
     let matched = await query(qryStrMatched);
     if (matched.length < 1) {
       matched = { empty: "行程尚未進行媒合" };
     } else {
       for (const i in matched) {
-        matched[i].date = await toDateFormat(matched[i].date);
+        matched[i].date = await Util.toDateFormat(matched[i].date);
       }
     }
 
@@ -141,7 +141,7 @@ const getPassengerItinerary = async (id) => {
       unmatched = { empty: "尚未建立行程" };
     } else {
       for (const i in unmatched) {
-        unmatched[i].date = await toDateFormat(unmatched[i].date);
+        unmatched[i].date = await Util.toDateFormat(unmatched[i].date);
       }
     }
 
@@ -158,9 +158,9 @@ const getPassengerItinerary = async (id) => {
 const passengerRequestDetail = async (id) => {
   const timestamp = Math.floor(Date.now() / 1000);
   const result = await query(`SELECT origin, destination, persons, FROM_UNIXTIME(date + 28800) AS date 
-  FROM requested_routes WHERE isMatched = 0 AND user_id = ${id} AND date >= ${timestamp} ORDER BY date`);
+  FROM requested_routes WHERE matched = 0 AND user_id = ${id} AND date >= ${timestamp} ORDER BY date`);
   for (const i in result) {
-    result[i].date = await toDateFormat(result[i].date);
+    result[i].date = await Util.toDateFormat(result[i].date);
   }
   console.log("passengerRequestDetail", result);
   return result;
@@ -201,14 +201,14 @@ const getTourInfo = async (tourId, userId) => {
   o.seats_left, o.user_id, o.id, u.id, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
   FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
-  driverInfo[0].date = await toDateFormat(driverInfo[0].date);
+  driverInfo[0].date = await Util.toDateFormat(driverInfo[0].date);
   console.log("driverInfo", driverInfo);
 
   const passengerInfo = await query(`SELECT r.id, r.origin, r.destination, r.persons, 
   FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.id
   INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId} AND r.user_id = ${userId}`);
-  passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
+  passengerInfo[0].date = await Util.toDateFormat(passengerInfo[0].date);
   console.log("passengerInfo", passengerInfo);
 
   const result = {};
@@ -225,7 +225,7 @@ const getPassengerDetail = async (id) => {
   if (!passengerDetail) {
     return { error: "No such route offered" };
   }
-  passengerDetail[0].date = await toDateFormat(passengerDetail[0].date);
+  passengerDetail[0].date = await Util.toDateFormat(passengerDetail[0].date);
   return passengerDetail[0];
 };
 
@@ -253,12 +253,12 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
     if (destinationWaypts.length < 1) {
       continue;
     }
-    destinationWaypts[0].date = await toDateFormat(destinationWaypts[0].date);
+    destinationWaypts[0].date = await Util.toDateFormat(destinationWaypts[0].date);
     // check direction the same
-    const pOriginToDestination = await getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
+    const pOriginToDestination = await Util.getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
       destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
 
-    const pDestinationToDestination = await getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
+    const pDestinationToDestination = await Util.getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
       destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
     console.log("pOriginToDestination", pOriginToDestination, pDestinationToDestination, (pOriginToDestination >= pDestinationToDestination));
     if (pOriginToDestination >= pDestinationToDestination) {
@@ -270,8 +270,8 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
   }
   console.log("destinationCity", destinationCity);
 
-  const shortestRoute = await getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);
-  const shortestRouteInOrder = await orderShortestRoute(shortestRoute);
+  const shortestRoute = await Util.getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);
+  const shortestRouteInOrder = await Util.orderShortestRoute(shortestRoute);
 
   return shortestRouteInOrder;
 };
@@ -294,19 +294,24 @@ const confirmTour = async (driverRouteId, tourId, passengerRouteId, matchStatus)
 const getPassengerHomepage = async () => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
-    const route = await query(`SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons, r.id
+    const routes = await query(`SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons, r.id
     FROM requested_routes r LEFT OUTER JOIN tour t ON r.id = passenger_routes_id
     WHERE r.date > ${timestamp} AND t.id IS NULL ORDER BY date LIMIT 4`);
-    console.log(route);
-    for (const i in route) {
-      route[i].date = await toDateFormat(route[i].date);
-      route[i].photo = await getGooglePhoto(route[i].destination);
-      route[i].origin = await trimAddress(route[i].origin);
-      route[i].destination = await trimAddress(route[i].destination);
+    console.log(routes);
+    // if redis existed get from redis
+    const routesFromRedis = await getHomepageRoutes("passengerRoute", routes);
+    if (routesFromRedis) {
+      return { routes: routesFromRedis };
     }
-
-    console.log(route);
-    return { route };
+    for (const route of routes) {
+      route.date = await Util.toDateFormat(route.date);
+      route.photo = await Util.getGooglePhoto(route.destination);
+      route.origin = await Util.trimAddress(route.origin);
+      route.destination = await Util.trimAddress(route.destination);
+    }
+    // eslint-disable-next-line no-unused-vars
+    const setRouteToRedis = setHomepageRoutes("passengerRoute", routes);
+    return { routes };
   } catch (error) {
     console.log(error);
   }
@@ -323,7 +328,7 @@ const getPassengerItineraryDetail = async (routeId, user) => {
     if (passengerInfo.length < 1) {
       return { error: "Route is not existed" };
     }
-    passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
+    passengerInfo[0].date = await Util.toDateFormat(passengerInfo[0].date);
     // if user logged in, get user ID
     let userInfo;
     if (user) {

@@ -1,5 +1,6 @@
 require("dotenv").config();
 const axios = require("axios");
+const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const { GOOGLE_MAP, TOKEN_SECRET } = process.env;
 const User = require("../server/models/user_model.js");
@@ -246,6 +247,31 @@ const checkLogin = () => {
         console.log("jwt.verify:", user);
       }
       req.user = user;
+      console.log(req.query);
+      const { query } = req;
+      next();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
+
+const verifyreqQuery = () => {
+  return async function (req, res, next) {
+    try {
+      console.log("verifyreqQuery.................");
+      // console.log(req);
+      const reqObject = req.query;
+      console.log(reqObject);
+      const reqQueryArr = Object.values(reqObject);
+      console.log(reqQueryArr);
+      for (const query of reqQueryArr) {
+        console.log(query, (validator.isInt(query)), (validator.isInt("1")));
+        if (!validator.isInt(query)) {
+          console.log("not a number");
+          return res.status(401).send({ error: "query is not a number" });
+        }
+      }
       next();
     } catch (err) {
       console.log(err);
@@ -267,5 +293,6 @@ module.exports = {
   getphoto,
   trimAddress,
   getGooglePhoto,
-  checkLogin
+  checkLogin,
+  verifyreqQuery
 };

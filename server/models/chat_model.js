@@ -161,8 +161,7 @@ const notifyContentToDB = async (receiverId, data, url) => {
     type: data.type,
     time: now,
     unread: 1,
-    url: url,
-    icon: data.icon
+    url: url
   };
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
@@ -173,7 +172,7 @@ const notifyContentToDB = async (receiverId, data, url) => {
 };
 
 const allNotifyContent = async (receiverId) => {
-  const result = await query(`SELECT a.content, a.url, a.icon, b.unread FROM notification a
+  const result = await query(`SELECT a.content, a.url, b.unread FROM notification a
   CROSS JOIN(SELECT SUM(unread) unread FROM notification WHERE user_id = ${receiverId} AND unread = 1) b
   WHERE user_id = ${receiverId} AND a.unread = 1 ORDER BY time DESC`);
   console.log(result);
