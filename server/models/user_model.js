@@ -22,7 +22,6 @@ const signUp = async (name, email, password, phone) => {
       name: name,
       email: email,
       password: bcrypt.hashSync(password, salt),
-      phone: phone,
       picture: "../uploads/images/member.png",
       login_at: loginAt,
       token_expired: TOKEN_EXPIRE
@@ -31,7 +30,6 @@ const signUp = async (name, email, password, phone) => {
       provider: user.provider,
       name: user.name,
       email: user.email,
-      phone: user.phone,
       picture: user.picture
     }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE * 1000 });
     user.access_token = accessToken;
@@ -77,7 +75,7 @@ const signIn = async (email, password) => {
   const updateUser = connection.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, user.id]);
 
   await connection.query("COMMIT");
-  console.log("beforeReturn", user);
+  console.log("beforeReturn");
   return user;
 };
 

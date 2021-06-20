@@ -32,7 +32,7 @@ const insertRouteInfo = async (origin, destination, persons, date, time, id) => 
     UNIX_TIMESTAMP("${date}"), "${time}", ${id}, Point("${originLatLng.lat}", "${originLatLng.lng}"),
   Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), ${persons}, TIMESTAMP("${date}", "${time}"))`;
 
-    const insertRoute = await query(`INSERT INTO offered_routes ${columns} VALUES ?`, [setValue]);
+    const insertRoute = await query(`INSERT INTO offered_routes ${columns} VALUES ${setValue}`);
     console.log("insertRoute", insertRoute);
     const routId = insertRoute.insertId;
     const route = await query(`SELECT * FROM offered_routes WHERE id = ${routId}`);
@@ -224,6 +224,9 @@ const getDriverHomepage = async () => {
     const routes = await query(`SELECT origin, destination, FROM_UNIXTIME(date + 28800) AS date, seats_left, id
     FROM offered_routes WHERE date > ${timestamp} AND seats_left > 0 ORDER BY date LIMIT 4`);
     console.log(routes);
+    if (routes.length < 0) {
+      return { error: "interanal server error" };
+    }
     // if redis existed get from redis
     const routesFromRedis = await getHomepageRoutes("driverRoute", routes);
     if (routesFromRedis) {

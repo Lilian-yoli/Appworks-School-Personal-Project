@@ -54,7 +54,7 @@ window.addEventListener("load", () => {
       signinEmail: signinEmail.value,
       signinPassword: signinPassword.value
     };
-    console.log(signinInfo);
+
     fetch("/api/1.0/user/signin", {
       method: "POST",
       body: JSON.stringify(signinInfo),

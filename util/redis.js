@@ -21,6 +21,7 @@ const del = promisify(redisClient.del).bind(redisClient);
 const getHomepageRoutes = async (key, routes) => {
   const rawRoutesFromRedis = await get(key);
   const routesFromRedis = JSON.parse(rawRoutesFromRedis);
+  console.log("&&&&&&&&&&", routesFromRedis, "%%%%%%%%%", routes);
   for (const i in routesFromRedis) {
     if (routesFromRedis[i].id !== routes[i].id) {
       return null;

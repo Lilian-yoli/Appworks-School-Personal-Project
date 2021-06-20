@@ -2,40 +2,40 @@ const router = require("express").Router();
 const { offerSeatsInfo, routeSuggestion, setMatchedPassengers, getDriverItineraryDetail, getDriverItinerary, driverSearch, driverSearchDetail, setDriverTour, getDriverHomepage, getTourInfo, selectDriverRoute } = require("../controllers/path_controllers");
 const { wrapAsync, authentication, checkLogin, verifyreqQuery } = require("../../util/util");
 
-router.route("/api/1.0/offer-seats-info")
+router.route("/offer-seats-info")
   .post(authentication(), wrapAsync(offerSeatsInfo));
 
-router.route("/api/1.0/route-suggestion")
+router.route("/route-suggestion")
   .get(authentication(), wrapAsync(routeSuggestion));
 
-router.route("/api/1.0/matched-passengers")
+router.route("/matched-passengers")
   .post(authentication(), wrapAsync(setMatchedPassengers));
 
-router.route("/api/1.0/driver-itinerary-detail")
+router.route("/driver-itinerary-detail")
   .get(checkLogin(), verifyreqQuery(), wrapAsync(getDriverItineraryDetail));
 
-router.route("/api/1.0/driver-itinerary")
+router.route("/driver-itinerary")
   .get(authentication(), wrapAsync(getDriverItinerary));
 
-router.route("/api/1.0/driver-search")
+router.route("/driver-search")
   .get(authentication(), wrapAsync(driverSearch));
 
-router.route("/api/1.0/driver-search-detail")
+router.route("/driver-search-detail")
   .get(wrapAsync(driverSearchDetail));
 
 // router.route("/api/1.0/matched-searched-passengers")
 //   .post(wrapAsync(matchSearchedPassengers));
 
-router.route("/api/1.0/driver-tour")
+router.route("/driver-tour")
   .post(authentication(), wrapAsync(setDriverTour));
 
-router.route("/api/1.0/driver-tour-info")
+router.route("/driver-tour-info")
   .get(authentication(), wrapAsync(getTourInfo));
 
-router.route("/api/1.0/driver-homepage")
+router.route("/driver-homepage")
   .get(wrapAsync(getDriverHomepage));
 
-router.route("/api/1.0/driver-route-selection")
+router.route("/driver-route-selection")
   .post(authentication(), wrapAsync(selectDriverRoute));
 
 module.exports = router;

@@ -16,40 +16,40 @@ const {
 // eslint-disable-next-line no-unused-vars
 const { wrapAsync, authentication, checkLogin } = require("../../util/util");
 
-router.route("/api/1.0/request-seats-info")
+router.route("/request-seats-info")
   .post(authentication(), wrapAsync(requestSeatsInfo));
 
-router.route("/api/1.0/search")
+router.route("/search")
   .get(wrapAsync(routesBySearch));
 
-router.route("/api/1.0/passenger-search-detail")
+router.route("/passenger-search-detail")
   .get(wrapAsync(passengerSearchDetail));
 
-router.route("/api/1.0/passenger-search")
+router.route("/passenger-search")
   .post(authentication(), wrapAsync(saveSearchPassenger));
 
-router.route("/api/1.0/passenger-itinerary")
+router.route("/passenger-itinerary")
   .get(authentication(), wrapAsync(getPassengerItinerary));
 
-router.route("/api/1.0/passenger-request-detail")
+router.route("/passenger-request-detail")
   .get(authentication(), wrapAsync(passengerRequestDetail));
 
-router.route("/api/1.0/passenger-tour")
+router.route("/passenger-tour")
   .post(authentication(), wrapAsync(setPassengerTour));
 
-router.route("/api/1.0/passenger-tour-info")
+router.route("/passenger-tour-info")
   .get(authentication(), wrapAsync(getTourInfo));
 
-router.route("/api/1.0/passenger-route-suggestion")
+router.route("/passenger-route-suggestion")
   .get(authentication(), wrapAsync(suggestPassengerRoute));
 
-router.route("/api/1.0/tour-confirm")
+router.route("/tour-confirm")
   .post(authentication(), wrapAsync(confirmTour));
 
-router.route("/api/1.0/passenger-homepage")
+router.route("/passenger-homepage")
   .get(wrapAsync(getPassengerHomepage));
 
-router.route("/api/1.0/passenger-itinerary-detail")
+router.route("/passenger-itinerary-detail")
   .get(checkLogin(), wrapAsync(getPassengerItineraryDetail));
 
 module.exports = router;

@@ -279,6 +279,17 @@ const verifyreqQuery = () => {
   };
 };
 
+function isPunctuation (str) {
+  const punct = "!,';/<>.-?";
+  for (let i = 0; i < str.length; i++) {
+    if (!punct.includes(str[i])) {
+      continue;
+    };
+    return true;
+  };
+  return false;
+}
+
 module.exports = {
   wrapAsync,
   authentication,
@@ -294,5 +305,6 @@ module.exports = {
   trimAddress,
   getGooglePhoto,
   checkLogin,
-  verifyreqQuery
+  verifyreqQuery,
+  isPunctuation
 };

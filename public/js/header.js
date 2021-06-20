@@ -93,9 +93,13 @@ async function header () {
       Authorization: "Bearer " + verifyToken
     })
   }).then((response) => {
+    if (!response.ok) {
+      return;
+    }
     return response.json();
   }).then((data) => {
     console.log(data);
+
     document.getElementById("username").innerHTML = data.data.name;
     const member = document.getElementById("member");
     member.src = data.data.picture;
@@ -116,6 +120,7 @@ async function header () {
   console.log(logout);
   logout.addEventListener("click", () => {
     localStorage.removeItem("access_token");
+    location.href = "./";
   });
 }
 

@@ -1,4 +1,5 @@
 const Passenger = require("../models/passenger_model");
+const Util = require("../../util/util");
 
 const requestSeatsInfo = async (req, res) => {
   console.log("controller_req.user:", req.user);
@@ -17,14 +18,21 @@ const requestSeatsInfo = async (req, res) => {
 };
 
 const routesBySearch = async (req, res) => {
-  console.log("req.query", req.query);
-  const { origin, destination, date, persons } = req.query;
-  const result = await Passenger.routesBySearch(origin, destination, date, persons);
-  console.log(result);
-  if (!result) {
-    return res.status(500).send({ error: "Not Found" });
+  try {
+    console.log("req.query", req.query);
+    const { origin, destination, date, persons } = req.query;
+    if (Util.isPunctuation(decodeURI(origin)) || Util.isPunctuation(decodeURI(destination))) {
+      return res.status(400).send({ error: "Invalid Input, punctuation marks are not allowed. " });
+    }
+    const result = await Passenger.routesBySearch(origin, destination, date, persons);
+    console.log(result);
+    if (!result) {
+      return res.status(500).send({ error: "Not Found" });
+    }
+    res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
   }
-  res.status(200).send(result);
 };
 
 const passengerSearchDetail = async (req, res) => {

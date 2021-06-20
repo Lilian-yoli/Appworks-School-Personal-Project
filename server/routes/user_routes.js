@@ -2,22 +2,22 @@ const router = require("express").Router();
 const { wrapAsync, authentication } = require("../../util/util");
 const { signupInfo, signinInfo, chatInfo, tokenVerify, getUserProfile, getNotification } = require("../controllers/user_controllers");
 
-router.route("/api/1.0/user/signup")
+router.route("/user/signup")
   .post(wrapAsync(signupInfo));
 
-router.route("/api/1.0/user/signin")
+router.route("/user/signin")
   .post(wrapAsync(signinInfo));
 
-router.route("/api/1.0/get-id")
-  .get(authentication(), wrapAsync(chatInfo));
+// router.route("/get-id")
+//   .get(authentication(), wrapAsync(chatInfo));
 
-router.route("/api/1.0/verify")
+router.route("/verify")
   .post(authentication(), wrapAsync(tokenVerify));
 
-router.route("/api/1.0/user-profile")
+router.route("/user-profile")
   .get(authentication(), wrapAsync(getUserProfile));
 
-router.route("/api/1.0/notification")
+router.route("/notification")
   .get(authentication(), wrapAsync(getNotification));
 
 module.exports = router;
