@@ -85,16 +85,16 @@ const getUserDetail = async (email) => {
   return result;
 };
 
-const chatInfo = async (email, id) => {
-  const senderId = await query(`SELECT user_id FROM users WHERE email = "${email}"`);
-  const receiverId = await query(`SELECT u.user_id FROM offered_routes o
-  INNER JOIN users u ON driver_email = email
-  WHERE o.route_id = ${id}`);
-  console.log("senderID", senderId);
-  console.log("receiverID", receiverId);
-  const result = { senderId: senderId[0].user_id, receiverId: receiverId[0].user_id };
-  return result;
-};
+// const chatInfo = async (email, id) => {
+//   const senderId = await query(`SELECT user_id FROM users WHERE email = "${email}"`);
+//   const receiverId = await query(`SELECT u.user_id FROM offered_routes o
+//   INNER JOIN users u ON driver_email = email
+//   WHERE o.route_id = ${id}`);
+//   console.log("senderID", senderId);
+//   console.log("receiverID", receiverId);
+//   const result = { senderId: senderId[0].user_id, receiverId: receiverId[0].user_id };
+//   return result;
+// };
 
 const tokenVerify = async (receiverId) => {
   const result = await query(`SELECT name FROM users WHERE id = ${receiverId}`);
@@ -114,21 +114,9 @@ const getNotification = async (id) => {
   }
 };
 
-const updateNotification = async (id) => {
-  const result = await query("UPDATE notification SET unread = 0 WHERE id = ?", [id]);
-  console.log(result);
-  if (result < 1) {
-    return { error: "Internal server error" };
-  }
-  return { success: "success" };
-};
-
 module.exports = {
   signUp,
   signIn,
   getUserDetail,
-  chatInfo,
-  tokenVerify,
-  getNotification,
-  updateNotification
+  tokenVerify
 };

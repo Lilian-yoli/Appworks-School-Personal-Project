@@ -6,8 +6,10 @@ window.onload = async function () {
   const routeInfo = document.getElementById("match-itinerary");
   if (driverRoutes.error) {
     showNoResult(routeInfo);
+  } else {
+    showSearchResult(driverRoutes, routeInfo);
   }
-  showSearchResult(driverRoutes, routeInfo);
+  homepage();
 };
 
 async function getDriverRoutes (query) {
@@ -46,4 +48,11 @@ function showSearchResult (data, routeInfo) {
         </div>
       </div></a>`;
   }
+}
+
+function homepage () {
+  const homepage = document.getElementById("homePage");
+  homepage.addEventListener("click", () => {
+    window.location.href = "./";
+  });
 }

@@ -12,8 +12,6 @@ redisClient.on("error", function (error) {
   console.error(error);
 });
 
-redisClient.set("key", "value", redis.print);
-redisClient.get("key", redis.print);
 const get = promisify(redisClient.get).bind(redisClient);
 const set = promisify(redisClient.set).bind(redisClient);
 const del = promisify(redisClient.del).bind(redisClient);

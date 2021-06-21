@@ -10,9 +10,9 @@ const insertRouteInfo = async (origin, destination, persons, date, time, id) => 
     await connection.query("START TRANSACTION");
     const qryStr = `SELECT * FROM offered_routes WHERE origin = "${origin}" AND destination = "${destination}" AND available_seats = "${persons}" AND date = UNIX_TIMESTAMP("${date}") AND time = "${time}" AND user_id = ${id} FOR UPDATE`;
 
-    const checkDuplicatedRoute = await query(qryStr);
+    const checkRoute = await query(qryStr);
     // console.log("checkDuplicatedRoute", checkDuplicatedRoute);
-    if (checkDuplicatedRoute.length > 0) {
+    if (checkRoute.length > 0) {
       await connection.query("COMMIT");
       return { error: "Routes had already been created, please check your itinerary" };
     }
@@ -34,6 +34,9 @@ const insertRouteInfo = async (origin, destination, persons, date, time, id) => 
 
     const insertRoute = await query(`INSERT INTO offered_routes ${columns} VALUES ${setValue}`);
     console.log("insertRoute", insertRoute);
+    if (insertRoute.length < 1) {
+      return { status500: "Internal server error." };
+    }
     const routId = insertRoute.insertId;
     const route = await query(`SELECT * FROM offered_routes WHERE id = ${routId}`);
     await connection.query("COMMIT");
@@ -111,11 +114,11 @@ const getDriverItineraryDetail = async (routeId, user) => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
     const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time, o.seats_left, 
-  o.origin_coordinate, o.destination_coordinate, u.name, u.picture, u.id, o.id FROM offered_routes o 
+  o.origin_coordinate, o.destination_coordinate, u.name, u.picture, u.id AS userId, o.id AS routeId FROM offered_routes o 
   INNER JOIN users u ON o.user_id = u.id WHERE o.id = ? AND UNIX_TIMESTAMP(route_timestamp) >= ${timestamp}`, [routeId]);
     console.log("DriversItinerary", driverInfo);
     if (driverInfo.length < 1) {
-      return { error: "Route is not existed" };
+      return { error: "Route is not existed, redirect to home page" };
     }
     const userInfo = await query("SELECT id FROM users WHERE email = ?", [user.email]);
     driverInfo[0].date = await toDateFormat(driverInfo[0].date);
@@ -159,69 +162,50 @@ const getDriverItinerary = async (id) => {
   }
 };
 
-const driverSearch = async (origin, destination, date) => {
-  console.log(234);
-  const qryStr = `SELECT origin, destination, FROM_UNIXTIME(date + 28800) AS date, persons, id FROM requested_routes 
-  WHERE origin like"%${origin}%" AND destination like "%${destination}%" AND date = UNIX_TIMESTAMP("${date}") AND isMatched = 0`;
-  const result = await query(qryStr);
-  for (const i in result) {
-    result[i].date = await toDateFormat(result[i].date);
-  }
-  console.log("driverSearch", result);
-  if (result.length < 1) {
-    return null;
-  } else {
-    return result;
-  }
-};
-
-const driverSearchDetail = async (id) => {
-  console.log(id);
-  const qryStr = `SELECT r.origin, r.destination, FROM_UNIXTIME(r.date + 28800) AS date, r.persons, r.id, u.name, u.picture, u.id 
-  FROM requested_routes r INNER JOIN users u ON r.user_id = u.id WHERE r.id = ${id}`;
-  const result = await query(qryStr);
-  console.log("passengerSearchDetail", result);
-  result[0].date = await toDateFormat(result[0].date);
-  return result;
-};
-
 const setDriverTour = async (driverRouteId, passengerRouteId, userId) => {
   const connection = await mysql.connection();
-  await connection.query("START TRANSACTION");
-
-  const insertArr = [];
-  for (const i in passengerRouteId) {
-    console.log("driverRouteId, passengerRouteId", typeof (driverRouteId), typeof (passengerRouteId[i]));
-    const checkTour = await query(`SELECT * FROM tour 
-  WHERE offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId[i]} FOR UPDATE`);
-    console.log("**************", checkTour);
-    if (checkTour.length > 0) {
-      return { error: "Tour had already been created, please check your itinerary" };
+  try {
+    await connection.query("START TRANSACTION");
+    const insertArr = [];
+    for (const id of passengerRouteId) {
+      console.log("driverRouteId, passengerRouteId", typeof (driverRouteId), typeof (id));
+      const checkTour = await query(`SELECT * FROM tour WHERE offered_routes_id = ${driverRouteId} 
+      AND passenger_routes_id = ${id} FOR UPDATE`);
+      if (checkTour.length > 0) {
+        return { error: "Tour had already been created, please check your itinerary" };
+      }
+      const routeInfo = [driverRouteId, id, "request", 0, 0, userId];
+      insertArr.push(routeInfo);
     }
-    const routeInfo = [driverRouteId, passengerRouteId[i], "request", 0, 0, userId];
-    insertArr.push(routeInfo);
+    const tour = await query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished, match_status, send_by) VALUES ?", [insertArr]);
+    console.log("-------", tour);
+    const insertId = tour.insertId;
+    await connection.query("COMMIT");
+    return insertId;
+  } catch (err) {
+    console.log(err);
+    await connection.query("ROLLBACK");
   }
-  const result = await query("INSERT INTO tour (offered_routes_id, passenger_routes_id, passenger_type, finished, match_status, send_by) VALUES ?", [insertArr]);
-  console.log("-------", result);
-  const insertId = result.insertId;
-  await connection.query("COMMIT");
-  return insertId;
 };
 
 const saveWaypts = async (getCity, routeId) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const column = "(offered_routes_id, coordinate, city, created_at)";
-  for (const i in getCity) {
-    const value = `(${routeId}, Point("${getCity[i].lat}", "${getCity[i].lng}"), "${getCity[i].city}", ${timestamp})`;
-    const result = await query(`INSERT INTO routes_waypoints ${column} VALUES ${value}`);
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const column = "(offered_routes_id, coordinate, city, created_at)";
+    for (const i in getCity) {
+      const value = `(${routeId}, Point("${getCity[i].lat}", "${getCity[i].lng}"), "${getCity[i].city}", ${timestamp})`;
+      const result = await query(`INSERT INTO routes_waypoints ${column} VALUES ${value}`);
+    }
+    return routeId;
+  } catch (err) {
+    console.log(err);
   }
-  return routeId;
 };
 
 const getDriverHomepage = async () => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
-    const routes = await query(`SELECT origin, destination, FROM_UNIXTIME(date + 28800) AS date, seats_left, id
+    const routes = await query(`SELECT origin, destination, FROM_UNIXTIME(date) AS date, seats_left, id
     FROM offered_routes WHERE date > ${timestamp} AND seats_left > 0 ORDER BY date LIMIT 4`);
     console.log(routes);
     if (routes.length < 0) {
@@ -248,37 +232,45 @@ const getDriverHomepage = async () => {
 
 const getTourInfo = async (tourId) => {
   const connection = await mysql.connection();
-  await connection.query("START TRANSACTION");
-  const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date + 28800) AS date, o.time,
-  o.seats_left, o.user_id, o.id, u.id, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
+  try {
+    await connection.query("START TRANSACTION");
+    const driverInfo = await query(`SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.time,
+  o.seats_left, o.user_id, o.id AS routeId, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
   FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
-  driverInfo[0].date = await toDateFormat(driverInfo[0].date);
-  console.log("driverInfo", driverInfo);
+    if (driverInfo.length < 1) {
+      return { error: "route or tour are not existed" };
+    }
+    driverInfo[0].date = await toDateFormat(driverInfo[0].date);
+    console.log("driverInfo", driverInfo);
 
-  const passengerInfo = await query(`SELECT r.id, r.origin, r.destination, r.persons, 
-  FROM_UNIXTIME(r.date + 28800) AS date, u.id, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
+    const passengerInfo = await query(`SELECT r.id AS routeId, r.origin, r.destination, r.persons, 
+  FROM_UNIXTIME(r.date) AS date, u.id AS userId, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.id
   INNER JOIN users u ON r.user_id = u.id 
-  INNER JOIN offered_routes o ON t.offered_routes_id = o.id WHERE o.id = ${driverInfo[0].id}`);
-  passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
-  console.log("passengerInfo", passengerInfo);
+  INNER JOIN offered_routes o ON t.offered_routes_id = o.id WHERE o.id = ${driverInfo[0].routeId}`);
+    if (driverInfo.length < 1) {
+      return { error: "route or tour are not existed" };
+    }
+    passengerInfo[0].date = await toDateFormat(passengerInfo[0].date);
+    console.log("passengerInfo", passengerInfo);
 
-  const result = {};
-  result.driverInfo = driverInfo[0];
-  result.passengerInfo = passengerInfo;
-  result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
-  console.log("getTourInfo Model:", result);
-  return result;
+    const result = {};
+    result.driverInfo = driverInfo[0];
+    result.passengerInfo = passengerInfo;
+    result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
+    console.log("getTourInfo Model:", result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const selectDriverRoute = async (date, persons, id) => {
   try {
-    console.log(123);
     const driverRoute = await query(`SELECT origin, destination, time, id FROM offered_routes
   WHERE date = UNIX_TIMESTAMP("${date}") AND user_id = ? AND seats_left >= ${persons}`, [id]);
     if (driverRoute.length < 1) {
-      console.log(456);
       return { error: "Route is not matched." };
     }
     console.log("selectDriverRoute", driverRoute);
@@ -295,8 +287,6 @@ module.exports = {
   setMatchedPassengers,
   getDriverItineraryDetail,
   getDriverItinerary,
-  driverSearch,
-  driverSearchDetail,
   setDriverTour,
   saveWaypts,
   getDriverHomepage,

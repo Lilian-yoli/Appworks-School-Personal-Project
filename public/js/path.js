@@ -153,33 +153,6 @@ function initMap (driver, pickedWaypts) {
   });
 }
 
-// function clickButton (query, passengerArr, verifyToken, driver) {
-//   const applyRoute = document.querySelectorAll(".button")[0];
-//   const skipRoute = document.querySelectorAll(".button")[1];
-//   const offeredRouteId = query.split("=");
-//   const matchedPassengers = { passengerRouteId: passengerArr, passengerType: "request", offeredRouteId: offeredRouteId[1] };
-//   applyRoute.addEventListener("click", () => {
-//     fetch("/api/1.0/matched-passengers", {
-//       method: "POST",
-//       body: JSON.stringify(matchedPassengers),
-//       headers: new Headers({
-//         Authorization: "Bearer " + verifyToken,
-//         "Content-Type": "application/json"
-//       })
-//     }).then((response) => {
-//       return response.json();
-//     }).catch(error => {
-//       console.error("Error:", error);
-//     }).then(response => {
-//       console.log("Success:", response);
-//       document.location.href = `driver-itinerary-detail.html${query}`;
-//     });
-//   });
-//   skipRoute.addEventListener("click", () => {
-//     document.location.href = `driver-itinerary.html${query}`;
-//   });
-// }
-
 function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
   for (let i = 0; i < passenger.length; i++) {
     const add = document.querySelectorAll(".suggestion-add")[i];
@@ -305,7 +278,7 @@ function matchedBtn (driver, passenger, verifyToken, query) {
         const routeInfo = {
           receiverId: passengerId,
           passengerRouteId: passengerRouteId,
-          url: `./driver-tour-info.html?id=${driver.routeId}&tour=${data.tourId}`,
+          url: `./driver-tour-info.html?routeid=${driver.routeId}&tour=${data.tourId}`,
           content: `車主${driver.name}已接受你的行程，立即前往查看`,
           type: "match",
           icon: "./uploads/images/match.svg"
@@ -316,7 +289,7 @@ function matchedBtn (driver, passenger, verifyToken, query) {
           text: "已傳送通知",
           icon: "success"
         });
-        document.location.href = `./driver-tour-info.html?id=${driver.routeId}&tour=${data.tourId}`;
+        document.location.href = `./driver-tour-info.html?routeid=${driver.routeId}&tour=${data.tourId}`;
       } else {
         swal({
           text: "路線曾建立過，請至「車主行程」查看",
@@ -358,13 +331,13 @@ const makeRooom = (userId, receiverId) => {
   }
 };
 
-function loadScript () {
-  const script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper";
-  document.body.appendChild(script);
-}
+// function loadScript () {
+//   const script = document.createElement("script");
+//   script.type = "text/javascript";
+//   script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDSS1j7r93IKssIMKJvkh6U5iRFlW8Jeto&callback=wrapper";
+//   document.body.appendChild(script);
+// }
 
-window.onload = function () {
-  setTimeout(loadScript(), 1000);
-};
+// window.onload = function () {
+//   setTimeout(loadScript(), 1000);
+// };

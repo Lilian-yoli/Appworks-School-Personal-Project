@@ -38,14 +38,11 @@ const next = document.getElementById("next");
 
 const seatsRequestInfo = {};
 next.onclick = function click () {
-  // initMap();
-  // next.addEventListener("click", () => {
-  showLoading();
   seatsRequestInfo.origin = origin;
   seatsRequestInfo.destination = destination;
   seatsRequestInfo.persons = persons.value;
   seatsRequestInfo.date = date.value;
-
+  showLoading();
   fetch("/api/1.0/request-seats-info", {
     method: "POST",
     body: JSON.stringify(seatsRequestInfo),
@@ -54,7 +51,6 @@ next.onclick = function click () {
       "Content-Type": "application/json"
     })
   }).then((response) => {
-    console.log(123);
     return response.json();
   }).catch(error => console.error("Error:", error))
     .then(response => {
@@ -64,7 +60,10 @@ next.onclick = function click () {
         localStorage.removeItem("destination");
         document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].id}`;
       } else {
-        alert(response.error);
+        swal({
+          text: response.error,
+          icon: "warning"
+        });
       }
     });
   // });

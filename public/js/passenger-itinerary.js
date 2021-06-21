@@ -8,6 +8,13 @@ fetch("/api/1.0/passenger-itinerary", {
   return response.json();
 }).then((data) => {
   console.log(data);
+  if (data.error) {
+    swal({
+      text: data.error,
+      icon: "warning"
+    });
+    window.location.href = "./";
+  }
 
   const match = data.matched;
   const unmatch = data.unmatched;
@@ -16,7 +23,7 @@ fetch("/api/1.0/passenger-itinerary", {
     for (const i in match) {
       itinerary.innerHTML +=
       `<a class="match-itinerary-container" href="./driver-tour-info.html?
-      routid=${match[0].id}&tour=${match[0].tourId}&passenger=${match[0].id}">
+      routeid=${match[0].id}&tour=${match[0].tourId}&passenger=${match[0].id}">
       <div class="match-itinerary-wrapper">
       <div class="match-itinerary-detail">
           <div class="match-itinerary-date">日期：${match[i].date}</div>
@@ -43,21 +50,21 @@ fetch("/api/1.0/passenger-itinerary", {
   if (!unmatch.empty) {
     for (const i in unmatch) {
       unmatchItinerary.innerHTML +=
-    `<a class="unmatch-itinerary-container" href="./driver-tour-info.html?routid=${match[0].id}&tour=${match[0].tourId}">
-    <div class="match-itinerary-wrapper">
-    <div class="match-itinerary-detail">
-        <div class="match-itinerary-date">日期：${unmatch[i].date}</div>
-        <div class="match-itinerary-seats">${unmatch[i].persons}個人</div>
-    </div>
-    <div class="match-itinerary-upper">
-        <img class="match-itinerary-img-img" src="./uploads/images/route.png">
-        <div class="match-itinerary-location">
-            <div class="match-itinerary-origin">${unmatch[i].origin}</div>
-            <div class="match-itinerary-destination">${unmatch[i].destination}</div>
+    `<a class="unmatch-itinerary-container" href="./passenger-itinerary-detail.html?routeid=${unmatch[0].id}">
+      <div class="match-itinerary-wrapper">
+        <div class="match-itinerary-detail">
+            <div class="match-itinerary-date">日期：${unmatch[i].date}</div>
+            <div class="match-itinerary-seats">${unmatch[i].persons}個人</div>
         </div>
-    </div>
-</div>
-</a>`;
+        <div class="match-itinerary-upper">
+            <img class="match-itinerary-img-img" src="./uploads/images/route.png">
+            <div class="match-itinerary-location">
+                <div class="match-itinerary-origin">${unmatch[i].origin}</div>
+                <div class="match-itinerary-destination">${unmatch[i].destination}</div>
+            </div>
+        </div>
+      </div>
+    </a>`;
     }
   } else {
     unmatchItinerary.innerHTML =

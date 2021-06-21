@@ -19,8 +19,8 @@ socketCon(io);
 // api route
 app.use("/api/" + API_VERSION,
   [
-    require("./server/routes/user_routes"),
-    require("./server/routes/path_routes"),
+    require("./server/routes/user_route"),
+    require("./server/routes/path_route"),
     require("./server/routes/passenger_route"),
     require("./server/routes/chat_route")
   ]

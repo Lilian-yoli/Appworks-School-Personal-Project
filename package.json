@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint . --fix",
-    "test": "mocha --timeout 10000"
+    "test": "mocha --timeout 20000"
   },
   "repository": {
     "type": "git",

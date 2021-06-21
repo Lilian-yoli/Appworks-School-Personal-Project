@@ -4,6 +4,11 @@ const verifyToken = localStorage.getItem("access_token");
 if (!query) {
   window.location.href = "./404.html";
 }
+
+if (!verifyToken) {
+  window.location.href = "./login.html";
+}
+
 async function wrapper () {
   const response = await fetch(`/api/1.0/driver-itinerary-detail${query}`, {
     method: "GET",
@@ -14,11 +19,21 @@ async function wrapper () {
   console.log(response);
   const data = await response.json();
   console.log(data);
-  createDriverInfo(data);
-  initMap(data);
-  contact(data);
-  applyRoute(data, verifyToken);
-  skip();
+  if (data.error) {
+    Swal.fire({
+      text: data.error,
+      icon: "warning",
+      time: 2000,
+      button: false
+    });
+    window.location.href = "./";
+  } else {
+    createDriverInfo(data);
+    initMap(data);
+    contact(data);
+    applyRoute(data, verifyToken);
+    skip();
+  }
 }
 
 function createDriverInfo (data) {
@@ -40,6 +55,9 @@ function createDriverInfo (data) {
       <div class="btn-wrap"><button class="contact" id="contact">聯繫車主</button></div>
   </div>                        
 </div>`;
+  if (data.driverInfo[0].userId == data.userInfo[0].id) {
+    document.getElementById("contact").style.display = "none";
+  }
 }
 
 function contact (data) {
@@ -48,7 +66,7 @@ function contact (data) {
     if (!data.userInfo) {
       document.location.href = "./login.html";
     }
-    const room = makeRooom(data.driverInfo[0].id, data.userInfo[0].id);
+    const room = makeRooom(data.driverInfo[0].userId, data.userInfo[0].id);
     document.location.href = `./chat.html?room=${room}`;
   });
 };
@@ -92,9 +110,14 @@ const applyRoute = (data) => {
           });
           return;
         }
-        const passengerId = await insertPassengerInfo(data, result.value);
-        if (passengerId) {
-          await setTourInfo(data, passengerId);
+        const passengerInfo = await insertPassengerInfo(data, result.value);
+        if (passengerInfo) {
+          await setTourInfo(data, passengerInfo);
+        } else {
+          Swal.fire({
+            text: "路線已建立",
+            icon: "warning"
+          });
         }
       }
     });
@@ -115,15 +138,19 @@ const insertPassengerInfo = async (data, persons) => {
   });
   const insertData = await responseInsert.json();
   console.log(insertData);
+  if (insertData.routeId.error) {
+    return null;
+  }
+
   return insertData;
 };
 
-const setTourInfo = async (data, passengerId) => {
+const setTourInfo = async (data, passengerInfo) => {
   const responseTour = await fetch("/api/1.0/passenger-tour", {
     method: "POST",
     body: JSON.stringify({
-      driverRouteId: data.driverInfo[0].id,
-      passengerRouteId: passengerId.routeInfo
+      driverRouteId: data.driverInfo[0].routeId,
+      passengerRouteId: passengerInfo.routeId
     }),
     headers: new Headers({
       Authorization: "Bearer " + verifyToken,
@@ -135,10 +162,10 @@ const setTourInfo = async (data, passengerId) => {
 
   if (!tourData.error) {
     const routeInfo = {
-      receiverId: data.driverInfo[0].id,
-      passengerRouteId: passengerId.routeInfo,
-      url: `./passenger-tour-info.html?id=${data.driverInfo[0].id}&tour=${tourData.tourId}`,
-      content: `乘客${data.driverInfo[0].name}已接受你的行程，立即前往查看`,
+      receiverId: [data.driverInfo[0].userId],
+      passengerRouteId: passengerInfo.routeInfo,
+      url: `./driver-tour-info.html?routeid=${data.driverInfo[0].routeId}&tour=${tourData.tourId}`,
+      content: `乘客${passengerInfo.passengerName}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/match.svg"
     };
@@ -147,7 +174,7 @@ const setTourInfo = async (data, passengerId) => {
       text: "已傳送通知",
       icon: "success"
     });
-    document.location.href = `./passenger-tour-info.html?id=${data.driverInfo[0].id}&tour=${tourData.tourId}`;
+    document.location.href = `./passenger-tour-info.html?routeid=${data.driverInfo[0].routeId}&tour=${tourData.tourId}`;
   } else {
     swal.fire({
       text: "路線曾建立過，請至「乘客行程」查看",

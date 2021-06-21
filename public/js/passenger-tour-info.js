@@ -45,7 +45,7 @@ async function wrapper () {
     companionRoute.innerHTML =
     html(driverInfo, "refuse", verifyToken, query);
   }
-  contact(passengerInfo[0].id, driverInfo.id);
+  contact(passengerInfo[0].userId, driverInfo.userId);
   initMap(driverInfo, passengerInfo);
   hompage();
 }
@@ -55,7 +55,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
   confirm.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[0].id, matchStatus: 1 }),
+      body: JSON.stringify({ passengerRouteId: passengerInfo[0].routeId, matchStatus: 1, persons: passengerInfo[0].persons }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
         "Content-type": "application/json"
@@ -64,8 +64,8 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     const data = await res.json();
     console.log(data);
     const routeInfo = {
-      receiverId: [driverInfo.id],
-      passengerRouteId: [driverInfo.id],
+      receiverId: [driverInfo.userId],
+      passengerRouteId: [driverInfo.routeId],
       url: `./driver-tour-info.html${query}`,
       content: `乘客${passengerInfo[0].name}已接受你的行程，立即前往查看`,
       type: "match",
@@ -79,7 +79,7 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
   refuse.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[0].id, matchStatus: -1 }),
+      body: JSON.stringify({ passengerRouteId: passengerInfo[0].routeId, matchStatus: -1, persons: passengerInfo[0].persons }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
         "Content-type": "application/json"
@@ -88,8 +88,8 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     const data = await res.json();
     console.log(data);
     const routeInfo = {
-      receiverId: [driverInfo.id],
-      passengerRouteId: [driverInfo.id],
+      receiverId: [driverInfo.userId],
+      passengerRouteId: [driverInfo.routeId],
       url: `./driver-tour-info.html${query}`,
       content: `乘客${passengerInfo[0].name}已謝絕你的行程`,
       type: "match",

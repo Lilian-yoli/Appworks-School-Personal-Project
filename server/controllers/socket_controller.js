@@ -65,13 +65,13 @@ const socketCon = (io) => {
     });
 
     socket.on("notifiyPassenger", async (data) => {
-      console.log(data);
+      console.log("#########", data);
       const { receiverId } = data;
       console.log("receiverId", receiverId);
       for (let i = 0; i < receiverId.length; i++) {
         data.receiverId = receiverId[i];
         console.log(data);
-        console.log("**********", users[receiverId[i]]);
+        console.log("###########", users[receiverId[i]]);
         let url = data.url;
         if (data.passengerRouteId) {
           url += `&passenger=${data.passengerRouteId[i]}`;
@@ -85,7 +85,7 @@ const socketCon = (io) => {
 
     socket.on("updateNotification", async (data) => {
       console.log("removeNotification", data);
-      const updateNotification = await User.updateNotification(data.id);
+      const updateNotification = await Chat.updateNotification(data.id);
       console.log(updateNotification);
       if (updateNotification.success) {
         const UserArr = users[data.userId];

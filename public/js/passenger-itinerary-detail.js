@@ -2,6 +2,14 @@
 const query = window.location.search;
 const verifyToken = localStorage.getItem("access_token");
 
+if (!verifyToken) {
+  window.location.href = "./login.html";
+}
+
+if (!query) {
+  window.location.href = "./404.html";
+}
+
 async function wrapper () {
   const response = await fetch(`/api/1.0/passenger-itinerary-detail${query}`, {
     method: "GET",
@@ -12,6 +20,14 @@ async function wrapper () {
 
   const data = await response.json();
   console.log(data);
+  if (data.error) {
+    swal.fire({
+      text: data.error,
+      icon: "warning",
+      timer: 3000
+    });
+    window.location.href = "./";
+  }
   createDriverInfo(data);
   initMap(data);
   contact(data);
@@ -37,6 +53,9 @@ function createDriverInfo (data) {
       <div class="btn-wrap"><button class="contact" id="contact">聯繫乘客</button></div>
   </div>                        
 </div>`;
+  if (data.passengerInfo[0].userId == data.userInfo[0].id) {
+    document.getElementById("contact").style.display = "none";
+  }
 }
 
 function contact (data) {
@@ -45,7 +64,7 @@ function contact (data) {
     if (!data.userInfo) {
       document.location.href = "./login.html";
     }
-    const room = makeRooom(data.passengerInfo[0].id, data.userInfo[0].id);
+    const room = makeRooom(data.passengerInfo[0].userId, data.userInfo[0].id);
     document.location.href = `./chat.html?room=${room}`;
   });
 };
@@ -73,7 +92,7 @@ const applyRoute = (data) => {
       if (result.isConfirmed) {
         console.log(result);
         Swal.fire({
-          icon: "success",
+          icon: "info",
           html: "選擇行程：" + result.value
         });
 
@@ -98,7 +117,7 @@ const selectDriverRoute = async (date, persons) => {
   const selectData = await responseSelect.json();
   console.log(selectData);
   if (selectData.error) {
-    return "當日尚未提供路線";
+    return { 0: "當日尚未提供路線" };
   }
   const routes = {};
   for (const route of selectData) {

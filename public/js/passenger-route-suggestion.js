@@ -210,10 +210,6 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
   }
 }
 
-function drawDirection () {
-
-}
-
 function chooseWypts (driver, waypts) {
   for (const i in driver) {
     const add = document.getElementsByClassName("suggestion-add")[i];
@@ -270,7 +266,7 @@ const clickEvent = async (driver, passenger) => {
         driverRouteId: driver[index][1].detail.offered_routes_id,
         persons: passenger.persons,
         date: passenger.date,
-        passengerRouteId: passenger.id
+        passengerRouteId: passenger.routeId
       }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
@@ -302,7 +298,7 @@ const clickEvent = async (driver, passenger) => {
       icon: "success"
     });
     document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
-    &tour=${idInfo.tourId}&passenger=${passenger.id}`;
+    &tour=${idInfo.tourId}&passenger=${passenger.routeId}`;
   });
 };
 

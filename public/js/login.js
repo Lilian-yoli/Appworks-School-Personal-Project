@@ -1,4 +1,4 @@
-const socket = io();
+
 window.addEventListener("load", () => {
   const signupName = document.getElementById("signupName");
   const signupEmail = document.getElementById("signupEmail");
@@ -38,13 +38,12 @@ window.addEventListener("load", () => {
         console.log(data);
         window.localStorage.setItem("access_token", data.data.access_token);
         loginSuccess();
-        if (document.referrer != window.location.href) {
-          document.location.href = document.referrer;
-        } else {
-          document.location.href = "./";
-        }
+        redirect();
       } else {
-        alert(data.error);
+        swal({
+          text: data.error,
+          icon: "warning"
+        });
       }
     });
   });
@@ -65,7 +64,7 @@ window.addEventListener("load", () => {
       if (!data.error) {
         loginSuccess();
         console.log("signin:", data);
-        window.localStorage.setItem("access_token", data.access_token);
+        window.localStorage.setItem("access_token", data.data.access_token);
         if (document.referrer == window.location || !document.referrer) {
           document.location.href = "./";
         } else {
@@ -84,6 +83,15 @@ const loginSuccess = function () {
     title: "登入成功",
     closeOnEsc: false,
     allowOutsideClick: false,
-    icon: "success"
+    icon: "success",
+    button: false
   });
+};
+
+const redirect = function () {
+  if (document.referrer != window.location.href) {
+    document.location.href = document.referrer;
+  } else {
+    document.location.href = "./";
+  }
 };

@@ -2,6 +2,33 @@ const socket = io();
 async function header () {
   const verifyToken = localStorage.getItem("access_token");
 
+  const response = await fetch("api/1.0/user-profile", {
+    method: "GET",
+    headers: new Headers({
+      Authorization: "Bearer " + verifyToken
+    })
+  });
+  if (response.status == 401 || response.status == 403) {
+    document.getElementById("passenger-route").style.display = "none";
+    document.getElementById("driver-route").style.display = "none";
+    document.getElementById("logout").style.display = "none";
+    document.querySelector(".dropdown-content").style.display = "none";
+  } else {
+    const data = await response.json();
+    console.log(data);
+    document.getElementById("username").innerHTML = data.data.name;
+    const member = document.getElementById("member");
+    member.src = data.data.picture;
+    member.style.width = "48px";
+  }
+
+  const logout = document.getElementById("logout");
+  console.log(logout);
+  logout.addEventListener("click", () => {
+    localStorage.removeItem("access_token");
+    location.href = "./";
+  });
+
   if (verifyToken) {
     fetch("/api/1.0/verify", {
       method: "POST",
@@ -13,6 +40,7 @@ async function header () {
     }).then((data) => {
       console.log(data);
       if (data.error) {
+        console.log(data);
         return;
       }
       socket.emit("login", data.userId);
@@ -87,27 +115,6 @@ async function header () {
     }
   });
 
-  fetch("api/1.0/user-profile", {
-    method: "GET",
-    headers: new Headers({
-      Authorization: "Bearer " + verifyToken
-    })
-  }).then((response) => {
-    if (!response.ok) {
-      return;
-    }
-    return response.json();
-  }).then((data) => {
-    console.log(data);
-
-    document.getElementById("username").innerHTML = data.data.name;
-    const member = document.getElementById("member");
-    member.src = data.data.picture;
-    member.style.width = "48px";
-  }).catch((error) => {
-    console.error("Error:", error);
-  });
-
   const makeRooom = (userId, receiverId) => {
     if (userId > receiverId) {
       return `${receiverId}WITH${userId}`;
@@ -115,13 +122,6 @@ async function header () {
       return `${userId}WITH${receiverId}`;
     }
   };
-
-  const logout = document.getElementById("logout");
-  console.log(logout);
-  logout.addEventListener("click", () => {
-    localStorage.removeItem("access_token");
-    location.href = "./";
-  });
 }
 
 header();

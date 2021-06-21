@@ -1,16 +1,5 @@
 const Chat = require("../models/chat_model");
 
-// const getChatRecord = async (req, res) => {
-//   console.log(req.user);
-//   const { id } = req.user;
-//   const { receiverId } = req.body;
-//   const result = await Chat.getChatRecord(id, receiverId);
-//   if (!result) {
-//     return res.status(500).send({ error: "Internal server error" });
-//   }
-//   return res.status(200).send(result);
-// };
-
 const getChatRecord = async (req, res) => {
   const { room } = req.query;
   const { id, name } = req.user;
@@ -28,18 +17,17 @@ const getChatRecord = async (req, res) => {
   res.status(200).send(result);
 };
 
-const updateNotification = async (req, res) => {
-  const { id } = req.user;
-  const { url } = req.body;
-  console.log("url", url, id);
-  const result = await Chat.updateNotification(id, url);
-  if (result.length < 1) {
-    res.status(500).send({ error: "internal server error" });
+const getNotification = async (req, res) => {
+  try {
+    console.log(req.user);
+    const result = await Chat.getNotification(req.user.id);
+    res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
   }
-  res.status(200).send({ status: "OK" });
 };
 
 module.exports = {
   getChatRecord,
-  updateNotification
+  getNotification
 };
