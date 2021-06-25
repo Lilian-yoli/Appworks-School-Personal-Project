@@ -8,7 +8,6 @@ email: test@test.com
 password: test
 
 ### Table of Contents
-<hr>
 * Features
 * Technologies
 * Architecture
@@ -24,3 +23,4 @@ Real-time notification-sending mechanism for users to confirm.
 Real-time chatting room for users to check details with each other.
 
 ### Technologies
+---
