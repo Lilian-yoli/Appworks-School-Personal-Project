@@ -4,7 +4,7 @@ Based in Taiwan, Co-car connects drivers with empty seats to co-travellers looki
 
 Website URL: https://www.co-car.site <br>
 Test Account: 
-email: test@test.com
+email: test@test.com <br>
 password: test
 
 ## Table of Contents
@@ -23,11 +23,43 @@ Real-time notification-sending mechanism for users to confirm.
 Real-time chatting room for users to check details with each other.
 
 ## Technologies
-#### Back-End
+### Back-End
   * Node.js/ Express
   * Nginx
 
-#### Database
+### Database
   * MySQL
   * Redis
-  
+
+### Websocket
+  * Socket.IO
+
+### Front-End
+  * HTML
+  * CSS
+  * Javascript
+  * DOM
+  * Bootstrap
+
+### Cloud Service (AWS) 
+  * Elastic Compute Cloud (EC2)
+  * Relational Database Service (RDS)
+
+### Networking
+  * HTTPS
+  * SSL
+  * Domain Name System (DNS)
+
+### 3rd Party APIs
+  * Google Map APIs
+
+### Test
+  * Mocha
+  * Chai
+
+## Architecture
+
+## Database Schema
+
+## Contact
+Lilian Yang lilian860919@gmail.com
