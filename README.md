@@ -15,18 +15,18 @@ password: test
 * Contact
 
 ## Features
-##### Type and select the origin and destination with Google Map aside for confirmation.
+#### Type and select the origin and destination with Google Map aside for confirmation.
 
 ![image](https://github.com/Lilian-yoli/Co-Car/blob/main/select_location.gif)
 
-##### Best matching drivers/passengers recommendation
+#### Best matching drivers/passengers recommendation
 
 ![image](https://github.com/Lilian-yoli/Co-Car/blob/main/suggest_page.gif)
 * The suggestions for driver will optimized by on the way passengers with longer distance.
 * As for passenger the website will recommend a few drivers near to passengers' origin and destination.
 * Warning will show up if drivers try to add passengers more than their available seats.    
 
-##### Real-time notification-sending mechanism
+#### Real-time notification-sending mechanism
 
 ![image](https://github.com/Lilian-yoli/Co-Car/blob/main/notification.gif)
 * After sending the notification, they will receive it immediately.
