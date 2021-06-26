@@ -278,7 +278,7 @@ function matchedBtn (driver, passenger, verifyToken, query) {
         const routeInfo = {
           receiverId: passengerId,
           passengerRouteId: passengerRouteId,
-          url: `./driver-tour-info.html?routeid=${driver.routeId}&tour=${data.tourId}`,
+          url: `./passenger-tour-info.html?routeid=${driver.routeId}&tour=${data.tourId}`,
           content: `車主${driver.name}已接受你的行程，立即前往查看`,
           type: "match",
           icon: "./uploads/images/match.svg"
