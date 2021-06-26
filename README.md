@@ -16,7 +16,8 @@ password: test
 
 ## Features
 Select the origin and destination with Google Map aside for address comfirmation.
-![image]((https://j.gifs.com/579wwv.gif)
+
+![image](https://j.gifs.com/579wwv.gif)
 
 Suggest the best matching drivers/passengers based on the inputted locations.
 
