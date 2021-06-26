@@ -29,8 +29,8 @@ password: test
 #### Real-time notification-sending mechanism
 
 ![image](https://github.com/Lilian-yoli/Co-Car/blob/main/notification.gif)
-* After sending the notification, they will receive it immediately.
-* Users can choose to accept and refuse the invitation.
+* After sending the notification, users will receive it immediately.
+* Users can choose to accept and refuse the invitation, and the result will notify back to the sender.
 
 Real-time chatting room for users to check details with each other.
 
