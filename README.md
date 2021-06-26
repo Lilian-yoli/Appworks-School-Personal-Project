@@ -17,7 +17,7 @@ password: test
 ## Features
 Select the origin and destination with Google Map aside for address comfirmation.
 
-![image](https://j.gifs.com/579wwv.gif)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/select_location.gif)
 
 Suggest the best matching drivers/passengers based on the inputted locations.
 
