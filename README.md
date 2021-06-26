@@ -21,7 +21,11 @@ Select the origin and destination with Google Map aside for address comfirmation
 
 Suggest the best matching drivers/passengers based on the inputted locations.
 
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/suggest_page.gif)
+
 Real-time notification-sending mechanism for users to confirm.
+
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/notification.gif)
 
 Real-time chatting room for users to check details with each other.
 
@@ -62,7 +66,11 @@ Real-time chatting room for users to check details with each other.
 
 ## Architecture
 
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/Final%20Architecture.png)
+
 ## Database Schema
+
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/database.png)
 
 ## Contact
 Lilian Yang lilian860919@gmail.com
