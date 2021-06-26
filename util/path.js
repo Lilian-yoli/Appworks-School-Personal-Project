@@ -58,11 +58,12 @@ const matchWaypoints = async (passengerRoutes, waypoints, latLng) => {
         const distance = Util.getDistanceFromLatLonInKm(waypoint.lat, waypoint.lng, locationLatLng.x, locationLatLng.y);
         console.log("distance", distance);
         if (distance <= 20) {
-          const id = route.route_id;
+          const id = route.id;
           if (!onRoadPassenger[id]) {
             onRoadPassenger[id] = route;
             console.log("onRoadPassenger", onRoadPassenger);
             onRoadPassengers.push(route);
+            break;
           }
         }
       }
