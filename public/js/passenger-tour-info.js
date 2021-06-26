@@ -74,6 +74,11 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     if (!data.error) {
       socket.emit("notifiyPassenger", routeInfo);
     }
+    swal({
+      text: "已傳送通知",
+      icon: "success",
+      buttons: false
+    });
   });
   const refuse = document.querySelector(".refuse");
   refuse.addEventListener("click", async () => {
@@ -96,6 +101,11 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
       icon: "./uploads/images/member.png"
     };
     socket.emit("notifiyPassenger", routeInfo);
+  });
+  swal({
+    text: "已傳送通知",
+    icon: "success",
+    buttons: false
   });
 }
 

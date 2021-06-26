@@ -317,8 +317,7 @@ const filterRoutes = async (routeId, date, persons, originCoordinate, destinatio
 const confirmTour = async (driverRouteId, tourId, passengerRouteId, matchStatus, persons) => {
   console.log("&&&&&&&&&&&&&&&", driverRouteId, tourId, passengerRouteId);
   try {
-    const tourCheck = await query(`SELECT match_status FROM tour WHERE id = ${tourId} 
-  AND offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
+    const tourCheck = await query(`SELECT match_status FROM tour WHERE offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
     console.log("checkTour", tourCheck);
     if (tourCheck[0].match_status == 1) {
       return ({ error400: "The route had already confirmed" });
