@@ -101,11 +101,11 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
       icon: "./uploads/images/member.png"
     };
     socket.emit("notifiyPassenger", routeInfo);
-  });
-  swal({
-    text: "已傳送通知",
-    icon: "success",
-    buttons: false
+    swal({
+      text: "已傳送通知",
+      icon: "success",
+      buttons: false
+    });
   });
 }
 
