@@ -2,6 +2,33 @@ const socket = io();
 async function header () {
   const verifyToken = localStorage.getItem("access_token");
 
+  const response = await fetch("api/1.0/user-profile", {
+    method: "GET",
+    headers: new Headers({
+      Authorization: "Bearer " + verifyToken
+    })
+  });
+  if (response.status == 401 || response.status == 403) {
+    document.getElementById("passenger-route").style.display = "none";
+    document.getElementById("driver-route").style.display = "none";
+    document.getElementById("logout").style.display = "none";
+    document.getElementById("chat").style.display = "none";
+    document.querySelector(".dropdown-content").style.display = "none";
+  } else {
+    const data = await response.json();
+    document.getElementById("username").innerHTML = data.data.name;
+    const member = document.getElementById("member");
+    member.src = data.data.picture;
+    member.style.width = "48px";
+  }
+
+  const logout = document.getElementById("logout");
+
+  logout.addEventListener("click", () => {
+    localStorage.removeItem("access_token");
+    location.href = "./";
+  });
+
   if (verifyToken) {
     fetch("/api/1.0/verify", {
       method: "POST",
@@ -11,8 +38,8 @@ async function header () {
     }).then((res) => {
       return res.json();
     }).then((data) => {
-      console.log(data);
       if (data.error) {
+        console.log(data);
         return;
       }
       socket.emit("login", data.userId);
@@ -25,7 +52,7 @@ async function header () {
       })
     });
     const data = await response.json();
-    console.log(data);
+
     if (data.length > 0) {
       const bell = document.getElementById("bell");
       bell.src = "./uploads/images/notificationOn.png";
@@ -41,8 +68,6 @@ async function header () {
       for (const i in data) {
         document.addEventListener("click", (e) => {
           if (e.target.id == `dropdown${i}`) {
-            console.log(`fire dropdown${i}!!!`);
-            console.log(data[i].id);
             socket.emit("updateNotification", { id: data[i].id, targetId: i, userId: data[i].user_id });
           }
         });
@@ -50,12 +75,10 @@ async function header () {
     }
   }
   socket.on("removeNotification", data => {
-    console.log(data);
     document.getElementById(`dropdown${data.targetId}`).innerHTML = "";
   });
 
   socket.on("passengerReceive", data => {
-    console.log(data);
     const dropdownMenu = document.querySelector(".dropdown-menu");
     dropdownMenu.innerHTML = "";
     if (data.length > 0) {
@@ -79,30 +102,10 @@ async function header () {
             })
           }).then((res) => {
             res.json();
-          }).then((data) => {
-            console.log(data);
           });
         };
       }
     }
-  });
-
-  fetch("api/1.0/user-profile", {
-    method: "GET",
-    headers: new Headers({
-      Authorization: "Bearer " + verifyToken
-    })
-  }).then((response) => {
-    return response.json();
-  }).then((data) => {
-    console.log(data);
-    document.getElementById("username").innerHTML = data.data.name;
-    const member = document.getElementById("member")
-    member.src = data.data.picture
-    member.style.width = "48px"
-
-  }).catch((error) => {
-    console.error("Error:", error);
   });
 
   const makeRooom = (userId, receiverId) => {
@@ -112,35 +115,6 @@ async function header () {
       return `${userId}WITH${receiverId}`;
     }
   };
-
-  const logout = document.getElementById("logout");
-  console.log(logout);
-  logout.addEventListener("click", () => {
-    localStorage.removeItem("access_token");
-  });
 }
 
 header();
-
-// function updateNotification () {
-//   console.log(window.event);
-//   // const dropdownItem = document.querySelectorAll(".dropdown-item");
-//   // console.log(dropdownItem);
-//   // console.log(dropdownItem[0]);
-//   // for (const i in dropdownItem) {
-//   // console.log(dropdownItem);
-//   // this.addEventListener("click", async (e) => {
-//   fetch("/api/1.0/update-notification", {
-//     method: "POST",
-//     body: JSON.stringify({ url: window.event.target.src }),
-//     headers: new Headers({
-//       Authorization: "Bearer " + verifyToken,
-//       "Content-Type": "application/json"
-//     })
-//   }).then((res) => {
-//     res.json();
-//   }).then((data) => {
-//     console.log(data);
-//   });
-// };
-// }

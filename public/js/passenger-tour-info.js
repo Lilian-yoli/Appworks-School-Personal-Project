@@ -36,7 +36,7 @@ async function wrapper () {
     } else {
       companionRoute.innerHTML =
       html(driverInfo, "");
-      confirm(driverInfo, passengerInfo, verifyToken, query);
+      confirm(data.tourInfo, driverInfo, passengerInfo, verifyToken, query);
     }
   } else if (driverInfo.match_status == 1) {
     companionRoute.innerHTML =
@@ -45,17 +45,17 @@ async function wrapper () {
     companionRoute.innerHTML =
     html(driverInfo, "refuse", verifyToken, query);
   }
-  contact(passengerInfo[0].id, driverInfo.id);
+  contact(passengerInfo[0].userId, driverInfo.userId);
   initMap(driverInfo, passengerInfo);
   hompage();
 }
 
-function confirm (driverInfo, passengerInfo, verifyToken, query) {
+function confirm (tourInfo, driverInfo, passengerInfo, verifyToken, query) {
   const confirm = document.querySelector(".confirm");
   confirm.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[0].id, matchStatus: 1 }),
+      body: JSON.stringify({ passengerRouteId: passengerInfo[0].routeId, matchStatus: 1, persons: passengerInfo[0].persons }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
         "Content-type": "application/json"
@@ -63,23 +63,36 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     });
     const data = await res.json();
     console.log(data);
+    if (data.error) {
+      swal({
+        text: "data.error",
+        icon: "warning",
+        buttons: false
+      });
+      window.location.href = "./";
+    }
     const routeInfo = {
-      receiverId: [driverInfo.id],
-      passengerRouteId: [driverInfo.id],
-      url: `./driver-tour-info.html${query}`,
+      receiverId: [driverInfo.userId],
+      passengerRouteId: [passengerInfo[0].routeId],
+      url: `./driver-tour-info.html?routeid=${driverInfo.routeId}&tour=${tourInfo.tourId}`,
       content: `乘客${passengerInfo[0].name}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/member.png"
     };
     if (!data.error) {
-      socket.emit("notifiyPassenger", routeInfo);
+      socket.emit("notifyPassenger", routeInfo);
     }
+    swal({
+      text: "已傳送通知",
+      icon: "success",
+      buttons: false
+    });
   });
   const refuse = document.querySelector(".refuse");
   refuse.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
       method: "POST",
-      body: JSON.stringify({ passengerRouteId: passengerInfo[0].id, matchStatus: -1 }),
+      body: JSON.stringify({ passengerRouteId: passengerInfo[0].routeId, matchStatus: -1, persons: passengerInfo[0].persons }),
       headers: new Headers({
         Authorization: "Bearer " + verifyToken,
         "Content-type": "application/json"
@@ -88,14 +101,19 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     const data = await res.json();
     console.log(data);
     const routeInfo = {
-      receiverId: [driverInfo.id],
-      passengerRouteId: [driverInfo.id],
-      url: `./driver-tour-info.html${query}`,
+      receiverId: [driverInfo.userId],
+      passengerRouteId: [passengerInfo[0].routeId],
+      url: `./driver-tour-info.html?routeid=${driverInfo.routeId}&tour=${tourInfo.tourId}`,
       content: `乘客${passengerInfo[0].name}已謝絕你的行程`,
       type: "match",
       icon: "./uploads/images/member.png"
     };
-    socket.emit("notifiyPassenger", routeInfo);
+    socket.emit("notifyPassenger", routeInfo);
+    swal({
+      text: "已傳送通知",
+      icon: "success",
+      buttons: false
+    });
   });
 }
 

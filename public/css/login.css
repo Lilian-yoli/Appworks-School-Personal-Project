@@ -4,6 +4,10 @@
 	box-sizing: border-box;
 }
 
+body {
+	background: #f6f5f7;
+}
+
 main {
     width:auto;
 	background: #f6f5f7;
@@ -226,4 +230,10 @@ input {
 	margin: 0 5px;
 	height: 40px;
 	width: 40px;
+}
+
+div.navbar > a {
+	margin-top: 0;
+	margin-bottom: 0;
+	font-size: 16px;
 }

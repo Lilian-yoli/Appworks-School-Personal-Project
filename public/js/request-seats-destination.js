@@ -17,7 +17,6 @@ function initMap () {
 
   const autocomplete = new google.maps.places.Autocomplete(acInput, options);
   const destination = placeMarker(autocomplete);
-  console.log(origin, destination);
 }
 
 function siteAuto () {
@@ -28,7 +27,6 @@ function siteAuto () {
 
   const autocomplete = new google.maps.places.Autocomplete(acInput, options);
   const destination = placeMarker(autocomplete);
-  console.log(origin, destination);
 }
 
 window.addEventListener("load", () => {
@@ -60,7 +58,6 @@ function toggleBounce () {
 function placeMarker (autocomplete) {
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace(); // 地點資料存進place
-    console.log(place);
     // 確認回來的資料有經緯度
     if (place.geometry) {
       // 改變map的中心點
@@ -81,7 +78,6 @@ function placeMarker (autocomplete) {
       });
 
       const bounds = new google.maps.LatLngBounds();
-      console.log(searchCenter);
       bounds.extend(searchCenter);
       if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
         const extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);

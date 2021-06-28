@@ -1,6 +1,5 @@
-
+const socket = io();
 window.onload = async () => {
-  const socket = io();
   const query = location.search;
   const verifyToken = localStorage.getItem("access_token");
   if (!verifyToken) {
@@ -18,46 +17,21 @@ window.onload = async () => {
     return response.json();
   }).then((data) => {
     console.log(data);
-    const chatting = document.getElementById("chatting");
-    const chatRecord = document.getElementById("chat-record");
-    if (data.firstSidebar) {
-      console.log(123);
-      createChatList2(chatting, data.firstSidebar, data.usersInfo, 0);
-      const userId = data.usersInfo.userId2;
-      createChatList2(chatRecord, data.sidebar, data.usersInfo, userId);
+    if (data.error) {
+      window.location.href = "./404.html";
+    }
+    if (data.firstSidebar && data.firstSidebar.length < 1) {
+      createChatting(null, data.usersInfo, data.usersInfo.now);
     } else if (!data.firstSidebar) {
-      chatting.innerHTML =
-      `<a href="./chat.html?room=${data.usersInfo.room}">  
-                    <li class="clearfix">
-                        <img src="${data.usersInfo.userPicture2}" alt="avatar">
-                        <div class="about">
-                          <div class="upper">
-                            <div class="name">${data.usersInfo.username2}</div><div class="date">${data.usersInfo.now}</div>
-                          </div>
-                          <div class="status"></div><div class="unread"></div>
-                        </div>
-                    </li>
-                    </a>`;
+      createChatting(data.sidebar, data.usersInfo, null);
+    } else {
+      createChatting(data.firstSidebar, data.usersInfo, null);
     }
     if (data.sidebar.length > 0) {
-      for (const i in data.sidebar) {
-        if (data.sidebar[i].room == data.firstSidebar[0].room) {
-          continue;
-        }
-        const time = toDateFormat(data.sidebar[i].time);
-        chatRecord.innerHTML +=
-      `<a href="./chat.html?room=${data.sidebar[i].room}">  
-                    <li class="clearfix">
-                        <img src="${data.sidebar[i].picture}" alt="avatar">
-                        <div class="about">
-                          <div class="upper">
-                            <div class="name">${data.sidebar[i].name}</div><div class="date">${time}</div>
-                          </div>
-                          <div class="status">${data.sidebar[i].msg}</div><div class="unread"></div>
-                        </div>
-                    </li>
-                    </a>`;
-      }
+      const chatRecord = document.getElementById("chat-record");
+      const userId1 = data.usersInfo.userId1;
+      const userId2 = data.usersInfo.userId2;
+      createChatList2(chatRecord, data.sidebar, userId1, userId2);
     }
 
     if (data.firstChatMsg) {
@@ -80,7 +54,8 @@ window.onload = async () => {
     console.log("sender", senderId);
     socket.emit("login", senderId);
 
-    send.addEventListener("click", () => {
+    send.addEventListener("click", (e) => {
+      e.preventDefault();
       const msg = chatForm.value;
       console.log(msg);
       msg.trim();
@@ -103,12 +78,16 @@ window.onload = async () => {
     });
 
     socket.on("receiveMsg", data => {
-      console.log(data.msg);
-      console.log(123);
+      console.log(data);
       outputChattingMsg(data, senderId);
       console.log(receiverName, senderName);
       console.log(receiverId, receiverName);
-
+      const lastChat = document.querySelector(".status");
+      if (data.receiverId == senderId) {
+        lastChat.innerHTML = `${data.senderName}：${data.msg}`;
+      } else {
+        lastChat.innerHTML = `你：${data.msg}`;
+      }
       chatContent.scrollIntoView(false);
     });
   });
@@ -122,20 +101,22 @@ const makeLabel = (senderId, receiverId) => {
   }
 };
 
-const createChatList2 = (chatType, data, users, userId) => {
-  for (const i in data) {
-    // sidebar chatroom not onchat
-    if (data[i].receiver_id !== userId && data[i].sender_id !== userId) {
-      const time = toDateFormat(data[i].time);
-      let lastChat = "";
-      if (data[i].sender_id == users.userId1) {
-        lastChat = "你：" + data[i].msg;
-      } else {
-        lastChat = users.username2 + "：" + data[i].msg;
-      }
+const createChatting = (data, users, time) => {
+  const chatting = document.getElementById("chatting");
+  if (!time) {
+    time = toDateFormat(data[0].time);
+  }
+  let lastChat = "";
+  if (data) {
+    if (data[0].sender_id == users.userId1) {
+      lastChat = "你：" + data[0].msg;
+    } else {
+      lastChat = users.username2 + "：" + data[0].msg;
+    }
+  }
 
-      chatType.innerHTML +=
-      `<a href="./chat.html?room=${data[i].room}">  
+  chatting.innerHTML =
+      `<a href="./chat.html?room=${users.room}">  
                     <li class="clearfix">
                         <img src="${users.userPicture2}" alt="avatar">
                         <div class="about">
@@ -146,6 +127,23 @@ const createChatList2 = (chatType, data, users, userId) => {
                         </div>
                     </li>
                     </a>`;
+};
+
+const createChatList2 = (chatType, data, userId1, userId2) => {
+  for (const i in data) {
+    // sidebar chatroom not onchat
+    console.log(data[i].receiverUserId, userId2, data[i].senderUserId);
+    if (data[i].receiverUserId != userId2 && data[i].senderUserId != userId2) {
+      const time = toDateFormat(data[i].time);
+      let lastChat = "";
+      if (data[i].senderUserId == userId1) {
+        lastChat = "你：" + data[i].msg;
+        setHTMLOfChatList(chatType, data[i], data[i].receiverUserPicture, data[i].receiverUserName, lastChat, time);
+      } else {
+        lastChat = data[i].senderUserName + "：" + data[i].msg;
+        setHTMLOfChatList(chatType, data[i], data[i].senderUserPicture, data[i].senderUserName, lastChat, time);
+      }
+
       if (data[i].not_read > 0) {
         const unread = document.querySelectorAll(".unread")[i];
         unread.display = "inline-block";
@@ -153,6 +151,21 @@ const createChatList2 = (chatType, data, users, userId) => {
       }
     }
   }
+};
+
+const setHTMLOfChatList = (chatType, data, picture, name, lastChat, time) => {
+  chatType.innerHTML +=
+      `<a href="./chat.html?room=${data.room}">  
+                    <li class="clearfix">
+                        <img src="${picture}" alt="avatar">
+                        <div class="about">
+                          <div class="upper">
+                            <div class="name">${name}</div><div class="date">${time}</div>
+                          </div>
+                          <div class="status">${lastChat}</div><div class="unread"></div>
+                        </div>
+                    </li>
+                    </a>`;
 };
 
 // const createChatList = (chatType, data, users, userId) => {
@@ -251,6 +264,8 @@ const outputChattingMsg = (data, senderId) => {
   const chatContent = document.getElementById("chat-content");
   const chat = document.createElement("div");
   chat.classList.add("clearfix");
+  console.log((data.senderId == senderId), data.senderId, senderId);
+  console.log("data.senderPicture", data.senderPicture, "data.receiverPicture", data.receiverPicture);
   if (data.senderId == senderId) {
     chat.innerHTML =
     `<div class="message-data text-right">
@@ -260,7 +275,7 @@ const outputChattingMsg = (data, senderId) => {
   } else {
     chat.innerHTML =
     `<div class="message-data">
-      <img src="${data.receiverPicture}" alt="avatar">
+      <img src="${data.senderPicture}" alt="avatar">
     </div>
 <div class="message my-message">${data.msg}</div>`;
   }

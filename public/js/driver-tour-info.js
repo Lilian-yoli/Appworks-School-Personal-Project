@@ -1,7 +1,6 @@
 
 const query = window.location.search;
 const verifyToken = localStorage.getItem("access_token");
-console.log(query);
 
 async function wrapper () {
   const res = await fetch(`/api/1.0/driver-tour-info${query}`, {
@@ -11,8 +10,15 @@ async function wrapper () {
     })
   });
   const data = await res.json();
-  console.log(data);
-
+  if (data.error) {
+    swal({
+      text: data.error + "redirect to homepage",
+      icon: "success",
+      time: 1000,
+      button: false
+    });
+    window.location.href = "./";
+  }
   const { driverInfo, passengerInfo } = data;
   document.querySelectorAll("h2")[0].innerHTML = "你的行程";
   document.getElementById("my-route").innerHTML =
@@ -61,27 +67,25 @@ function confirm (driverInfo, passengerInfo) {
       if (e.target.id == `confirm.${i}`) {
         let index = e.target.id;
         index = index.split(".")[1];
-        console.log(index);
         const res = await fetch(`/api/1.0/tour-confirm${query}`, {
           method: "POST",
-          body: JSON.stringify({ passengerRouteId: passengerInfo[index].id, matchStatus: 1 }),
+          body: JSON.stringify({ passengerRouteId: passengerInfo[index].routeId, matchStatus: 1, persons: passengerInfo[index].persons }),
           headers: new Headers({
             Authorization: "Bearer " + verifyToken,
             "Content-type": "application/json"
           })
         });
         const data = await res.json();
-        console.log(data);
         const routeInfo = {
-          receiverId: [passengerInfo[index].id],
-          passengerRouteId: [passengerInfo[index].id],
+          receiverId: [passengerInfo[index].userId],
+          passengerRouteId: [passengerInfo[index].routeId],
           url: `./passenger-tour-info.html${query}`,
           content: `車主${driverInfo.name}已接受你的行程，立即前往查看`,
           type: "match",
           icon: "./uploads/images/member.png"
         };
         if (!data.error) {
-          socket.emit("notifiyPassenger", routeInfo);
+          socket.emit("notifyPassenger", routeInfo);
         }
         swal({
           text: "已傳送通知",
@@ -97,17 +101,15 @@ function confirm (driverInfo, passengerInfo) {
       if (e.target.id == `refuse.${i}`) {
         let index = e.target.id;
         index = index.split(".")[1];
-        console.log(index);
         const res = await fetch(`/api/1.0/tour-confirm${query}`, {
           method: "POST",
-          body: JSON.stringify({ passengerRouteId: passengerInfo[index].id, matchStatus: -1 }),
+          body: JSON.stringify({ passengerRouteId: passengerInfo[index].routeId, matchStatus: -1, persons: 0 }),
           headers: new Headers({
             Authorization: "Bearer " + verifyToken,
             "Content-type": "application/json"
           })
         });
         const data = await res.json();
-        console.log(data);
         const routeInfo = {
           receiverId: [passengerInfo[index].id],
           passengerRouteId: [driverInfo.id],
@@ -116,7 +118,7 @@ function confirm (driverInfo, passengerInfo) {
           type: "match",
           icon: "./uploads/images/member.png"
         };
-        socket.emit("notifiyPassenger", routeInfo);
+        socket.emit("notifyPassenger", routeInfo);
         swal({
           text: "已傳送通知",
           icon: "success",
@@ -131,8 +133,7 @@ function contact (passengerInfo, driverInfo) {
   for (const i in passengerInfo) {
     document.addEventListener("click", (e) => {
       if (e.target.id == `contact${i}`) {
-        console.log(e.target.id);
-        const room = makeRooom(passengerInfo[i].id, driverInfo.id);
+        const room = makeRooom(passengerInfo[i].userId, driverInfo.userId);
         document.location.href = `./chat.html?room=${room}`;
       }
     });
@@ -163,16 +164,15 @@ function initMap (driverInfo, passengerInfo) {
     optimizeWaypoints: true,
     travelMode: "DRIVING"
   };
-  console.log(waypoints);
+
   for (let i = 0; i < waypoints.length; i += 2) {
     const num = Math.ceil((i + 1) / 2);
-    marker(num, map, waypoints, google, num);
+    marker(i, map, waypoints, google, num);
   }
 
   directionsService.route(request, function (response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(response);
-      console.log(waypoints);
 
       const origin = { lat: driverInfo.origin_coordinate.x, lng: driverInfo.origin_coordinate.y };
       let marker = new google.maps.Marker({
@@ -195,7 +195,6 @@ function initMap (driverInfo, passengerInfo) {
 
 function marker (i, map, waypoints, google, num) {
   const wayptsOrigin = new google.maps.LatLng(waypoints[i].location);
-  console.log(wayptsOrigin, i);
   let marker = new google.maps.Marker({
     map: map,
     title: "title",
@@ -204,7 +203,6 @@ function marker (i, map, waypoints, google, num) {
   marker.setPosition(wayptsOrigin);
 
   const wayptsDestination = new google.maps.LatLng(waypoints[i + 1].location);
-  console.log(wayptsOrigin);
   marker = new google.maps.Marker({
     map: map,
     title: "title",

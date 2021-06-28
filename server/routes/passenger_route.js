@@ -2,10 +2,8 @@ const router = require("express").Router();
 const {
   requestSeatsInfo,
   routesBySearch,
-  passengerSearchDetail,
   saveSearchPassenger,
   getPassengerItinerary,
-  passengerRequestDetail,
   setPassengerTour,
   getTourInfo,
   suggestPassengerRoute,
@@ -14,42 +12,36 @@ const {
   getPassengerItineraryDetail
 } = require("../controllers/passenger_controller");
 // eslint-disable-next-line no-unused-vars
-const { wrapAsync, authentication, checkLogin } = require("../../util/util");
+const { wrapAsync, authentication, checkLogin, verifyreqQuery } = require("../../util/util");
 
-router.route("/api/1.0/request-seats-info")
+router.route("/request-seats-info")
   .post(authentication(), wrapAsync(requestSeatsInfo));
 
-router.route("/api/1.0/search")
+router.route("/search")
   .get(wrapAsync(routesBySearch));
 
-router.route("/api/1.0/passenger-search-detail")
-  .get(wrapAsync(passengerSearchDetail));
+router.route("/passenger-search")
+  .post(authentication(), verifyreqQuery(), wrapAsync(saveSearchPassenger));
 
-router.route("/api/1.0/passenger-search")
-  .post(authentication(), wrapAsync(saveSearchPassenger));
-
-router.route("/api/1.0/passenger-itinerary")
+router.route("/passenger-itinerary")
   .get(authentication(), wrapAsync(getPassengerItinerary));
 
-router.route("/api/1.0/passenger-request-detail")
-  .get(authentication(), wrapAsync(passengerRequestDetail));
-
-router.route("/api/1.0/passenger-tour")
+router.route("/passenger-tour")
   .post(authentication(), wrapAsync(setPassengerTour));
 
-router.route("/api/1.0/passenger-tour-info")
-  .get(authentication(), wrapAsync(getTourInfo));
+router.route("/passenger-tour-info")
+  .get(authentication(), verifyreqQuery(), wrapAsync(getTourInfo));
 
-router.route("/api/1.0/passenger-route-suggestion")
-  .get(authentication(), wrapAsync(suggestPassengerRoute));
+router.route("/passenger-route-suggestion")
+  .get(authentication(), verifyreqQuery(), wrapAsync(suggestPassengerRoute));
 
-router.route("/api/1.0/tour-confirm")
-  .post(authentication(), wrapAsync(confirmTour));
+router.route("/tour-confirm")
+  .post(authentication(), verifyreqQuery(), wrapAsync(confirmTour));
 
-router.route("/api/1.0/passenger-homepage")
+router.route("/passenger-homepage")
   .get(wrapAsync(getPassengerHomepage));
 
-router.route("/api/1.0/passenger-itinerary-detail")
-  .get(checkLogin(), wrapAsync(getPassengerItineraryDetail));
+router.route("/passenger-itinerary-detail")
+  .get(checkLogin(), verifyreqQuery(), wrapAsync(getPassengerItineraryDetail));
 
 module.exports = router;

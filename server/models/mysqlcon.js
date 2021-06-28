@@ -1,18 +1,37 @@
 require("dotenv").config();
 const mysql = require("mysql");
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
+const { NODE_ENV, DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_DATABASE_TEST } = process.env;
 const { promisify } = require("util");
+const env = NODE_ENV || "production";
 
 const mysqlConfig = {
-  connectionLimit: 20,
-  waitForConnections: true,
-  host: DB_HOST,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_DATABASE
+  production: {
+    connectionLimit: 20,
+    waitForConnections: true,
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_DATABASE
+  },
+  development: {
+    connectionLimit: 20,
+    waitForConnections: true,
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_DATABASE
+  },
+  test: {
+    connectionLimit: 20,
+    waitForConnections: true,
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_DATABASE_TEST
+  }
 };
 
-const mysqlPool = mysql.createPool(mysqlConfig);
+const mysqlPool = mysql.createPool(mysqlConfig[env]);
 
 mysqlPool.getConnection((err, connection) => {
   if (err) {

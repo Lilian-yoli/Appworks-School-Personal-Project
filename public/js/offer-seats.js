@@ -6,11 +6,9 @@ const time = document.getElementById("time");
 const next = document.getElementById("next");
 
 window.onload = function () {
-  console.log("test");
   const url = new URL("http://localhost:3000/path.html");
   const searchParams = new URLSearchParams({ id: 1 });
   url.search = searchParams;
-  console.log(url.href);
 
   initMap();
   const seatsOfferedInfo = {};
@@ -43,25 +41,15 @@ window.onload = function () {
     }).then((response) => {
       return response.json();
     }).catch(error => {
-      console.error("Error:", error);
     }).then(response => {
-      console.log("Success:", response);
       if (response.error) {
         swal({
           text: response.error,
           icon: "warning"
         });
       } else {
-        const data = response.route;
-        console.log("data46:", data);
-        window.localStorage.setItem("route", JSON.stringify(response.route));
-        const url = new URL("http://localhost:3000/path.html");
-        const searchParams = new URLSearchParams({
-          routeid: data[0].id
-        });
-        url.search = searchParams;
-        console.log(url.href);
-        document.location.href = `./path.html?routeid=${data[0].id}`;
+        window.localStorage.setItem("route", JSON.stringify(response));
+        document.location.href = `./path.html?routeid=${response.id}`;
       }
     });
   });
@@ -97,14 +85,11 @@ function findPlace (request) {
   service = new google.maps.places.PlacesService(map);
   service.findPlaceFromQuery(request, (results, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-      console.log(counter);
       createMarker(results[0], request.query);
       // map.setCenter(results[0].geometry.location);
-      console.log(results[0].geometry.location);
 
       geometry.push(results[0].geometry.location);
       if (counter > 1) {
-        console.log(geometry[0], geometry[1]);
         boundsFit(geometry[0], geometry[1]);
       }
     }
@@ -126,7 +111,6 @@ function createMarker (place, address) {
 
 function boundsFit (geometry1, geometry2) {
   const bounds = new google.maps.LatLngBounds();
-  console.log(geometry1, geometry2);
   bounds.extend(geometry1);
   bounds.extend(geometry2);
   if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
