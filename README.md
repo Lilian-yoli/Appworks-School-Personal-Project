@@ -29,10 +29,13 @@ password: test
 #### Real-time notification-sending mechanism
 
 ![image](https://github.com/Lilian-yoli/Co-Car/blob/main/notification.gif)
-* After sending the notification, users will receive it immediately.
+* After sending the notification, users will receive it immediately through Socket.IO.
 * Users can choose to accept and refuse the invitation, and the result will notify back to the sender.
 
-Real-time chatting room for users to check details with each other.
+#### Real-time chat room
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/chatdemo.gif)
+* By implementing Socket.IO, users can send and reveive message in real time.
+* The chat history with last chat record will show up beside the chatbox.  
 
 ## Technologies
 ### Back-End
