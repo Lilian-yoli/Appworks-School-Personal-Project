@@ -4,7 +4,6 @@ const {
   routesBySearch,
   saveSearchPassenger,
   getPassengerItinerary,
-  passengerRequestDetail,
   setPassengerTour,
   getTourInfo,
   suggestPassengerRoute,
@@ -26,9 +25,6 @@ router.route("/passenger-search")
 
 router.route("/passenger-itinerary")
   .get(authentication(), wrapAsync(getPassengerItinerary));
-
-// router.route("/passenger-request-detail")
-//   .get(authentication(), wrapAsync(passengerRequestDetail));
 
 router.route("/passenger-tour")
   .post(authentication(), wrapAsync(setPassengerTour));

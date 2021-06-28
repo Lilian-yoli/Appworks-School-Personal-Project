@@ -3,29 +3,29 @@ const Util = require("../../util/util");
 const validator = require("validator");
 
 const requestSeatsInfo = async (req, res) => {
-  console.log("controller_req.user:", req.user);
   try {
     const { origin, destination, persons, date } = req.body;
     if (!origin || !destination || !persons || !date) {
       res.status(400).send({ error: "Request Error: origin, destination, persons and date are required." });
       return;
     }
+    // Insert into DB
     const result = await Passenger.requestSeatsInfo(origin, destination, persons, date, req.user.id);
     if (result.error) {
       res.status(400).send(result);
       return;
     }
-    console.log("path_controller:", result);
     return res.status(200).send(result);
   } catch (err) {
     console.log(err);
+    res.status(500).send({ error: "Internal server error." });
   }
 };
 
 const routesBySearch = async (req, res) => {
   try {
-    console.log("req.query", req.query);
     const { origin, destination, date, persons } = req.query;
+    // check if malicious input existed
     if (Util.isPunctuation(decodeURI(origin)) || Util.isPunctuation(decodeURI(destination)) || Util.isPunctuation(persons)) {
       return res.status(400).send({ error: "Invalid Input, punctuation marks are not allowed. " });
     }
@@ -33,30 +33,26 @@ const routesBySearch = async (req, res) => {
       return res.status(400).send({ error: "Date format not correct." });
     }
     const routes = await Passenger.routesBySearch(origin, destination, date, persons);
-    console.log(routes);
     res.status(200).send(routes);
   } catch (err) {
     console.log(err);
+    res.status(500).send({ error: "Internal server error." });
   }
 };
 
 const saveSearchPassenger = async (req, res) => {
   try {
-    console.log(req.query);
     const userId = req.user.id;
     const driverRouteId = req.query.routeid;
     const { persons, date } = req.body;
     const result = await Passenger.saveSearchPassenger(driverRouteId, persons, date, userId);
-    console.log("result", result);
-    if (result.error400) {
-      res.status(400).send(result);
-    }
-    if (result.error500) {
-      res.status(500).send(result);
+    if (result.error) {
+      return res.status(400).send(result);
     }
     res.status(200).send({ routeId: result, passengerName: req.user.name });
   } catch (err) {
     console.log(err);
+    res.status(500).send({ error: "Internal server error." });
   }
 };
 
@@ -68,30 +64,28 @@ const getPassengerItinerary = async (req, res) => {
     res.status(200).send(result);
   } catch (err) {
     console.log(err);
+    res.status(500).send({ error: "Internal server error." });
   }
 };
 
 const setPassengerTour = async (req, res) => {
-  console.log("req.body", req.body);
   try {
     const userId = req.user.id;
-
     const { driverRouteId, passengerRouteId } = req.body;
 
-    console.log(driverRouteId);
     const result = await Passenger.setPassengerTour(driverRouteId, passengerRouteId, userId);
-    if (result < 1) {
-      return res.status(500).send({ error: "Internal server error" });
+    if (result.error) {
+      return res.status(400).send(result);
     }
     result.username = req.user.name;
     res.status(200).send(result);
   } catch (err) {
     console.log(err);
+    return res.status(500).send({ error: "Internal server error." });
   }
 };
 
 const getTourInfo = async (req, res) => {
-  console.log("tour", req.query);
   try {
     const tourId = req.query.tour;
     const tourInfo = await Passenger.getTourInfo(tourId, req.user.id);
@@ -102,6 +96,7 @@ const getTourInfo = async (req, res) => {
     res.status(200).send(tourInfo);
   } catch (err) {
     console.log(err);
+    return res.status(500).send({ error: "Internal server error." });
   }
 };
 
@@ -111,12 +106,11 @@ const suggestPassengerRoute = async (req, res) => {
     const routeId = req.query.routeid;
     const { id } = req.user;
     const getPassengerDetail = await Passenger.getPassengerDetail(routeId);
-    console.log("getPassengerDetail", getPassengerDetail);
 
     const { date, origin, destination, persons } = getPassengerDetail;
+    // get the coordinte to do the distance calculation
     const originLatLon = `${getPassengerDetail.origin_coordinate.x}, ${getPassengerDetail.origin_coordinate.y}`;
     const destinationLatLon = `${getPassengerDetail.destination_coordinate.x}, ${getPassengerDetail.destination_coordinate.y}`;
-    console.log("originLatLon", originLatLon);
 
     const filterRoutes = await Passenger.filterRoutes(routeId, date, persons,
       getPassengerDetail.origin_coordinate, getPassengerDetail.destination_coordinate);
@@ -137,46 +131,40 @@ const suggestPassengerRoute = async (req, res) => {
   }
 };
 
-const confirmTour = async (req, res) => {
-  console.log(req.query);
+const confirmTour = async (req, res, next) => {
   try {
     const driverRouteId = req.query.routeid;
     const tourId = req.query.tour;
     const { passengerRouteId, matchStatus, persons } = req.body;
-    console.log(passengerRouteId, matchStatus);
+
     const tourConfirmed = await Passenger.confirmTour(driverRouteId, tourId, passengerRouteId, matchStatus, persons);
-    if (tourConfirmed.error500 || !tourConfirmed) {
-      return res.status(500).send(tourConfirmed);
-    } else if (tourConfirmed.error500) {
+    if (tourConfirmed.error || !tourConfirmed) {
       return res.status(400).send(tourConfirmed);
     }
+
     res.status(200).send({ status: "updated" });
   } catch (err) {
     console.log(err);
+    return res.status(500).send({ error: "Internal server error." });
   }
 };
 
 const getPassengerHomepage = async (req, res) => {
   try {
     const routes = await Passenger.getPassengerHomepage();
-    if (!routes) {
-      res.status(500).send({ error: "Internal server error." });
-    }
     res.status(200).send(routes);
   } catch (error) {
     console.log(error);
+    res.status(500).send({ error: "Internal server error." });
   }
 };
 
 const getPassengerItineraryDetail = async (req, res) => {
   try {
-    console.log("getPassengerItineraryDetail", req.query);
-    console.log("getPassengerItineraryDetail REQ.USER", req.user);
     const { user } = req;
     const passengerRouteId = req.query.routeid;
     const passengerItineraryDetail = await Passenger.getPassengerItineraryDetail(passengerRouteId, user);
     if (passengerItineraryDetail.error) {
-      console.log(passengerItineraryDetail.error);
       return res.status(500).send(passengerItineraryDetail);
     }
     res.status(200).send(passengerItineraryDetail);

@@ -51,7 +51,6 @@ function siteAuto () {
     if (place.geometry) {
       // 改變map的中心點
       const searchCenter = place.geometry.location;
-      console.log(searchCenter);
 
       // panTo是平滑移動、setCenter是直接改變地圖中心
       map.panTo(searchCenter);
@@ -82,7 +81,6 @@ function siteAuto () {
         content: place.formatted_address
       });
       infowindow.open(map, marker);
-      console.log(place);
       localStorage.setItem("origin", place.formatted_address);
     }
   });

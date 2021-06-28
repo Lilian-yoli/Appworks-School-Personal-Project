@@ -12,12 +12,10 @@ async function wrapper () {
     })
   });
   const data = await response.json();
-  console.log("data", data);
   const passenger = data.passengerInfo;
   const driver = data.driverInfo;
   const waypts = [];
   if (data.msg) {
-    console.log(123);
     const pathSuggestion = document.getElementById("path-suggestion");
     pathSuggestion.append(Object.assign(document.createElement("h2"),
       { id: "sign" },
@@ -78,7 +76,6 @@ async function wrapper () {
     title.className = "suggestion-title";
     title.textContent = "推薦車主";
     pathSuggestion.insertBefore(title, pathSuggestion.firstChild);
-    console.log(myRoute);
 
     const driverOrigin = driver[0][1].detail.origin;
     const driverDestination = driver[0][1].detail.destination;
@@ -216,7 +213,6 @@ function chooseWypts (driver, waypts) {
     add.addEventListener("click", (e) => {
       const index = localStorage.getItem("index");
       const num = e.target.id;
-      console.log("num", num);
       e.preventDefault();
       if (num != index) {
         const lastAdd = document.getElementsByClassName("suggestion-add")[index];
@@ -251,7 +247,6 @@ const clickEvent = async (driver, passenger) => {
         })
       });
       data = await res.json();
-      console.log("verifyAPI:", data);
       const room = makeRooom(data.userId, data.receiverId);
       document.location.href = `./chat.html?room=${room}`;
     });
@@ -280,8 +275,7 @@ const clickEvent = async (driver, passenger) => {
         icon: "warning"
       });
     }
-    console.log(idInfo);
-    console.log(idInfo.tourId);
+
     const routeInfo = {
       receiverId: [driver[index][1].detail.user_id],
       passengerRouteId: null,
@@ -291,14 +285,12 @@ const clickEvent = async (driver, passenger) => {
       icon: "./uploads/images/match.svg",
       confirm: 0
     };
-    socket.emit("notifiyPassenger", routeInfo);
-    console.log(routeInfo);
+    socket.emit("notifyPassenger", routeInfo);
     swal({
       text: "通知已傳送",
       icon: "success"
     });
-    document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}
-    &tour=${idInfo.tourId}&passenger=${passenger.routeId}`;
+    document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}&passenger=${passenger.routeId}`;
   });
 };
 

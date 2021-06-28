@@ -90,7 +90,6 @@ const applyRoute = (data) => {
       }
     }).then(async function (result) {
       if (result.isConfirmed) {
-        console.log(result);
         Swal.fire({
           icon: "info",
           html: "選擇行程：" + result.value
@@ -115,7 +114,6 @@ const selectDriverRoute = async (date, persons) => {
     })
   });
   const selectData = await responseSelect.json();
-  console.log(selectData);
   if (selectData.error) {
     return { 0: "當日尚未提供路線" };
   }
@@ -123,7 +121,7 @@ const selectDriverRoute = async (date, persons) => {
   for (const route of selectData) {
     routes[route.id] = `${route.time} ${route.origin}～${route.destination}`;
   }
-  console.log(routes);
+
   return routes;
 };
 
@@ -132,7 +130,7 @@ const setTourInfo = async (data, driverRouteId) => {
     method: "POST",
     body: JSON.stringify({
       driverRouteId,
-      passengerRouteId: [data.passengerInfo[0].id]
+      passengerRouteId: [data.passengerInfo[0].routeId]
     }),
     headers: new Headers({
       Authorization: "Bearer " + verifyToken,
@@ -141,22 +139,21 @@ const setTourInfo = async (data, driverRouteId) => {
   });
   const tourData = await responseTour.json();
   console.log(tourData);
-
   if (!tourData.error) {
     const routeInfo = {
-      receiverId: data.passengerInfo[0].id,
-      passengerRouteId: data.passengerInfo[0].id,
-      url: `./passenger-tour-info.html?id=${driverRouteId}&tour=${tourData.tourId}`,
+      receiverId: [data.passengerInfo[0].userId],
+      passengerRouteId: [data.passengerInfo[0].routeId],
+      url: `./passenger-tour-info.html?routeid=${driverRouteId}&tour=${tourData.tourId}`,
       content: `車主${tourData.driverInfo}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/match.svg"
     };
-    socket.emit("notifiyPassenger", routeInfo);
+    socket.emit("notifyPassenger", routeInfo);
     swal.fire({
       text: "已傳送通知",
       icon: "success"
     });
-    document.location.href = `./driver-tour-info.html?id=${driverRouteId}&tour=${tourData.tourId}`;
+    document.location.href = `./driver-tour-info.html?routeid=${driverRouteId}&tour=${tourData.tourId}`;
   } else {
     swal.fire({
       text: "路線曾建立過，請至「車主行程」查看",

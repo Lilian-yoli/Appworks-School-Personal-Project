@@ -7,8 +7,6 @@ let usersNum = 0;
 
 const socketCon = (io) => {
   io.on("connection", socket => {
-    console.log("user connection", socket.id);
-
     usersNum++;
     console.log(`There are ${usersNum} users connected...`);
     socket.on("login", (data) => {
@@ -18,13 +16,10 @@ const socketCon = (io) => {
         users[data].push(socket.id);
       }
       rusers[socket.id] = data;
-      console.log("users", users, rusers);
       socket.emit("loginSuccess", users);
     });
 
     socket.on("sendMsg", (data) => {
-      console.log(data);
-      console.log(users[data.receiverId]);
       if (users[data.receiverId]) {
         data.unread = 0;
       } else {
@@ -34,7 +29,6 @@ const socketCon = (io) => {
       // send data to receiver
       const receiverArr = users[data.receiverId];
       for (const i in receiverArr) {
-        console.log(receiverArr[i]);
         socket.to(receiverArr[i]).emit("receiveMsg", data);
       }
       // send data to sender
@@ -60,38 +54,41 @@ const socketCon = (io) => {
       delete users[userId];
       if (newSocketArr.length > 0) { users[userId] = newSocketArr; }
       delete rusers[socket.id];
-      console.log(users, rusers);
       console.log(`There are ${usersNum} users connected...`);
     });
 
-    socket.on("notifiyPassenger", async (data) => {
-      console.log("#########", data);
-      const { receiverId } = data;
-      console.log("receiverId", receiverId);
-      for (let i = 0; i < receiverId.length; i++) {
-        data.receiverId = receiverId[i];
+    socket.on("notifyPassenger", async (data) => {
+      try {
         console.log(data);
-        console.log("###########", users[receiverId[i]]);
-        let url = data.url;
-        if (data.passengerRouteId) {
-          url += `&passenger=${data.passengerRouteId[i]}`;
+        const { receiverId } = data;
+        for (let i = 0; i < receiverId.length; i++) {
+          data.receiverId = receiverId[i];
+          let url = data.url;
+          if (data.passengerRouteId) {
+            url += `&passenger=${data.passengerRouteId[i]}`;
+          }
+          // eslint-disable-next-line no-unused-vars
+          const notifyContentToDB = await Chat.notifyContentToDB(receiverId[i], data, url);
+          const allNotifyContent = await Chat.allNotifyContent(receiverId[i]);
+          console.log(notifyContentToDB, allNotifyContent);
+          socket.to(users[receiverId[i]]).emit("passengerReceive", allNotifyContent);
         }
-        // eslint-disable-next-line no-unused-vars
-        const notifyContentToDB = await Chat.notifyContentToDB(receiverId[i], data, url);
-        const allNotifyContent = await Chat.allNotifyContent(receiverId[i]);
-        socket.to(users[receiverId[i]]).emit("passengerReceive", allNotifyContent);
+      } catch (err) {
+        console.log(err);
       }
     });
 
     socket.on("updateNotification", async (data) => {
-      console.log("removeNotification", data);
-      const updateNotification = await Chat.updateNotification(data.id);
-      console.log(updateNotification);
-      if (updateNotification.success) {
-        const UserArr = users[data.userId];
-        for (const i in UserArr) {
-          io.in(UserArr[i]).emit("removeNotification", data);
+      try {
+        const updateNotification = await Chat.updateNotification(data.id);
+        if (updateNotification.success) {
+          const UserArr = users[data.userId];
+          for (const i in UserArr) {
+            io.in(UserArr[i]).emit("removeNotification", data);
+          }
         }
+      } catch (err) {
+        console.log(err);
       }
     });
   });

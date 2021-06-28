@@ -2,7 +2,7 @@ const query = window.location.search;
 
 window.onload = async function () {
   const driverRoutes = await getDriverRoutes(query);
-  console.log(driverRoutes);
+
   const routeInfo = document.getElementById("match-itinerary");
   if (driverRoutes.error) {
     showNoResult(routeInfo);

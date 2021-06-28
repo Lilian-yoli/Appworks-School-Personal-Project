@@ -15,7 +15,6 @@ async function wrapper () {
     })
   });
   const data = await response.json();
-  console.log("data", data);
   if (data.error) {
     swal({
       text: "data.error",
@@ -47,7 +46,6 @@ async function wrapper () {
 
   if (passenger.length < 1) {
     const pathSuggestion = document.getElementById("path-suggestion");
-    console.log(pathSuggestion);
     pathSuggestion.append(Object.assign(document.createElement("h2"),
       { id: "sign" },
       { textContent: "尚無合適乘客" }));
@@ -92,7 +90,6 @@ async function wrapper () {
               <div class="btn-wrap"><button class="contact" id="${i}">聯繫乘客</button></div>
           </div>                        
       </div>`;
-      console.log(pathSuggestion);
       personCounter += passenger[i].persons;
       // if seats enough, add waypts
       if (personCounter <= driver.seats_left) {
@@ -110,7 +107,6 @@ async function wrapper () {
     title.className = "suggestion-title";
     title.textContent = "推薦乘客";
     pathSuggestion.insertBefore(title, pathSuggestion.firstChild);
-    console.log("index,passengerArr", dict, index, passengerArr);
     localStorage.setItem("index", index);
     initMap(driver, pickedWaypts);
     chooseWypts(passenger, driver, pickedWaypts, dict, passengerArr);
@@ -159,7 +155,6 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
     add.addEventListener("click", (e) => {
       e.preventDefault();
       let index = localStorage.getItem("index");
-      console.log("index", index);
       if (index.length < 1) {
         index = [];
       } else {
@@ -170,8 +165,6 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
 
       const persons = countCurrentPersons(passenger, index);
 
-      console.log("index", num, index);
-      console.log(add, add.src);
       if (add.src != "https://www.co-car.site/uploads/images/check.png") {
         if (index.indexOf(num.toString()) == -1) {
           if (persons + passenger[num].persons > driver.seats_left) {
@@ -184,18 +177,14 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
             passengerArr = [];
             pickedWaypts = [];
             for (const j in index) {
-              console.log(dict[index[j] * 2], index[j]);
               pickedWaypts.push(dict[index[j] * 2]);
               pickedWaypts.push(dict[index[j] * 2 + 1]);
-              console.log("index[j]", index[j]);
               passengerArr.push(passenger[index[j]].id);
             }
             showPickedPassenger(num);
           }
         }
 
-        console.log("localStorage.setItem", index);
-        console.log("result", pickedWaypts, passengerArr);
         localStorage.setItem("index", index);
         initMap(driver, pickedWaypts);
       } else {
@@ -205,7 +194,6 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
           }
           passengerArr = [];
           pickedWaypts = [];
-          console.log(newIndex);
           for (const i in newIndex) {
             pickedWaypts.push(dict[index[i] * 2]);
             pickedWaypts.push(dict[index[i] * 2 + 1]);
@@ -224,16 +212,12 @@ function chooseWypts (passenger, driver, pickedWaypts, dict, passengerArr) {
 function countCurrentPersons (passenger, index) {
   let counter = 0;
   for (const i in index) {
-    console.log("Number(index[i])", Number(index[i]));
-    console.log("passenger[num].persons", passenger[index[i]].persons, counter);
     counter += passenger[index[i]].persons;
   }
-  console.log("countCurrentPersons", counter);
   return counter;
 }
 
 function showPickedPassenger (num) {
-  console.log(num);
   const pickedPassenger = document.getElementsByClassName("suggestion-wrapper")[num];
   const add = document.getElementsByClassName("suggestion-add")[num];
   if (add.src == "https://www.co-car.site/uploads/images/check.png") {
@@ -273,7 +257,6 @@ function matchedBtn (driver, passenger, verifyToken, query) {
         })
       });
       const data = await res.json();
-      console.log(data);
       if (!data.tourId.error) {
         const routeInfo = {
           receiverId: passengerId,
@@ -283,8 +266,8 @@ function matchedBtn (driver, passenger, verifyToken, query) {
           type: "match",
           icon: "./uploads/images/match.svg"
         };
-        console.log(123);
-        socket.emit("notifiyPassenger", routeInfo);
+
+        socket.emit("notifyPassenger", routeInfo);
         swal({
           text: "已傳送通知",
           icon: "success"
@@ -316,7 +299,6 @@ function contact (passenger, driver) {
     const contact = document.getElementsByClassName("contact")[i];
     contact.addEventListener("click", async (e) => {
       const num = e.target.id;
-      console.log(num, driver.id, passenger[num].user_id);
       const room = makeRooom(driver.id, passenger[num].user_id);
       document.location.href = `./chat.html?room=${room}`;
     });

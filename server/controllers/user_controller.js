@@ -4,7 +4,6 @@ const validator = require("validator");
 const User = require("../models/user_model.js");
 
 const signupInfo = async (req, res) => {
-  console.log(req.body);
   const { signupName, signupEmail, signupPassword } = req.body;
   if (!signupName || !signupEmail || !signupPassword) {
     res.status(400).send({ error: "Request Error: Name, Email and Password are required." });
@@ -21,7 +20,6 @@ const signupInfo = async (req, res) => {
     return;
   }
   const user = result.user;
-  console.log("controller_user", user);
   if (!user) {
     res.status(500).send({ error: "Database Query Error" });
     return;
@@ -76,17 +74,7 @@ const signinInfo = async (req, res) => {
   }
 };
 
-const chatInfo = async (req, res) => {
-  console.log("req.user", req.user);
-  const info = req.user;
-  const { id } = req.query;
-  const chatInfo = await User.chatInfo(req.user.email, id);
-  console.log("info", chatInfo);
-  res.status(200).send(chatInfo);
-};
-
 const tokenVerify = async (req, res) => {
-  console.log("req.user.name", req.user.name);
   // by default, receiver info is null
   const usersInfo = {
     userId: req.user.id,
@@ -95,18 +83,15 @@ const tokenVerify = async (req, res) => {
     receiverName: null
   };
   // if receiver exist, set receiver info
-  console.log(req.body.receiverId);
   if (req.body.receiverId) {
     const result = await User.tokenVerify(req.body.receiverId);
     usersInfo.receiverId = req.body.receiverId;
     usersInfo.receiverName = result.name;
   }
-  console.log("usersInfo", usersInfo);
   res.status(200).send(usersInfo);
 };
 
 const getUserProfile = async (req, res) => {
-  console.log("1000000000009", req.user);
   res.status(200).send({
     data: {
       name: req.user.name,
@@ -117,21 +102,9 @@ const getUserProfile = async (req, res) => {
   ;
 };
 
-const getNotification = async (req, res) => {
-  try {
-    console.log(req.user);
-    const result = await User.getNotification(req.user.id);
-    res.status(200).send(result);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 module.exports = {
   signupInfo,
   signinInfo,
-  chatInfo,
   tokenVerify,
-  getUserProfile,
-  getNotification
+  getUserProfile
 };

@@ -5,7 +5,6 @@ const Path = require("../models/path_model");
 const Util = require("../../util/path");
 
 const offerSeatsInfo = async (req, res) => {
-  console.log("controller_req.user:", req.user);
   try {
     const { origin, destination, persons, date, time } = req.body;
     if (!origin || !destination || !persons || !date || !time) {
@@ -16,17 +15,14 @@ const offerSeatsInfo = async (req, res) => {
     if (routeInfo.error) {
       res.status(400).send({ error: routeInfo.error });
       return;
-    } else if (routeInfo.status500) {
-      res.status(500).send({ error: routeInfo.status500 });
+    } else if (!routeInfo) {
+      res.status(500).send({ error: "Internal server error." });
       return;
     }
-    console.log("path_controller:", routeInfo);
     const waypoints = await Util.getDirection(routeInfo.origin_coordinate.x + "," + routeInfo.origin_coordinate.y,
       routeInfo.destination_coordinate.x + "," + routeInfo.destination_coordinate.y);
-    console.log("waypoints", waypoints);
     const wayptsCity = await Util.getWayptsCity(waypoints);
     const saveWaypts = await Path.saveWaypts(wayptsCity, routeInfo.id);
-    console.log("saveWaypts", saveWaypts);
     return res.status(200).send(routeInfo);
   } catch (err) {
     console.log(err);
@@ -34,7 +30,6 @@ const offerSeatsInfo = async (req, res) => {
 };
 
 const routeSuggestion = async (req, res) => {
-  console.log("routeSuggestion", (req.query));
   try {
     const routeId = req.query.routeid;
     const { name, picture, id } = req.user;
@@ -42,7 +37,6 @@ const routeSuggestion = async (req, res) => {
     if (getDriverDetail.error) {
       res.status(400).send(getDriverDetail.error);
     }
-    console.log("getDriverDetail", getDriverDetail);
 
     const { date, origin, destination } = getDriverDetail;
     const availableSeats = getDriverDetail.seats_left;
@@ -64,7 +58,6 @@ const routeSuggestion = async (req, res) => {
       seats_left: availableSeats,
       time: getDriverDetail.time
     };
-    console.log("sortAllPassengerByDistance", result);
     res.status(200).send(result);
   } catch (error) {
     console.log(error);
@@ -72,7 +65,6 @@ const routeSuggestion = async (req, res) => {
 };
 
 const setMatchedPassengers = async (req, res) => {
-  console.log("setMatchedPassenger req.body:", req.body);
   const { passengerRouteId, passengerType, offeredRouteId } = req.body;
   const allToursArr = [];
   let personsCounter = 0;
@@ -86,7 +78,6 @@ const setMatchedPassengers = async (req, res) => {
   if (!result) {
     return res.status(500).send({ error: "no route provided" });
   }
-  console.log("setMatchedPassenger result:", result);
   res.status(200).send({ result });
 };
 
@@ -94,9 +85,7 @@ const getDriverItineraryDetail = async (req, res) => {
   try {
     const { user } = req;
     const routeId = req.query.routeid;
-    console.log(routeId);
     const driverItineraryDetail = await Path.getDriverItineraryDetail(routeId, user);
-    console.log("getDriversItinerary", driverItineraryDetail);
     if (driverItineraryDetail.error) {
       return res.status(500).send(driverItineraryDetail);
     }
@@ -109,7 +98,6 @@ const getDriverItineraryDetail = async (req, res) => {
 
 const getDriverItinerary = async (req, res) => {
   try {
-    console.log("req.user123", req.user);
     const driversItinerary = await Path.getDriverItinerary(req.user.id);
     res.status(200).send(driversItinerary);
   } catch (error) {
@@ -118,7 +106,6 @@ const getDriverItinerary = async (req, res) => {
 };
 
 const setDriverTour = async (req, res) => {
-  console.log("req.body", req.body);
   try {
     const { driverRouteId, passengerRouteId } = req.body;
     const driverName = req.user.name;
@@ -143,10 +130,8 @@ const getDriverHomepage = async (req, res) => {
 };
 
 const getTourInfo = async (req, res) => {
-  console.log("tour", req.query);
   try {
     const tourId = req.query.tour;
-    console.log(tourId);
     const result = await Path.getTourInfo(tourId);
 
     if (result.error) {
@@ -161,8 +146,6 @@ const getTourInfo = async (req, res) => {
 
 const selectDriverRoute = async (req, res) => {
   try {
-    console.log("selectDriverRoute", req.body);
-    console.log(req.user);
     const { date, persons } = req.body;
     const driverRoute = await Path.selectDriverRoute(date, persons, req.user.id);
     if (driverRoute.error) {

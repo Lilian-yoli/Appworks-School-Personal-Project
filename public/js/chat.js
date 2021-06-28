@@ -17,12 +17,13 @@ window.onload = async () => {
     return response.json();
   }).then((data) => {
     console.log(data);
-    console.log(data.firstSidebar.length);
-    if (data.firstSidebar) {
-      console.log(123);
+    if (data.error) {
+      window.location.href = "./404.html";
+    }
+    if (data.firstSidebar && data.firstSidebar.length < 1) {
       createChatting(null, data.usersInfo, data.usersInfo.now);
-    } else if (data.firstSidebar.length < 1) {
-      createChatting(null, data.usersInfo, data.usersInfo.now);
+    } else if (!data.firstSidebar) {
+      createChatting(data.sidebar, data.usersInfo, null);
     } else {
       createChatting(data.firstSidebar, data.usersInfo, null);
     }
@@ -81,7 +82,12 @@ window.onload = async () => {
       outputChattingMsg(data, senderId);
       console.log(receiverName, senderName);
       console.log(receiverId, receiverName);
-
+      const lastChat = document.querySelector(".status");
+      if (data.receiverId == senderId) {
+        lastChat.innerHTML = `${data.senderName}：${data.msg}`;
+      } else {
+        lastChat.innerHTML = `你：${data.msg}`;
+      }
       chatContent.scrollIntoView(false);
     });
   });

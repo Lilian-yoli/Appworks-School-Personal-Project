@@ -26,7 +26,6 @@ window.addEventListener("load", () => {
       signupEmail: signupEmail.value,
       signupPassword: signupPassword.value
     };
-    console.log(signupInfo);
     fetch("/api/1.0/user/signup", {
       method: "POST",
       body: JSON.stringify(signupInfo),
@@ -35,7 +34,6 @@ window.addEventListener("load", () => {
       return response.json();
     }).then((data) => {
       if (!data.error) {
-        console.log(data);
         window.localStorage.setItem("access_token", data.data.access_token);
         loginSuccess();
         redirect();
@@ -63,16 +61,17 @@ window.addEventListener("load", () => {
     }).then((data) => {
       if (!data.error) {
         loginSuccess();
-        console.log("signin:", data);
         window.localStorage.setItem("access_token", data.data.access_token);
         if (document.referrer == window.location || !document.referrer) {
           document.location.href = "./";
         } else {
-          console.log("lastpage");
           document.location.href = document.referrer;
         }
       } else {
-        alert(data.error);
+        swal({
+          text: data.error,
+          icon: "warning"
+        });
       }
     });
   });

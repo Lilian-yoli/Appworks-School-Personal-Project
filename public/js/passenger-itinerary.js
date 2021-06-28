@@ -7,7 +7,6 @@ fetch("/api/1.0/passenger-itinerary", {
 }).then((response) => {
   return response.json();
 }).then((data) => {
-  console.log(data);
   if (data.error) {
     swal({
       text: data.error,

@@ -17,7 +17,6 @@ const chatContentToDB = async (data) => {
     };
     await connection.query("START TRANSACTION");
     const result = await query("INSERT INTO chat_msg SET ?", [chatInfo]);
-    console.log(result);
     const id = result.insertId;
     await connection.query("COMMIT");
     return id;
@@ -29,8 +28,7 @@ const chatContentToDB = async (data) => {
 
 const getChatRecord = async (receiverId, id, name, room) => {
   const conn = await mysql.connection();
-  const result = { };
-  console.log("123", receiverId, id, name, room);
+  const result = {};
   const qryStr = `SELECT sender_id, receiver_id, msg, time, room, unread, c.id AS receiverUserId, 
   c.name AS receiverUserName, c.picture AS receiverUserPicture, senderUserId, senderUserName, senderUserPicture 
    FROM (SELECT * FROM (SELECT receiver_id, sender_id, msg, room, unread, FROM_UNIXTIME(send_at) AS time,
@@ -43,12 +41,10 @@ const getChatRecord = async (receiverId, id, name, room) => {
       WHERE ran = 1 ORDER BY time DESC;`;
   const chatInfo = await query(qryStr);
   result.sidebar = chatInfo;
-  console.log("result", chatInfo);
 
   if (chatInfo.length > 0) {
     if (receiverId) {
       const updateUnread = await query("UPDATE chat_msg SET unread = 0 WHERE room = ?", [room]);
-      console.log(updateUnread);
       const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, FROM_UNIXTIME(a.send_at) AS time FROM chat_msg a
             CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg) b 
             WHERE a.room = "${room}" ORDER BY time DESC LIMIT 1`);
@@ -57,8 +53,12 @@ const getChatRecord = async (receiverId, id, name, room) => {
       result.firstSidebar = getTheSidebar;
       result.firstChatMsg = getTheChat;
       await conn.query("COMMIT");
-      console.log("getChatRecord", result);
     } else {
+      if (chatInfo[0].sender_id == id) {
+        receiverId = chatInfo[0].receiver_id;
+      } else {
+        receiverId = chatInfo[0].sender_id;
+      }
       const updateUnread = await query("UPDATE chat_msg SET unread = 0 WHERE room = ?", [chatInfo[0].room]);
       const lastChatContent = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time, unread
   FROM chat_msg WHERE room = ? ORDER BY time`, [chatInfo[0].room]);
@@ -89,13 +89,6 @@ const getChatRecord = async (receiverId, id, name, room) => {
 };
 
 const startAChat = async (receiverId, id, room) => {
-//   let room = "";
-//   if (+receiverId > +id) {
-//     room = id + "WITH" + receiverId;
-//   } else {
-//     room = receiverId + "WITH" + id;
-//   }
-  console.log("receiverId", receiverId, id);
   const qryStr = `SELECT id, name, picture FROM users WHERE id = "${receiverId}"`;
   const receiverInfo = await query(qryStr);
   const msg = await query(`SELECT sender_id, receiver_id, FROM_UNIXTIME(send_at) AS time, msg, room 
@@ -116,7 +109,6 @@ const startAChat = async (receiverId, id, room) => {
   }
 
   result.chatbox = msg;
-  console.log("result:", result);
   return result;
 };
 
@@ -130,21 +122,22 @@ const notifyContentToDB = async (receiverId, data, url) => {
     unread: 1,
     url: url
   };
-  console.log("notifyContentToDB", notificationInfo);
   const connection = await mysql.connection();
   await connection.query("START TRANSACTION");
   const result = await query("INSERT INTO notification SET ?", [notificationInfo]);
-  console.log("insert result:", result);
   await connection.query("COMMIT");
   return receiverId;
 };
 
 const allNotifyContent = async (receiverId) => {
-  const result = await query(`SELECT a.content, a.url, b.unread FROM notification a
+  try {
+    const result = await query(`SELECT a.content, a.url, b.unread FROM notification a
   CROSS JOIN(SELECT SUM(unread) unread FROM notification WHERE user_id = ${receiverId} AND unread = 1) b
   WHERE user_id = ${receiverId} AND a.unread = 1 ORDER BY time DESC`);
-  console.log(result);
-  return result;
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const getNotification = async (id) => {
@@ -153,16 +146,15 @@ const getNotification = async (id) => {
     if (result.length < 1) {
       return { empty: "User has no notification" };
     }
-    console.log(result);
     return result;
   } catch (err) {
     console.log(err);
+    return null;
   }
 };
 
 const updateNotification = async (id) => {
   const result = await query("UPDATE notification SET unread = 0 WHERE id = ?", [id]);
-  console.log(result);
   if (result < 1) {
     return { error: "Internal server error" };
   }

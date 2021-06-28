@@ -11,21 +11,21 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
     const queryStr = `SELECT * FROM requested_routes WHERE origin = "${origin}" AND destination = "${destination}" AND persons = ${persons} AND date = UNIX_TIMESTAMP("${date}") AND user_id = ${id} FOR UPDATE`;
 
     const checkDuplicatedRoute = await query(queryStr);
-    console.log("checkDuplicatedRoute", checkDuplicatedRoute);
     if (checkDuplicatedRoute.length > 0) {
       await connection.query("COMMIT");
       return { error: "Routes had already been created, please check your itinerary" };
     }
     const originLatLng = await Util.transferToLatLng(origin);
     const destinationLatLng = await Util.transferToLatLng(destination);
-
     const now = Math.floor(Date.now() / 1000);
-    console.log("originLatLng", originLatLng.lat, originLatLng.lng);
+
+    // check if the route is existed or not
     if (!originLatLng || !destinationLatLng) {
       return { error: "Couldn't find the origin. Try to type the address." };
     } else if (!destinationLatLng) {
       return { error: "Couldn't find the destination. Try to type the address." };
     }
+    // calculate the distance and save to DB
     const distance = Util.getDistanceFromLatLonInKm(originLatLng.lat, originLatLng.lng, destinationLatLng.lat, destinationLatLng.lng);
 
     const columns = `(origin, destination, persons, date, user_id, origin_coordinate, 
@@ -36,19 +36,16 @@ const requestSeatsInfo = async (origin, destination, persons, date, id) => {
   Point("${destinationLatLng.lat}", "${destinationLatLng.lng}"), "request", 0, "${now}", "${now}", ${distance})`;
 
     const insertRoute = await query(`INSERT INTO requested_routes ${columns} VALUES ${setValue}`);
-    console.log("insertRoute", insertRoute);
     const routeId = insertRoute.insertId;
     const route = await query(`SELECT * FROM requested_routes WHERE id = ${routeId}`);
 
+    // save the cities of origin and destinatino in requested_routes_cities table for driver recommendation
     const originCity = await Util.getCity(originLatLng);
     const destinationCity = await Util.getCity(destinationLatLng);
     const city = [[routeId, originCity, "origin", now], [routeId, destinationCity, "destination", now]];
     const insertCity = await query(`INSERT INTO requested_routes_cities 
   (requested_routes_id, city, coordinate_type, created_at) VALUES ?`, [city]);
-    console.log("insertCity", insertCity);
     await connection.query("COMMIT");
-    console.log("MAKE COMPARISON", route);
-    console.log("route[0].origin_coordinate.x", route[0].origin_coordinate.x);
     return { route };
   } catch (err) {
     await connection.query("ROLLBACK");
@@ -109,22 +106,19 @@ const saveSearchPassenger = async (driverRouteId, persons, date, userId) => {
     AND date = UNIX_TIMESTAMP("${date}") AND user_id = ${userId}`);
 
     if (checkRoute.length > 0) {
-      return { error400: "route had already been created" };
+      return { error: "route had already been created" };
     }
     // distance update for search type passengers
     const distance = await Util.getDistanceFromLatLonInKm(driverRoute[0].origin_coordinate.x, driverRoute[0].origin_coordinate.y,
       driverRoute[0].destination_coordinate.x, driverRoute[0].destination_coordinate.y);
     const column = `(origin, destination, persons, date, origin_coordinate, destination_coordinate, 
-    passenger_type, user_id, created_at, updated_at, distance)`;
+    passenger_type, user_id, created_at, updated_at, distance, matched)`;
     const setValue = `("${driverRoute[0].origin}", "${driverRoute[0].destination}", ${persons},
   UNIX_TIMESTAMP("${date}"), Point("${driverRoute[0].origin_coordinate.x}", "${driverRoute[0].origin_coordinate.y}"),
 Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destination_coordinate.y}"), 
-"search", ${userId}, "${now}", "${now}", ${distance})`;
+"search", ${userId}, "${now}", "${now}", ${distance}, 0)`;
 
     const insertRouteTable = await query(`INSERT INTO requested_routes ${column} VALUES ${setValue}`);
-    if (insertRouteTable.length < 1) {
-      return { error500: "Internal server error" };
-    }
     console.log(insertRouteTable);
     const insertId = insertRouteTable.insertId;
     await connection.query("COMMIT");
@@ -132,13 +126,13 @@ Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destinatio
   } catch (err) {
     await connection.query("ROLLBACK");
     console.log(err);
+    return null;
   }
 };
 
 const getPassengerItinerary = async (id) => {
   try {
     const timestamp = Math.floor(Date.now() / 1000);
-    console.log("***********", timestamp);
     const qryStrMatched = `SELECT o.origin, o.destination, FROM_UNIXTIME(o.date) AS date, o.time, 
    r.persons, o.id AS driverRouteId, r.id, t.id AS tourId FROM requested_routes r
   INNER JOIN tour t ON r.id = t.passenger_routes_id
@@ -146,6 +140,7 @@ const getPassengerItinerary = async (id) => {
   INNER JOIN users u ON u.id = o.user_id
   WHERE r.user_id = "${id}" AND UNIX_TIMESTAMP(o.route_timestamp) >= ${timestamp} ORDER by date`;
     let matched = await query(qryStrMatched);
+    // if matched is an empty array, return no itinerary
     if (matched.length < 1) {
       matched = { empty: "行程尚未進行媒合" };
     } else {
@@ -158,7 +153,7 @@ const getPassengerItinerary = async (id) => {
     FROM requested_routes r LEFT OUTER JOIN tour t ON r.id = t.passenger_routes_id 
     WHERE r.user_id = ${id} AND t.id IS NULL AND r.date >= ${timestamp} ORDER by date`;
     let unmatched = await query(qryStrUnmatched);
-    console.log("*********", unmatched);
+    // if matched is an empty array, return no itinerary
     if (unmatched.length < 1) {
       unmatched = { empty: "尚未建立行程" };
     } else {
@@ -170,10 +165,10 @@ const getPassengerItinerary = async (id) => {
     const result = {};
     result.matched = matched;
     result.unmatched = unmatched;
-    console.log("getPassengerItinerary", result);
     return result;
   } catch (err) {
     console.log(err);
+    return null;
   }
 };
 
@@ -193,12 +188,11 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId) => {
   try {
     await connection.query("START TRANSACTION");
     const driverRoute = await query(`SELECT * FROM offered_routes WHERE id = ${driverRouteId}`);
-    console.log("*********", userId, driverRoute[0].origin, driverRoute[0].destination, driverRoute[0].date);
 
     const checkTour = await query(`SELECT * FROM tour t
     INNER JOIN requested_routes r ON t.passenger_routes_id = r.id 
     WHERE t.offered_routes_id = ${driverRouteId} AND r.user_id = ${userId} FOR UPDATE`);
-    console.log(checkTour);
+
     if (checkTour.length > 0) {
       return { error: "Tour had already been created, please check your itinerary" };
     }
@@ -213,7 +207,6 @@ const setPassengerTour = async (driverRouteId, passengerRouteId, userId) => {
     const insertInfo = await query("INSERT INTO tour SET ?", tour);
     await connection.query("COMMIT");
     const tourId = insertInfo.insertId;
-    console.log("insertInfo", insertInfo);
     return { userId, tourId };
   } catch (err) {
     console.log(err);
@@ -229,27 +222,18 @@ const getTourInfo = async (tourId, userId) => {
   o.seats_left, o.id AS routeId, u.id AS userId, u.name, u.picture, t.match_status, t.send_by, o.origin_coordinate, o.destination_coordinate
   FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
-    if (driverInfo.length < 1) {
-      return { error: "Internal server error." };
-    }
     driverInfo[0].date = await Util.toDateFormat(driverInfo[0].date);
-    console.log("driverInfo", driverInfo);
 
     const passengerInfo = await query(`SELECT r.id AS routeId, r.origin, r.destination, r.persons, 
   FROM_UNIXTIME(r.date) AS date, u.id AS userId, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.id
   INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId} AND r.user_id = ${userId}`);
-    if (driverInfo.length < 1) {
-      return { error: "Internal server error." };
-    }
     passengerInfo[0].date = await Util.toDateFormat(passengerInfo[0].date);
-    console.log("passengerInfo", passengerInfo);
 
     const result = {};
     result.driverInfo = driverInfo[0];
     result.passengerInfo = passengerInfo;
     result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
-    console.log("getTourInfo Model:", result);
     return result;
   } catch (err) {
     console.log(err);
@@ -258,81 +242,83 @@ const getTourInfo = async (tourId, userId) => {
 };
 
 const getPassengerDetail = async (id) => {
-  const passengerDetail = await query(`SELECT id AS routeId, origin, destination, origin_coordinate, destination_coordinate, persons, FROM_UNIXTIME(date) AS date 
+  try {
+    const passengerDetail = await query(`SELECT id AS routeId, origin, destination, origin_coordinate, destination_coordinate, persons, FROM_UNIXTIME(date) AS date 
   FROM requested_routes WHERE id = ${id}`);
-  if (!passengerDetail) {
-    return { error: "No such route offered" };
+    if (!passengerDetail) {
+      return { error: "No such route offered" };
+    }
+    passengerDetail[0].date = await Util.toDateFormat(passengerDetail[0].date);
+    return passengerDetail[0];
+  } catch (err) {
+    console.log(err);
+    return null;
   }
-  passengerDetail[0].date = await Util.toDateFormat(passengerDetail[0].date);
-  return passengerDetail[0];
 };
 
 const filterRoutes = async (routeId, date, persons, originCoordinate, destinationCoordinate) => {
-  const qryStr = `SELECT offered_routes_id, coordinate FROM routes_waypoints WHERE city IN 
+  try {
+    // filter the same city with origin from routes_waypoints
+    const qryStr = `SELECT offered_routes_id, coordinate FROM routes_waypoints WHERE city IN 
   (SELECT city FROM requested_routes_cities WHERE requested_routes_id = ${routeId} AND coordinate_type = "origin")
   AND offered_routes_id IN
   (SELECT id FROM offered_routes WHERE date = UNIX_TIMESTAMP("${date}") AND seats_left >= ${persons}) `;
-  const originCity = await query(qryStr);
-  console.log("originCity:", originCity);
-  const destinationCity = [];
-  for (const i in originCity) {
-    if (i > 0) {
-      if (originCity[i].offered_routes_id == originCity[i - 1].offered_routes_id) {
-        continue;
+    const originCity = await query(qryStr);
+
+    const destinationCity = [];
+    for (const i in originCity) {
+      if (i > 0) {
+        // if the filtered location route id was already operated, then skip it
+        if (originCity[i].offered_routes_id == originCity[i - 1].offered_routes_id) {
+          continue;
+        }
       }
-    }
-    const destinationWaypts = await query(`SELECT r.offered_routes_id, r.coordinate, o.origin, o.destination, o.origin_coordinate, o.destination_coordinate,
+      const destinationWaypts = await query(`SELECT r.offered_routes_id, r.coordinate, o.origin, o.destination, o.origin_coordinate, o.destination_coordinate,
     FROM_UNIXTIME(o.date) AS date, o.time, o.seats_left, o.user_id, u.name, u.picture FROM routes_waypoints r
     INNER JOIN offered_routes o ON r.offered_routes_id = o.id
     INNER JOIN users u ON o.user_id = u.id
     WHERE r.offered_routes_id = ${originCity[i].offered_routes_id} AND r.city IN 
     (SELECT city FROM requested_routes_cities WHERE requested_routes_id = ${routeId} AND coordinate_type = "destination")`);
-    console.log("destinationWaypts", destinationWaypts);
-    if (destinationWaypts.length < 1) {
-      continue;
+
+      if (destinationWaypts.length < 1) {
+        continue;
+      }
+      destinationWaypts[0].date = await Util.toDateFormat(destinationWaypts[0].date);
+      // check direction the same
+      // if the distance of passengers' origin to drivers' destination is smaller than the the distance of passengers' detination to drivers' destination, then the direction is opposites
+      const pOriginToDestination = await Util.getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
+        destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
+      const pDestinationToDestination = await Util.getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
+        destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
+      if (pOriginToDestination >= pDestinationToDestination) {
+        destinationCity.push(destinationWaypts);
+      }
     }
-    destinationWaypts[0].date = await Util.toDateFormat(destinationWaypts[0].date);
-    // check direction the same
-    const pOriginToDestination = await Util.getDistanceFromLatLonInKm(originCoordinate.x, originCoordinate.y,
-      destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
-
-    const pDestinationToDestination = await Util.getDistanceFromLatLonInKm(destinationCoordinate.x, destinationCoordinate.y,
-      destinationWaypts[0].coordinate.x, destinationWaypts[0].coordinate.y);
-    console.log("pOriginToDestination", pOriginToDestination, pDestinationToDestination, (pOriginToDestination >= pDestinationToDestination));
-    if (pOriginToDestination >= pDestinationToDestination) {
-      destinationCity.push(destinationWaypts);
+    if (destinationCity.length < 1) {
+      return ({ msg: "無合適的行程" });
     }
-  }
-  if (destinationCity.length < 1) {
-    return ({ msg: "無合適的行程" });
-  }
-  console.log("destinationCity", destinationCity);
 
-  const shortestRoute = await Util.getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);
-  const shortestRouteInOrder = await Util.orderShortestRoute(shortestRoute);
+    const shortestRoute = await Util.getShortestRoute(originCity, destinationCity, originCoordinate, destinationCoordinate);
+    const shortestRouteInOrder = await Util.orderShortestRoute(shortestRoute);
 
-  return shortestRouteInOrder;
+    return shortestRouteInOrder;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 };
 
 const confirmTour = async (driverRouteId, tourId, passengerRouteId, matchStatus, persons) => {
-  console.log("&&&&&&&&&&&&&&&", driverRouteId, tourId, passengerRouteId);
   try {
     const tourCheck = await query(`SELECT match_status FROM tour WHERE offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
-    console.log("checkTour", tourCheck);
     if (tourCheck[0].match_status == 1) {
-      return ({ error400: "The route had already confirmed" });
+      return ({ error: "The route had already confirmed" });
     }
     const matchUpadte = await query(`UPDATE tour SET match_status = ${matchStatus} WHERE id = ${tourId} 
   AND offered_routes_id = ${driverRouteId} AND passenger_routes_id = ${passengerRouteId}`);
-    if (matchUpadte.lenth < 1) {
-      return ({ error500: "Internal server error" });
-    }
-    if (persons > 0) {
+    if (persons > 0 && matchStatus > 0) {
       const personsUpdate = await query(`UPDATE offered_routes SET seats_left = (seats_left - ${persons}) WHERE 
     id = ?`, driverRouteId);
-      if (personsUpdate.length < 0) {
-        return ({ error500: "Internal server error" });
-      }
     }
 
     return matchUpadte;
@@ -348,7 +334,6 @@ const getPassengerHomepage = async () => {
     const routes = await query(`SELECT r.origin, r.destination, FROM_UNIXTIME(r.date) AS date, r.persons, r.id
     FROM requested_routes r LEFT OUTER JOIN tour t ON r.id = passenger_routes_id
     WHERE r.date > ${timestamp} AND t.id IS NULL ORDER BY date LIMIT 4`);
-    console.log(routes);
     if (routes.length < 1) {
       return null;
     }
@@ -366,8 +351,9 @@ const getPassengerHomepage = async () => {
     // eslint-disable-next-line no-unused-vars
     const setRouteToRedis = setHomepageRoutes("passengerRoute", routes);
     return { routes };
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
+    return null;
   }
 };
 

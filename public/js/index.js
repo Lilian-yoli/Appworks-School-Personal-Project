@@ -6,7 +6,7 @@ window.onload = function () {
   const next = document.getElementById("btn");
   next.addEventListener("click", () => {
     const url = new URL("http://localhost:3000/passenger-search-result.html");
-    console.log(persons.value);
+
     const searchParams = new URLSearchParams({
       origin: origin.value,
       destination: destination.value,
@@ -15,7 +15,7 @@ window.onload = function () {
     });
 
     url.search = searchParams;
-    console.log(url.href);
+
     document.location.href = url.href;
   });
 
@@ -23,9 +23,11 @@ window.onload = function () {
     .then((res) => {
       return res.json();
     }).then((data) => {
-      console.log(data);
+      if (data.error) {
+        window.location.href = "./";
+      }
       const routes = data.routes;
-      console.log(routes);
+
       for (const route of routes) {
         const passengerRoute = document.querySelector(".passenger-route");
         passengerRoute.innerHTML +=
@@ -53,7 +55,9 @@ window.onload = function () {
     .then((res) => {
       return res.json();
     }).then((data) => {
-      console.log(data);
+      if (data.error) {
+        window.location.href = "./";
+      }
       const { routes } = data;
       for (const route of routes) {
         const passengerRoute = document.querySelector(".driver-route");

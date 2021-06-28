@@ -25,7 +25,6 @@ function initMap () {
 
 const verifyToken = localStorage.getItem("access_token");
 const origin = localStorage.getItem("origin");
-console.log(origin, typeof (origin));
 const destination = localStorage.getItem("destination");
 
 if (!verifyToken) {
@@ -54,7 +53,6 @@ next.onclick = function click () {
     return response.json();
   }).catch(error => console.error("Error:", error))
     .then(response => {
-      console.log("Success:", response);
       if (!response.error) {
         localStorage.removeItem("origin");
         localStorage.removeItem("destination");
@@ -66,8 +64,6 @@ next.onclick = function click () {
         });
       }
     });
-  // });
-  console.log(origin, destination);
 };
 
 function createMarker (place, address) {
@@ -89,14 +85,10 @@ function findPlace (request) {
   service = new google.maps.places.PlacesService(map);
   service.findPlaceFromQuery(request, (results, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-      console.log(counter);
       createMarker(results[0], request.query);
-      // map.setCenter(results[0].geometry.location);
-      console.log(results[0].geometry.location);
 
       geometry.push(results[0].geometry.location);
       if (counter > 1) {
-        console.log(geometry[0], geometry[1]);
         boundsFit(geometry[0], geometry[1]);
       }
     }
@@ -105,7 +97,6 @@ function findPlace (request) {
 
 function boundsFit (geometry1, geometry2) {
   const bounds = new google.maps.LatLngBounds();
-  console.log(geometry1, geometry2);
   bounds.extend(geometry1);
   bounds.extend(geometry2);
   // if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
@@ -132,7 +123,6 @@ const showLoading = function () {
     () => {},
     (dismiss) => {
       if (dismiss === "timer") {
-        console.log("closed by timer!!!!");
         swal({
           title: "Finished!",
           type: "success",

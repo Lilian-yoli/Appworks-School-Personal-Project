@@ -16,9 +16,7 @@ async function wrapper () {
       Authorization: "Bearer " + verifyToken
     })
   });
-  console.log(response);
   const data = await response.json();
-  console.log(data);
   if (data.error) {
     Swal.fire({
       text: data.error,
@@ -88,7 +86,6 @@ const applyRoute = (data) => {
       allowOutsideClick: () => !Swal.isLoading(),
       function (value) {
         return new Promise(function (resolve, reject) {
-          console.log(data.driverInfo[0].seats_lef);
           if (value <= data.driverInfo[0].seats_left) {
             resolve();
           } else {
@@ -115,7 +112,7 @@ const applyRoute = (data) => {
           await setTourInfo(data, passengerInfo);
         } else {
           Swal.fire({
-            text: "路線已建立",
+            text: "路線已建立過，請至「乘客路線」查看",
             icon: "warning"
           });
         }
@@ -137,8 +134,7 @@ const insertPassengerInfo = async (data, persons) => {
     })
   });
   const insertData = await responseInsert.json();
-  console.log(insertData);
-  if (insertData.routeId.error) {
+  if (insertData.error) {
     return null;
   }
 
@@ -158,7 +154,6 @@ const setTourInfo = async (data, passengerInfo) => {
     })
   });
   const tourData = await responseTour.json();
-  console.log(tourData);
 
   if (!tourData.error) {
     const routeInfo = {
@@ -169,7 +164,7 @@ const setTourInfo = async (data, passengerInfo) => {
       type: "match",
       icon: "./uploads/images/match.svg"
     };
-    socket.emit("notifiyPassenger", routeInfo);
+    socket.emit("notifyPassenger", routeInfo);
     swal.fire({
       text: "已傳送通知",
       icon: "success"

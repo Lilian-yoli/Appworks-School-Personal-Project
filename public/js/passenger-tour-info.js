@@ -36,7 +36,7 @@ async function wrapper () {
     } else {
       companionRoute.innerHTML =
       html(driverInfo, "");
-      confirm(driverInfo, passengerInfo, verifyToken, query);
+      confirm(data.tourInfo, driverInfo, passengerInfo, verifyToken, query);
     }
   } else if (driverInfo.match_status == 1) {
     companionRoute.innerHTML =
@@ -50,7 +50,7 @@ async function wrapper () {
   hompage();
 }
 
-function confirm (driverInfo, passengerInfo, verifyToken, query) {
+function confirm (tourInfo, driverInfo, passengerInfo, verifyToken, query) {
   const confirm = document.querySelector(".confirm");
   confirm.addEventListener("click", async () => {
     const res = await fetch(`/api/1.0/tour-confirm${query}`, {
@@ -63,16 +63,24 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     });
     const data = await res.json();
     console.log(data);
+    if (data.error) {
+      swal({
+        text: "data.error",
+        icon: "warning",
+        buttons: false
+      });
+      window.location.href = "./";
+    }
     const routeInfo = {
       receiverId: [driverInfo.userId],
-      passengerRouteId: [driverInfo.routeId],
-      url: `./driver-tour-info.html${query}`,
+      passengerRouteId: [passengerInfo[0].routeId],
+      url: `./driver-tour-info.html?routeid=${driverInfo.routeId}&tour=${tourInfo.tourId}`,
       content: `乘客${passengerInfo[0].name}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/member.png"
     };
     if (!data.error) {
-      socket.emit("notifiyPassenger", routeInfo);
+      socket.emit("notifyPassenger", routeInfo);
     }
     swal({
       text: "已傳送通知",
@@ -94,13 +102,13 @@ function confirm (driverInfo, passengerInfo, verifyToken, query) {
     console.log(data);
     const routeInfo = {
       receiverId: [driverInfo.userId],
-      passengerRouteId: [driverInfo.routeId],
-      url: `./driver-tour-info.html${query}`,
+      passengerRouteId: [passengerInfo[0].routeId],
+      url: `./driver-tour-info.html?routeid=${driverInfo.routeId}&tour=${tourInfo.tourId}`,
       content: `乘客${passengerInfo[0].name}已謝絕你的行程`,
       type: "match",
       icon: "./uploads/images/member.png"
     };
-    socket.emit("notifiyPassenger", routeInfo);
+    socket.emit("notifyPassenger", routeInfo);
     swal({
       text: "已傳送通知",
       icon: "success",

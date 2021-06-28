@@ -15,7 +15,6 @@ async function header () {
     document.querySelector(".dropdown-content").style.display = "none";
   } else {
     const data = await response.json();
-    console.log(data);
     document.getElementById("username").innerHTML = data.data.name;
     const member = document.getElementById("member");
     member.src = data.data.picture;
@@ -23,7 +22,6 @@ async function header () {
   }
 
   const logout = document.getElementById("logout");
-  console.log(logout);
   logout.addEventListener("click", () => {
     localStorage.removeItem("access_token");
     location.href = "./";
@@ -37,7 +35,6 @@ async function header () {
       })
     });
     const data = await response.json();
-    console.log(data);
     if (data.length > 0) {
       const bell = document.getElementById("bell");
       bell.src = "./uploads/images/notificationOn.png";
@@ -53,8 +50,6 @@ async function header () {
       for (const i in data) {
         document.addEventListener("click", (e) => {
           if (e.target.id == `dropdown${i}`) {
-            console.log(`fire dropdown${i}!!!`);
-            console.log(data[i].id);
             socket.emit("updateNotification", { id: data[i].id, targetId: i, userId: data[i].user_id });
           }
         });
@@ -62,12 +57,10 @@ async function header () {
     }
   }
   socket.on("removeNotification", data => {
-    console.log(data);
     document.getElementById(`dropdown${data.targetId}`).innerHTML = "";
   });
 
   socket.on("passengerReceive", data => {
-    console.log(data);
     const dropdownMenu = document.querySelector(".dropdown-menu");
     dropdownMenu.innerHTML = "";
     if (data.length > 0) {
@@ -91,8 +84,6 @@ async function header () {
             })
           }).then((res) => {
             res.json();
-          }).then((data) => {
-            console.log(data);
           });
         };
       }
@@ -109,26 +100,3 @@ async function header () {
 }
 
 header();
-
-// function updateNotification () {
-//   console.log(window.event);
-//   // const dropdownItem = document.querySelectorAll(".dropdown-item");
-//   // console.log(dropdownItem);
-//   // console.log(dropdownItem[0]);
-//   // for (const i in dropdownItem) {
-//   // console.log(dropdownItem);
-//   // this.addEventListener("click", async (e) => {
-//   fetch("/api/1.0/update-notification", {
-//     method: "POST",
-//     body: JSON.stringify({ url: window.event.target.src }),
-//     headers: new Headers({
-//       Authorization: "Bearer " + verifyToken,
-//       "Content-Type": "application/json"
-//     })
-//   }).then((res) => {
-//     res.json();
-//   }).then((data) => {
-//     console.log(data);
-//   });
-// };
-// }

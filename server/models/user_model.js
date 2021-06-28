@@ -47,71 +47,51 @@ const signUp = async (name, email, password, phone) => {
 
 const signIn = async (email, password) => {
   const connection = await mysql.connection();
-  await connection.query("START TRANSACTION");
-  const users = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
-  if (users.length < 1) {
-    return { error: "Email not yet registered" };
-  }
-  const user = users[0];
-  console.log(!bcrypt.compareSync(password, user.password));
-  if (!bcrypt.compareSync(password, user.password)) {
+  try {
+    await connection.query("START TRANSACTION");
+    const users = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
+    if (users.length < 1) {
+      return { error: "Email not yet registered" };
+    }
+    const user = users[0];
+    if (!bcrypt.compareSync(password, user.password)) {
+      await connection.query("COMMIT");
+      return { error: "Invalid password" };
+    }
+    const accessToken = jwt.sign({
+      provider: user.provider,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      picture: user.picture
+    }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE * 1000 });
+
+    const loginAt = new Date();
+    user.access_token = accessToken;
+    user.login_at = loginAt;
+    user.token_expired = TOKEN_EXPIRE;
+    const queryStr = "UPDATE users SET access_token = ?, token_expired = ?, login_at = ? WHERE id = ?";
+    // eslint-disable-next-line no-unused-vars
+    const updateUser = connection.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, user.id]);
     await connection.query("COMMIT");
-    return { error: "Invalid password" };
+    return user;
+  } catch (err) {
+    console.log(err);
   }
-  const accessToken = jwt.sign({
-    provider: user.provider,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    picture: user.picture
-  }, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE * 1000 });
-
-  const loginAt = new Date();
-  user.access_token = accessToken;
-  user.login_at = loginAt;
-  user.token_expired = TOKEN_EXPIRE;
-  const queryStr = "UPDATE users SET access_token = ?, token_expired = ?, login_at = ? WHERE id = ?";
-  // eslint-disable-next-line no-unused-vars
-  const updateUser = connection.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, user.id]);
-
-  await connection.query("COMMIT");
-  console.log("beforeReturn");
-  return user;
 };
 
 const getUserDetail = async (email) => {
-  const result = await query("SELECT * FROM users WHERE email = ?", [email]);
-  console.log("getUserDetail:", result);
-  return result;
-};
-
-// const chatInfo = async (email, id) => {
-//   const senderId = await query(`SELECT user_id FROM users WHERE email = "${email}"`);
-//   const receiverId = await query(`SELECT u.user_id FROM offered_routes o
-//   INNER JOIN users u ON driver_email = email
-//   WHERE o.route_id = ${id}`);
-//   console.log("senderID", senderId);
-//   console.log("receiverID", receiverId);
-//   const result = { senderId: senderId[0].user_id, receiverId: receiverId[0].user_id };
-//   return result;
-// };
-
-const tokenVerify = async (receiverId) => {
-  const result = await query(`SELECT name FROM users WHERE id = ${receiverId}`);
-  return result[0];
-};
-
-const getNotification = async (id) => {
   try {
-    const result = await query("SELECT * FROM notification WHERE user_id = ? AND unread = 1 ORDER BY time DESC", id);
-    if (result.length < 1) {
-      return { empty: "User has no notification" };
-    }
-    console.log(result);
+    const result = await query("SELECT * FROM users WHERE email = ?", [email]);
     return result;
   } catch (err) {
     console.log(err);
   }
+};
+
+const tokenVerify = async (receiverId) => {
+  const result = await query(`SELECT name FROM users WHERE id = ${receiverId}`);
+  return result[0];
 };
 
 module.exports = {
