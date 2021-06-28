@@ -1,6 +1,6 @@
 # Co-Car
 ### A Carpooling Matching Website
-Based in Taiwan, Co-Car connects drivers with empty seats to co-travellers looking for a ride. It aim to make travel social, money-saving and more efficient. 
+Based in Taiwan, Co-Car connects drivers with empty seats to co-travellers looking for a ride. It aims to make travel social, money-saving and more efficient. 
 
 Website URL: https://www.co-car.site <br>
 Test Account: 
