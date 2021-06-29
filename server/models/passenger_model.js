@@ -333,7 +333,7 @@ const getPassengerHomepage = async () => {
     const timestamp = Math.floor(Date.now() / 1000);
     const routes = await query(`SELECT r.origin, r.destination, FROM_UNIXTIME(r.date) AS date, r.persons, r.id
     FROM requested_routes r LEFT OUTER JOIN tour t ON r.id = passenger_routes_id
-    WHERE r.date > ${timestamp} AND t.id IS NULL ORDER BY date LIMIT 4`);
+    WHERE r.date > ${timestamp} AND t.id IS NULL ORDER BY date LIMIT 6`);
     if (routes.length < 1) {
       return null;
     }
@@ -345,6 +345,9 @@ const getPassengerHomepage = async () => {
     for (const route of routes) {
       route.date = await Util.toDateFormat(route.date);
       route.photo = await Util.getGooglePhoto(route.destination);
+      if (!route.photo) {
+        continue;
+      }
       route.origin = await Util.trimAddress(route.origin);
       route.destination = await Util.trimAddress(route.destination);
     }

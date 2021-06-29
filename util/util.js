@@ -162,12 +162,18 @@ const dbToDateformat = async (dbResult) => {
 };
 
 const getGooglePhoto = async (place) => {
-  place = await trimAddress(place);
-  place = encodeURI(place);
-  const { data } = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=photos&key=${GOOGLE_MAP}`);
-  console.log(data);
-  const photo = data.candidates[0].photos[0].photo_reference;
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo}&key=${GOOGLE_MAP}`;
+  try {
+    place = await trimAddress(place);
+    place = encodeURI(place);
+    const { data } = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=photos&key=${GOOGLE_MAP}`);
+    if (data.candidates[0].length < 1) {
+      return null;
+    }
+    const photo = data.candidates[0].photos[0].photo_reference;
+    return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo}&key=${GOOGLE_MAP}`;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const trimAddress = async (address) => {

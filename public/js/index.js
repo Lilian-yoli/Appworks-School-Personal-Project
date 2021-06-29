@@ -27,8 +27,15 @@ window.onload = function () {
         window.location.href = "./";
       }
       const routes = data.routes;
-
+      let counter = 0;
       for (const route of routes) {
+        if (!route.photo) {
+          continue;
+        }
+        counter++;
+        if (counter > 4) {
+          break;
+        }
         const passengerRoute = document.querySelector(".passenger-route");
         passengerRoute.innerHTML +=
         `<div class="route-detail">
