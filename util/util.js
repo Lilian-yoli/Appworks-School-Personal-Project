@@ -165,6 +165,7 @@ const getGooglePhoto = async (place) => {
   place = await trimAddress(place);
   place = encodeURI(place);
   const { data } = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=photos&key=${GOOGLE_MAP}`);
+  console.log(data);
   const photo = data.candidates[0].photos[0].photo_reference;
   return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo}&key=${GOOGLE_MAP}`;
 };
