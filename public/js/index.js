@@ -5,7 +5,7 @@ window.onload = function () {
   const persons = document.getElementById("persons");
   const next = document.getElementById("btn");
   next.addEventListener("click", () => {
-    const url = new URL("http://localhost:3000/passenger-search-result.html");
+    const url = new URL("http://www.co-car.site/passenger-search-result.html");
 
     const searchParams = new URLSearchParams({
       origin: origin.value,
