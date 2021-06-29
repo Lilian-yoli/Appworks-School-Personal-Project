@@ -20,7 +20,12 @@ window.onload = async () => {
     if (data.error) {
       window.location.href = "./404.html";
     }
-    if (data.firstSidebar && data.firstSidebar.length < 1) {
+    if (data.empty) {
+      const chatbox = document.getElementById("chatbox");
+      return chatbox.append(Object.assign(document.createElement("img"),
+        { id: "chat-img" },
+        { src: "./uploads/images/Chat.png" }));
+    } else if (data.firstSidebar && data.firstSidebar.length < 1) {
       createChatting(null, data.usersInfo, data.usersInfo.now);
     } else if (!data.firstSidebar) {
       createChatting(data.sidebar, data.usersInfo, null);

@@ -328,3 +328,11 @@ h6 {
     overflow: scroll;
     height: 573px;
 }
+
+#receiver-pic {
+    display: none;
+}
+
+#chat-img {
+    margin: 10% 20% 10% 20%;
+}

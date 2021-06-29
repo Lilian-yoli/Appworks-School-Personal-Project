@@ -107,13 +107,6 @@
     position: relative;
   }
 
-  .ropdown-item {
-    align-items: center;
-    width: 100%;
-    margin: 5% 10% 5% 10%;
-    color: #FE646F;
-  }
-
   #username {
     color: #FE646F;
     cursor: pointer;
@@ -121,7 +114,7 @@
 
   #logout {
     cursor: pointer;
-    color:rgb(173, 169, 169);
+    color: #FE646F;
   }
 
   #profile {

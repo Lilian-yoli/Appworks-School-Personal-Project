@@ -13,7 +13,7 @@ const getChatRecord = async (req, res) => {
     }
     const result = await Chat.getChatRecord(receiverId, id, name, room);
     if (!result) {
-      return res.status(500).send({ error: "Internal server error" });
+      return res.status(200).send({ empty: "no chat record" });
     }
     res.status(200).send(result);
   } catch (err) {

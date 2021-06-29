@@ -28,8 +28,9 @@ const chatContentToDB = async (data) => {
 
 const getChatRecord = async (receiverId, id, name, room) => {
   const conn = await mysql.connection();
-  const result = {};
-  const qryStr = `SELECT sender_id, receiver_id, msg, time, room, unread, c.id AS receiverUserId, 
+  try {
+    const result = {};
+    const qryStr = `SELECT sender_id, receiver_id, msg, time, room, unread, c.id AS receiverUserId, 
   c.name AS receiverUserName, c.picture AS receiverUserPicture, senderUserId, senderUserName, senderUserPicture 
    FROM (SELECT * FROM (SELECT receiver_id, sender_id, msg, room, unread, FROM_UNIXTIME(send_at) AS time,
       RANK() OVER (PARTITION BY room ORDER BY send_at DESC) ran FROM chat_msg) a
@@ -39,53 +40,60 @@ const getChatRecord = async (receiverId, id, name, room) => {
         INNER JOIN users d ON receiver_id = d.id
       WHERE sender_id = ${id} OR receiver_id = ${id}) c
       WHERE ran = 1 ORDER BY time DESC;`;
-  const chatInfo = await query(qryStr);
-  result.sidebar = chatInfo;
+    const chatInfo = await query(qryStr);
+    result.sidebar = chatInfo;
 
-  if (chatInfo.length > 0) {
-    if (receiverId) {
-      const updateUnread = await query("UPDATE chat_msg SET unread = 0 WHERE room = ?", [room]);
-      const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, FROM_UNIXTIME(a.send_at) AS time FROM chat_msg a
+    if (chatInfo.length > 0) {
+      if (receiverId) {
+        const updateUnread = await query("UPDATE chat_msg SET unread = 0 WHERE room = ?", [room]);
+        const getTheSidebar = await query(`SELECT a.msg, a.sender_id, a.receiver_id, a.room, FROM_UNIXTIME(a.send_at) AS time FROM chat_msg a
             CROSS JOIN (SELECT SUM(unread) not_read FROM chat_msg) b 
             WHERE a.room = "${room}" ORDER BY time DESC LIMIT 1`);
-      const getTheChat = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time FROM chat_msg
+        const getTheChat = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time FROM chat_msg
     WHERE room = "${room}" ORDER BY time`);
-      result.firstSidebar = getTheSidebar;
-      result.firstChatMsg = getTheChat;
-      await conn.query("COMMIT");
-    } else {
-      if (chatInfo[0].sender_id == id) {
-        receiverId = chatInfo[0].receiver_id;
+        result.firstSidebar = getTheSidebar;
+        result.firstChatMsg = getTheChat;
+        await conn.query("COMMIT");
       } else {
-        receiverId = chatInfo[0].sender_id;
-      }
-      const updateUnread = await query("UPDATE chat_msg SET unread = 0 WHERE room = ?", [chatInfo[0].room]);
-      const lastChatContent = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time, unread
+        if (chatInfo[0].sender_id == id) {
+          receiverId = chatInfo[0].receiver_id;
+        } else {
+          receiverId = chatInfo[0].sender_id;
+        }
+        const updateUnread = await query("UPDATE chat_msg SET unread = 0 WHERE room = ?", [chatInfo[0].room]);
+        const lastChatContent = await query(`SELECT sender_id, receiver_id, msg, FROM_UNIXTIME(send_at) AS time, unread
   FROM chat_msg WHERE room = ? ORDER BY time`, [chatInfo[0].room]);
-      result.chatMsg = lastChatContent;
+        result.chatMsg = lastChatContent;
+      }
+
+      if (!room) {
+        room = chatInfo[0].room;
+      }
     }
 
-    if (!room) {
-      room = chatInfo[0].room;
+    if (!receiverId && chatInfo.length < 1) {
+      return null;
     }
-  }
-  let now = new Date().toLocaleString();
-  now = now.split(" ")[0];
-  now = now.replace("/", "-");
-  now = now.replace("/", "-");
-  const usersInfo = await query(`SELECT name, picture FROM users 
+    let now = new Date().toLocaleString();
+    now = now.split(" ")[0];
+    now = now.replace("/", "-");
+    now = now.replace("/", "-");
+    const usersInfo = await query(`SELECT name, picture FROM users 
   WHERE id = ${id} OR id = ${receiverId} ORDER BY FIELD(id, ${id}, ${receiverId})`);
-  result.usersInfo = {
-    userId1: id,
-    username1: name,
-    userId2: receiverId,
-    username2: usersInfo[1].name,
-    userPicture1: usersInfo[0].picture,
-    userPicture2: usersInfo[1].picture,
-    room: room,
-    now
-  };
-  return result;
+    result.usersInfo = {
+      userId1: id,
+      username1: name,
+      userId2: receiverId,
+      username2: usersInfo[1].name,
+      userPicture1: usersInfo[0].picture,
+      userPicture2: usersInfo[1].picture,
+      room: room,
+      now
+    };
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const startAChat = async (receiverId, id, room) => {
