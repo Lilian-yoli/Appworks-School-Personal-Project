@@ -17,23 +17,23 @@ password: test
 ## Features
 #### Type and select the origin and destination with Google Map aside for confirmation.
 
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/select_location.gif)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/select_location.gif)
 
 #### Best matching drivers/passengers recommendation
 
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/suggest_page.gif)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/suggest_page.gif)
 * The suggestions for driver will optimized by on the way passengers with longer distance.
 * As for passenger the website will recommend a few drivers near to passengers' origin and destination.
 * Warning will show up if drivers try to add passengers more than their available seats.    
 
 #### Real-time notification-sending mechanism
 
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/notification.gif)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/notification.gif)
 * After sending the notification, users will receive it immediately through Socket.IO.
 * Users can choose to accept and refuse the invitation, and the result will notify back to the sender.
 
 #### Real-time chat room
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/chatdemo.gif)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/chatdemo.gif)
 * By implementing Socket.IO, users can send and reveive message in real time.
 * The chat history with last chat record will show up beside the chatbox.  
 
@@ -74,11 +74,11 @@ password: test
 
 ## Architecture
 
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/Final%20Architecture.png)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/Final%20Architecture.png)
 
 ## Database Schema
 
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/database.png)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/database.png)
 
 ## Contact
 Lilian Yang lilian860919@gmail.com
