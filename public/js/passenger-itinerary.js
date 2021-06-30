@@ -21,8 +21,7 @@ fetch("/api/1.0/passenger-itinerary", {
   if (!match.empty) {
     for (const i in match) {
       itinerary.innerHTML +=
-      `<a class="match-itinerary-container" href="./driver-tour-info.html?
-      routeid=${match[0].id}&tour=${match[0].tourId}&passenger=${match[0].id}">
+      `<a class="match-itinerary-container" href="./driver-tour-info.html?routeid=${match[0].id}&tour=${match[0].tourId}&passenger=${match[0].id}">
       <div class="match-itinerary-wrapper">
       <div class="match-itinerary-detail">
           <div class="match-itinerary-date">日期：${match[i].date}</div>

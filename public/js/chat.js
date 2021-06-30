@@ -16,7 +16,6 @@ window.onload = async () => {
   }).then((response) => {
     return response.json();
   }).then((data) => {
-    console.log(data);
     if (data.error) {
       window.location.href = "./404.html";
     }

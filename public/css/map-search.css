@@ -147,3 +147,7 @@
     width: 50%;
     justify-content: center;
 }
+
+main {
+    max-height: 768px;
+}

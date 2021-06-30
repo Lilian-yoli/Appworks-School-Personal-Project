@@ -19,7 +19,6 @@ async function wrapper () {
   });
 
   const data = await response.json();
-  console.log(data);
   if (data.error) {
     swal.fire({
       text: data.error,

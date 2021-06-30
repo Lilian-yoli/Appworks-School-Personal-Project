@@ -29,6 +29,7 @@ const filterRoutesIn20km = async (start, destination, date, seats) => {
   try {
     const waypoints = await getDirection(start, destination);
     const passengerRoutes = await Path.getPassengerRoutesByDate(date);
+
     const filterByOrigins = await matchWaypoints(passengerRoutes, waypoints, "origin_coordinate");
 
     const filterByDestination = await matchWaypoints(filterByOrigins, waypoints, "destination_coordinate");
@@ -52,8 +53,8 @@ const matchWaypoints = async (passengerRoutes, waypoints, latLng) => {
       const locationLatLng = route[latLng];
       for (const waypoint of waypoints) {
         const distance = Util.getDistanceFromLatLonInKm(waypoint.lat, waypoint.lng, locationLatLng.x, locationLatLng.y);
-
-        if (distance <= 20) {
+        const distanceRange = 25;
+        if (distance <= distanceRange) {
           const id = route.id;
           if (!onRoadPassenger[id]) {
             onRoadPassenger[id] = route;

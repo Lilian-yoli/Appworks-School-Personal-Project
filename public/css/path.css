@@ -253,7 +253,7 @@ body {
 }
 
 #homepage, #back {
-    margin: 2% 35% 5% 35%;
+    margin: 2% auto 5% auto;
 }
 
 hr {
@@ -284,4 +284,15 @@ hr {
 
 #the-route {
     margin-bottom: 2%;
+}
+
+#sign-pic {
+    height: 400px;
+    display: flex;
+    width: 100%;
+    margin: 0 auto 0 auto;
+}
+
+main {
+    height: 768px;
 }

@@ -8,6 +8,7 @@ fetch("/api/1.0/driver-itinerary", {
 }).then((response) => {
   return response.json();
 }).then((data) => {
+  console.log(data);
   const match = data.match;
   const unmatch = data.unmatch;
   const itinerary = document.getElementById("match-itinerary");
@@ -34,7 +35,7 @@ fetch("/api/1.0/driver-itinerary", {
   } else {
     itinerary.innerHTML =
     `<div width="100%" style="margin-right: auto; margin-left: auto;">
-    <h4 style="text-align:center">${unmatch.empty}</h4>
+    <h4 style="text-align:center">${match.empty}</h4>
     <img src="../uploads/images/no-path-suggestion.svg" width="480"></div>`;
   }
   const unmatchItinerary = document.getElementById("unmatch-itinerary");

@@ -1,6 +1,5 @@
 body {
     display: block;
-    overflow: auto;
     position: relative;
     height: auto;
     min-height: 100% !important;
@@ -10,10 +9,9 @@ body {
     width: 30%;
     text-align: center;
     flex: 1;
-    height:1000px;
+    max-height: 768px;
     overflow: scroll;
     margin-bottom: 115px;
-    padding-bottom: 115px;
 }
 
 #my-route, .companion-route {
@@ -276,4 +274,8 @@ hr {
 
 .confirm {
     margin-left: auto;
+}
+
+main {
+    height: 768px;
 }
