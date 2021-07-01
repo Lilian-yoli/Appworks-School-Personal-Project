@@ -8,7 +8,6 @@ fetch("/api/1.0/driver-itinerary", {
 }).then((response) => {
   return response.json();
 }).then((data) => {
-  console.log(data);
   const match = data.match;
   const unmatch = data.unmatch;
   const itinerary = document.getElementById("match-itinerary");
