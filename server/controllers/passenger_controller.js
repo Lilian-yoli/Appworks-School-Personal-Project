@@ -94,7 +94,7 @@ const getTourInfo = async (req, res) => {
     if (tourInfo.error || !tourInfo) {
       return res.status(500).send(tourInfo);
     }
-    console.log(tourInfo);
+    console.log("getTourInfo", tourInfo);
     res.status(200).send(tourInfo);
   } catch (err) {
     console.log(err);

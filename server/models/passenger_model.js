@@ -223,17 +223,18 @@ const getTourInfo = async (tourId, userId) => {
   FROM tour t INNER JOIN offered_routes o ON t.offered_routes_id = o.id 
   INNER JOIN users u ON o.user_id = u.id WHERE t.id = ${tourId}`);
     driverInfo[0].date = await Util.toDateFormat(driverInfo[0].date);
-
+    console.log("driverInfo", driverInfo);
     const passengerInfo = await query(`SELECT r.id AS routeId, r.origin, r.destination, r.persons, 
   FROM_UNIXTIME(r.date) AS date, u.id AS userId, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.id
   INNER JOIN users u ON r.user_id = u.id WHERE t.id = ${tourId} AND r.user_id = ${userId}`);
     passengerInfo[0].date = await Util.toDateFormat(passengerInfo[0].date);
-
+    console.log("passengerInfo", passengerInfo);
     const result = {};
     result.driverInfo = driverInfo[0];
     result.passengerInfo = passengerInfo;
     result.tourInfo = { tourId: tourId, matchStatus: driverInfo[0].match_status, sendBy: driverInfo[0].send_by };
+    console.log("tourInfo", result);
     return result;
   } catch (err) {
     console.log(err);

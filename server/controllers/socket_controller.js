@@ -59,7 +59,7 @@ const socketCon = (io) => {
 
     socket.on("notifyPassenger", async (data) => {
       try {
-        console.log(data);
+        console.log("notifyPassenger", data);
         const { receiverId } = data;
         for (let i = 0; i < receiverId.length; i++) {
           data.receiverId = receiverId[i];

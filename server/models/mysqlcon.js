@@ -14,7 +14,7 @@ const mysqlConfig = {
     database: DB_DATABASE
   },
   development: {
-    connectionLimit: 20,
+    connectionLimit: 30,
     waitForConnections: true,
     host: DB_HOST,
     user: DB_USER,
