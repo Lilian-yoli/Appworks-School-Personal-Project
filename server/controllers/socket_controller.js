@@ -80,6 +80,7 @@ const socketCon = (io) => {
 
     socket.on("updateNotification", async (data) => {
       try {
+        console.log("socket");
         const updateNotification = await Chat.updateNotification(data.id);
         if (updateNotification.success) {
           const UserArr = users[data.userId];

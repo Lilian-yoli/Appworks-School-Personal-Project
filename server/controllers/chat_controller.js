@@ -33,7 +33,19 @@ const getNotification = async (req, res) => {
   }
 };
 
+const updateNotification = async (req, res) => {
+  const { id } = req.user;
+  const { url } = req.body;
+  console.log("url", url, id);
+  const result = await Chat.updateNotification(id, url);
+  if (result.length < 1) {
+    res.status(500).send({ error: "internal server error" });
+  }
+  res.status(200).send({ status: "OK" });
+};
+
 module.exports = {
   getChatRecord,
-  getNotification
+  getNotification,
+  updateNotification
 };

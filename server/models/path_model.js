@@ -229,7 +229,7 @@ const getTourInfo = async (tourId) => {
     driverInfo[0].date = await toDateFormat(driverInfo[0].date);
 
     const passengerInfo = await query(`SELECT r.id AS routeId, r.origin, r.destination, r.persons, 
-  FROM_UNIXTIME(r.date) AS date, u.id AS userId, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate FROM tour t
+  FROM_UNIXTIME(r.date) AS date, u.id AS userId, u.name, u.picture, t.match_status, r.origin_coordinate, r.destination_coordinate, t.send_by FROM tour t
   INNER JOIN requested_routes r ON t.passenger_routes_id = r.id
   INNER JOIN users u ON r.user_id = u.id 
   INNER JOIN offered_routes o ON t.offered_routes_id = o.id WHERE o.id = ${driverInfo[0].routeId}`);

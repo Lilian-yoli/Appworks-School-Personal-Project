@@ -52,7 +52,7 @@ async function header () {
       })
     });
     const data = await response.json();
-
+    console.log(data);
     if (data.length > 0) {
       const bell = document.getElementById("bell");
       bell.src = "./uploads/images/notificationOn.png";
@@ -68,15 +68,23 @@ async function header () {
       for (const i in data) {
         document.addEventListener("click", (e) => {
           if (e.target.id == `dropdown${i}`) {
-            socket.emit("updateNotification", { id: data[i].id, targetId: i, userId: data[i].user_id });
+            fetch("/api/1.0/update-notification", {
+              method: "POST",
+              body: JSON.stringify({ url: data[i].url }),
+              headers: new Headers({
+                Authorization: "Bearer " + verifyToken,
+                "Content-Type": "application/json"
+              })
+            }).then((res) => {
+              res.json();
+            }).then((data) => {
+              console.log(data);
+            });
           }
         });
       }
     }
   }
-  socket.on("removeNotification", data => {
-    document.getElementById(`dropdown${data.targetId}`).innerHTML = "";
-  });
 
   socket.on("passengerReceive", data => {
     const dropdownMenu = document.querySelector(".dropdown-menu");
@@ -102,6 +110,8 @@ async function header () {
             })
           }).then((res) => {
             res.json();
+          }).then((data) => {
+            console.log(data);
           });
         };
       }

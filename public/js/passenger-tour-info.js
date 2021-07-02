@@ -10,6 +10,15 @@ async function wrapper () {
   });
   const data = await res.json();
   console.log(data);
+  if (data.error) {
+    swal({
+      text: data.error + "redirect to homepage",
+      icon: "success",
+      time: 1000,
+      button: false
+    });
+    window.location.href = "./";
+  }
   const { driverInfo, passengerInfo } = data;
   document.querySelectorAll("h2")[0].innerHTML = "你的行程";
   document.getElementById("my-route").innerHTML =

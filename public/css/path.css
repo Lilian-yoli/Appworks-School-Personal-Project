@@ -214,6 +214,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    margin-bottom: 115px;
 }
 
 .button, #homepage {

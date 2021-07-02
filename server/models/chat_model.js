@@ -161,11 +161,12 @@ const getNotification = async (id) => {
   }
 };
 
-const updateNotification = async (id) => {
-  const result = await query("UPDATE notification SET unread = 0 WHERE id = ?", [id]);
+const updateNotification = async (id, url) => {
+  const result = await query("UPDATE notification SET unread = 0 WHERE user_id = ? AND url = ?", [id, url]);
   if (result < 1) {
     return { error: "Internal server error" };
   }
+  console.log(result);
   return { success: "success" };
 };
 

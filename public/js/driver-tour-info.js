@@ -19,6 +19,7 @@ async function wrapper () {
     });
     window.location.href = "./";
   }
+  console.log(data);
   const { driverInfo, passengerInfo } = data;
   document.querySelectorAll("h2")[0].innerHTML = "你的行程";
   document.getElementById("my-route").innerHTML =
@@ -39,8 +40,8 @@ async function wrapper () {
   </div>`;
   const companionRoute = document.getElementById("companion-route");
   for (const i in passengerInfo) {
-    if (passengerInfo[0].match_status == 0) {
-      if (data.tourInfo.sendBy == data.userId) {
+    if (passengerInfo[i].match_status == 0) {
+      if (passengerInfo[i].send_by == data.userId) {
         companionRoute.innerHTML +=
         html(passengerInfo, i, "grayspot");
       } else {

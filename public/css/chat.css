@@ -340,3 +340,7 @@ h6 {
 main {
     height: 768px;
 }
+
+#chatting {
+    width: 100%;
+}

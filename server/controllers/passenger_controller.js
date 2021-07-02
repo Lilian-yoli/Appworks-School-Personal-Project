@@ -87,12 +87,14 @@ const setPassengerTour = async (req, res) => {
 
 const getTourInfo = async (req, res) => {
   try {
+    console.log(req.query);
     const tourId = req.query.tour;
     const tourInfo = await Passenger.getTourInfo(tourId, req.user.id);
     tourInfo.userId = req.user.id;
     if (tourInfo.error || !tourInfo) {
       return res.status(500).send(tourInfo);
     }
+    console.log(tourInfo);
     res.status(200).send(tourInfo);
   } catch (err) {
     console.log(err);

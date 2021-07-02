@@ -138,6 +138,7 @@ const getTourInfo = async (req, res) => {
       return res.status(500).send({ error: "Internal server error" });
     }
     result.userId = req.user.id;
+    console.log(result);
     res.status(200).send(result);
   } catch (err) {
     console.log(err);
