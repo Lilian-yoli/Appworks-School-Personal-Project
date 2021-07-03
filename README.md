@@ -74,7 +74,7 @@ password: test
 
 ## Architecture
 
-![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/Final%20Architecture.png)
+![image](https://github.com/Lilian-yoli/Co-Car/blob/main/others/refine%20Architecture.png)
 
 ## Database Schema
 
