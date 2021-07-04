@@ -52,7 +52,6 @@ async function header () {
       })
     });
     const data = await response.json();
-    console.log(data);
     if (data.length > 0) {
       const bell = document.getElementById("bell");
       bell.src = "./uploads/images/notificationOn.png";

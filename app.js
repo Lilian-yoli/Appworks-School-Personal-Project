@@ -28,7 +28,7 @@ app.use("/api/" + API_VERSION,
 );
 
 app.get("/delete", async (req, res) => {
-  for (let i = 3595; i < 3626; i++) {
+  for (let i = 3688; i < 3725; i++) {
     const deletee = await query(`DELETE FROM routes_waypoints WHERE id = ${i};`);
     console.log(deletee);
   }

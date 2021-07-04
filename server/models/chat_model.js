@@ -121,20 +121,25 @@ const startAChat = async (receiverId, id, room) => {
 };
 
 const notifyContentToDB = async (receiverId, data, url) => {
-  const now = Math.floor(Date.now() / 1000);
-  const notificationInfo = {
-    user_id: receiverId,
-    content: data.content,
-    type: data.type,
-    time: now,
-    unread: 1,
-    url: url
-  };
   const connection = await mysql.connection();
-  await connection.query("START TRANSACTION");
-  const result = await query("INSERT INTO notification SET ?", [notificationInfo]);
-  await connection.query("COMMIT");
-  return receiverId;
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const notificationInfo = {
+      user_id: receiverId,
+      content: data.content,
+      type: data.type,
+      time: now,
+      unread: 1,
+      url: url
+    };
+    await connection.query("START TRANSACTION");
+    const result = await query("INSERT INTO notification SET ?", [notificationInfo]);
+    await connection.query("COMMIT");
+    return receiverId;
+  } catch (err) {
+    console.log(err);
+    await connection.query("ROLLBACK");
+  }
 };
 
 const allNotifyContent = async (receiverId) => {

@@ -125,6 +125,9 @@ const selectDriverRoute = async (date, persons) => {
 };
 
 const setTourInfo = async (data, driverRouteId) => {
+  if (driverRouteId == 0) {
+    return;
+  }
   const responseTour = await fetch("/api/1.0/driver-tour", {
     method: "POST",
     body: JSON.stringify({
