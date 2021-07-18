@@ -153,6 +153,7 @@ const confirmTour = async (req, res, next) => {
 
 const getPassengerHomepage = async (req, res) => {
   try {
+    console.log(123);
     const routes = await Passenger.getPassengerHomepage();
     res.status(200).send(routes);
   } catch (error) {

@@ -17,6 +17,7 @@ const set = promisify(redisClient.set).bind(redisClient);
 const del = promisify(redisClient.del).bind(redisClient);
 
 const getHomepageRoutes = async (key, routes) => {
+  console.log(routes);
   const rawRoutesFromRedis = await get(key);
   const routesFromRedis = JSON.parse(rawRoutesFromRedis);
   for (const i in routesFromRedis) {
@@ -24,6 +25,7 @@ const getHomepageRoutes = async (key, routes) => {
       return null;
     }
   }
+  console.log(routesFromRedis);
   return routesFromRedis;
 };
 

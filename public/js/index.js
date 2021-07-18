@@ -26,6 +26,7 @@ window.onload = function () {
       if (data.error) {
         window.location.href = "./";
       }
+      console.log(data);
       const routes = data.routes;
       let counter = 0;
       for (const route of routes) {
@@ -65,6 +66,7 @@ window.onload = function () {
       if (data.error) {
         window.location.href = "./";
       }
+      console.log(data);
       const { routes } = data;
       for (const route of routes) {
         const passengerRoute = document.querySelector(".driver-route");
