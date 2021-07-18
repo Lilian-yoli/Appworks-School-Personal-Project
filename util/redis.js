@@ -20,7 +20,7 @@ const getHomepageRoutes = async (key, routes) => {
   console.log("ROUTE FROM DB", routes);
   const rawRoutesFromRedis = await get(key);
   const routesFromRedis = JSON.parse(rawRoutesFromRedis);
-  for (const i in routesFromRedis) {
+  for (const i in routes) {
     console.log("******", (routesFromRedis[i].id !== routes[i].id));
     if (routesFromRedis[i].id !== routes[i].id) {
       return null;
