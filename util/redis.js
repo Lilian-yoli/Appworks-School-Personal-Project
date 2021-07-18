@@ -17,15 +17,16 @@ const set = promisify(redisClient.set).bind(redisClient);
 const del = promisify(redisClient.del).bind(redisClient);
 
 const getHomepageRoutes = async (key, routes) => {
-  console.log(routes);
+  console.log("ROUTE FROM DB", routes);
   const rawRoutesFromRedis = await get(key);
   const routesFromRedis = JSON.parse(rawRoutesFromRedis);
   for (const i in routesFromRedis) {
+    console.log("******", (routesFromRedis[i].id !== routes[i].id));
     if (routesFromRedis[i].id !== routes[i].id) {
       return null;
     }
   }
-  console.log(routesFromRedis);
+  console.log("routesFromRedis", routesFromRedis);
   return routesFromRedis;
 };
 
