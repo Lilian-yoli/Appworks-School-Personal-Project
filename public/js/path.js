@@ -15,6 +15,7 @@ async function wrapper () {
     })
   });
   const data = await response.json();
+  console.log(data);
   if (data.error) {
     swal({
       text: "data.error",
@@ -44,7 +45,7 @@ async function wrapper () {
       </div>
   </div>`;
 
-  if (passenger.length < 1) {
+  if (!passenger) {
     const pathSuggestion = document.getElementById("path-suggestion");
     pathSuggestion.append(Object.assign(document.createElement("h2"),
       { id: "sign" },

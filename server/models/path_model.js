@@ -236,8 +236,8 @@ const getAllWayptsToRedis = async (date, routeId) => {
     setHomepageRoutes("wayptsLocationsName", wayptsLocationsName, 7200);
   }
   console.log("waypointsSet", waypointsSet);
-  console.log("waypoints IF", (waypointsSet != {}));
-  if (waypointsSet != {}) {
+  console.log("waypoints IF", (JSON.stringify(waypointsSet) != "{}"));
+  if (JSON.stringify(waypointsSet) != "{}") {
     await removeSet("driverWaypoints");
     const driverWaypoints = geo.addSet("driverWaypoints");
     const redisSet = await addLocations(driverWaypoints, waypointsSet);

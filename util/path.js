@@ -55,6 +55,9 @@ const filterRoutesIn20km = async (start, destination, timestamp, seats) => {
     }
     console.log("matchedHashTable", matchedHashTable);
     console.log("matchedRoutesId", matchedRoutesId);
+    if (matchedRoutesId.length < 1) {
+      return null;
+    }
     const passengerInfo = await Path.getPassengerRoutes(timestamp, matchedRoutesId);
     // const waypoints = await getDirection(start, destination);
     // const passengerRoutes = await Path.getPassengerRoutesByDate(date);
