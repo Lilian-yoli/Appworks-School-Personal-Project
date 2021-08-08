@@ -152,6 +152,7 @@ const getTourInfo = async (req, res) => {
 const selectDriverRoute = async (req, res) => {
   try {
     const { date, persons } = req.body;
+    console.log(req.user.id);
     const driverRoute = await Path.selectDriverRoute(date, persons, req.user.id);
     if (driverRoute.error) {
       return res.status(400).send(driverRoute);

@@ -309,7 +309,7 @@ const getTourInfo = async (tourId) => {
 
 const selectDriverRoute = async (date, persons, id) => {
   try {
-    const driverRoute = await query(`SELECT origin, destination, time, id FROM offered_routes
+    const driverRoute = await query(`SELECT origin, destination, time, id FROM offered_routes2
   WHERE date = UNIX_TIMESTAMP("${date}") AND user_id = ? AND seats_left >= ${persons}`, [id]);
     if (driverRoute.length < 1) {
       return { error: "Route is not matched." };

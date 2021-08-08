@@ -65,6 +65,12 @@ const toTimestamp = async (date) => {
   return datum.getTime() / 1000;
 };
 
+const toTimestamp2 = async (date) => {
+  const dateArr = date.split("/");
+  const datum = new Date(Date.UTC(dateArr[0], dateArr[1] - 1, dateArr[2]));
+  return datum.getTime() / 1000;
+};
+
 const transferToLatLng = async (location) => {
   const place = encodeURI(location);
   const { data } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${place}&key=${GOOGLE_MAP}`);
@@ -249,5 +255,6 @@ module.exports = {
   getGooglePhoto,
   checkLogin,
   verifyreqQuery,
-  isPunctuation
+  isPunctuation,
+  toTimestamp2
 };

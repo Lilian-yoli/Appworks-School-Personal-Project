@@ -167,7 +167,9 @@ const saveSearchPassenger = async (driverRouteId, persons, date, userId) => {
     //   UNIX_TIMESTAMP("${date}"), Point("${driverRoute[0].origin_coordinate.x}", "${driverRoute[0].origin_coordinate.y}"),
     // Point("${driverRoute[0].destination_coordinate.x}", "${driverRoute[0].destination_coordinate.y}"),
     // "search", ${userId}, "${now}", "${now}", ${distance}, 0)`;
-    const timestamp = await Util.toTimestamp(date);
+    console.log("date", date);
+    const timestamp = await Util.toTimestamp2(date);
+    console.log("timestamp", timestamp);
     const routeToDB = {
       origin: driverRoute[0].origin,
       destination: driverRoute[0].destination,
@@ -505,7 +507,9 @@ const requestRouteToRedis = async (id, date, originLatitude, originLongitude, de
   console.log("destinationMatchedRoutes", matchRoutesResult);
   const routeId = [];
   for (const route of matchRoutesResult) {
-    routeId.push(route.id);
+    if (route.totalDistance) {
+      routeId.push(route.id);
+    }
   }
   let field = "(o.id";
   routeId.map((id) => { field += `, ${id}`; });

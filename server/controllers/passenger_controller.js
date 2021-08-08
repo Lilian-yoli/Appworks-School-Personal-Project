@@ -173,6 +173,7 @@ const getPassengerItineraryDetail = async (req, res) => {
   try {
     const { user } = req;
     const passengerRouteId = req.query.routeid;
+    console.log(user, passengerRouteId);
     const passengerItineraryDetail = await Passenger.getPassengerItineraryDetail(passengerRouteId, user);
     if (passengerItineraryDetail.error) {
       return res.status(500).send(passengerItineraryDetail);
