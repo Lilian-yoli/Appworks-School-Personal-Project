@@ -12,6 +12,7 @@ async function wrapper () {
     })
   });
   const data = await response.json();
+
   const passenger = data.passengerInfo;
   const driver = data.driverInfo;
   const waypts = [];
@@ -54,18 +55,18 @@ async function wrapper () {
         <div class="suggestion-upper">
             <img class="suggestion-img-img" src="./uploads/images/route.png">
             <div class="suggestion-location">
-                <div class="suggestion-origin">${driver[i][1].detail.origin}</div>
-                <div class="suggestion-destination">${driver[i][1].detail.destination}</div>
+                <div class="suggestion-origin">${driver[i].origin}</div>
+                <div class="suggestion-destination">${driver[i].destination}</div>
             </div>
             <div class="suggestion-option">
                 <img class="suggestion-add" id=${i} src="./uploads/images/graycheck.png">
             </div>     
         </div>
         <div class="under">
-            <img class="profile" src="${driver[i][1].detail.picture}">
-            <div class="name">${driver[i][1].detail.name}</div>
-            <div class="persons">${driver[i][1].detail.seats_left}人</div>
-            <div class="time">${driver[i][1].detail.time}</div>
+            <img class="profile" src="${driver[i].picture}">
+            <div class="name">${driver[i].name}</div>
+            <div class="persons">${driver[i].seats_left}人</div>
+            <div class="time">${driver[i].time}</div>
             <div class="btn-wrap"><button class="contact" id="${i}">聯繫車主</button></div>
         </div>                        
     </div>`;
@@ -77,15 +78,15 @@ async function wrapper () {
     title.textContent = "推薦車主";
     pathSuggestion.insertBefore(title, pathSuggestion.firstChild);
 
-    const driverOrigin = driver[0][1].detail.origin;
-    const driverDestination = driver[0][1].detail.destination;
+    const driverOrigin = driver[0].origin;
+    const driverDestination = driver[0].destination;
 
     waypts.push({
-      location: { lat: passenger.origin_coordinate.x, lng: passenger.origin_coordinate.y },
+      location: { lat: passenger.origin_latitude, lng: passenger.origin_longitude },
       stopover: true
     });
     waypts.push({
-      location: { lat: passenger.destination_coordinate.x, lng: passenger.destination_coordinate.y },
+      location: { lat: passenger.destination_latitude, lng: passenger.destination_longitude },
       stopover: true
     });
 
@@ -151,7 +152,7 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
       if (status == google.maps.DirectionsStatus.OK) {
         directionsRenderer.setDirections(response);
 
-        const wayptsOrigin = new google.maps.LatLng({ lat: driver.originCoordinate.x, lng: driver.originCoordinate.y });
+        const wayptsOrigin = new google.maps.LatLng({ lat: driver.origin_latitude, lng: driver.origin_longitude });
         let marker = new google.maps.Marker({
           map: map,
           title: "title",
@@ -159,7 +160,7 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
         });
         marker.setPosition(wayptsOrigin);
 
-        const wayptsDestination = new google.maps.LatLng({ lat: driver.destinationCoordinate.x, lng: driver.destinationCoordinate.y });
+        const wayptsDestination = new google.maps.LatLng({ lat: driver.destination_latitude, lng: driver.destination_longitude });
         marker = new google.maps.Marker({
           map: map,
           title: "title",
@@ -181,14 +182,14 @@ function initMap (waypts, driverOrigin, driverDestination, isDirection, driver) 
         });
         marker.setPosition(wayptsOrigin);
         const index = localStorage.getItem("index");
-        const origin = { lat: driver[index][1].detail.origin_coordinate.x, lng: driver[index][1].detail.origin_coordinate.y };
+        const origin = { lat: driver[index].origin_latitude, lng: driver[index].origin_longitude };
         marker = new google.maps.Marker({
           map: map,
           title: "title",
           position: new google.maps.LatLng(origin)
         });
 
-        const destination = { lat: driver[index][1].detail.destination_coordinate.x, lng: driver[index][1].detail.destination_coordinate.y };
+        const destination = { lat: driver[index].destination_latitude, lng: driver[index].destination_longitude };
         marker = new google.maps.Marker({
           map: map,
           title: "title",
@@ -218,8 +219,8 @@ function chooseWypts (driver, waypts) {
         const lastAdd = document.getElementsByClassName("suggestion-add")[index];
         lastAdd.src = "https://www.co-car.site/uploads/images/graycheck.png";
         add.src = "https://www.co-car.site/uploads/images/check.png";
-        const driverOrigin = driver[num][1].detail.origin;
-        const driverDestination = driver[num][1].detail.destination;
+        const driverOrigin = driver[num].origin;
+        const driverDestination = driver[num].destination;
         localStorage.setItem("index", num);
         initMap(waypts, driverOrigin, driverDestination, true, driver);
       }
@@ -239,7 +240,7 @@ const clickEvent = async (driver, passenger) => {
       const res = await fetch("/api/1.0/verify", {
         method: "POST",
         body: JSON.stringify({
-          receiverId: driver[index][1].detail.user_id
+          receiverId: driver[index].user_id
         }),
         headers: new Headers({
           Authorization: "Bearer " + verifyToken,
@@ -258,7 +259,7 @@ const clickEvent = async (driver, passenger) => {
     const response = await fetch("/api/1.0/passenger-tour", {
       method: "POST",
       body: JSON.stringify({
-        driverRouteId: driver[index][1].detail.offered_routes_id,
+        driverRouteId: driver[index].id,
         persons: passenger.persons,
         date: passenger.date,
         passengerRouteId: passenger.routeId
@@ -277,9 +278,9 @@ const clickEvent = async (driver, passenger) => {
     }
 
     const routeInfo = {
-      receiverId: [driver[index][1].detail.user_id],
+      receiverId: [driver[index].user_id],
       passengerRouteId: null,
-      url: `./driver-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}`,
+      url: `./driver-tour-info.html?routeid=${driver[index].id}&tour=${idInfo.tourId}`,
       content: `乘客${idInfo.username}已接受你的行程，立即前往查看`,
       type: "match",
       icon: "./uploads/images/match.svg",
@@ -290,7 +291,7 @@ const clickEvent = async (driver, passenger) => {
       text: "通知已傳送",
       icon: "success"
     });
-    document.location.href = `./passenger-tour-info.html?routeid=${driver[index][1].detail.offered_routes_id}&tour=${idInfo.tourId}&passenger=${passenger.routeId}`;
+    document.location.href = `./passenger-tour-info.html?routeid=${driver[index].id}&tour=${idInfo.tourId}&passenger=${passenger.routeId}`;
   });
 };
 

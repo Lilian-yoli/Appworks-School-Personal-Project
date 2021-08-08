@@ -137,8 +137,8 @@ function contact (passengerId, driverId) {
 function initMap (driverInfo, passengerInfo) {
   const originCoordinate = driverInfo.origin;
   const destinationCoordinate = driverInfo.destination;
-  const waypoints = [{ location: { lat: passengerInfo[0].origin_coordinate.x, lng: passengerInfo[0].origin_coordinate.y }, stopover: true },
-    { location: { lat: passengerInfo[0].destination_coordinate.x, lng: passengerInfo[0].destination_coordinate.y }, stopover: true }];
+  const waypoints = [{ location: { lat: passengerInfo[0].origin_latitude, lng: passengerInfo[0].origin_longitude }, stopover: true },
+    { location: { lat: passengerInfo[0].destination_latitude, lng: passengerInfo[0].destination_longitude }, stopover: true }];
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true });
   const map = new google.maps.Map(document.getElementById("map"), {
@@ -179,8 +179,8 @@ function initMap (driverInfo, passengerInfo) {
       });
       marker.setPosition(wayptsDestination);
 
-      const origin = { lat: driverInfo.origin_coordinate.x, lng: driverInfo.origin_coordinate.y };
-      const destination = { lat: driverInfo.destination_coordinate.x, lng: driverInfo.destination_coordinate.y };
+      const origin = { lat: driverInfo.origin_latitude, lng: driverInfo.origin_longitude };
+      const destination = { lat: driverInfo.destination_latitude, lng: driverInfo.destination_longitude };
 
       marker = new google.maps.Marker({
         map: map,

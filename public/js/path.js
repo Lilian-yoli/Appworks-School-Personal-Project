@@ -65,8 +65,8 @@ async function wrapper () {
   } else {
     let personCounter = 0;
     for (let i = 0; i < passenger.length; i++) {
-      const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
-      const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
+      const originObj = { lat: passenger[i].origin_latitude, lng: passenger[i].origin_longitude };
+      const destinationObj = { lat: passenger[i].destination_latitude, lng: passenger[i].destination_longitude };
       dict[i * 2] = originObj;
       dict[i * 2 + 1] = destinationObj;
 
@@ -93,8 +93,8 @@ async function wrapper () {
       personCounter += passenger[i].persons;
       // if seats enough, add waypts
       if (personCounter <= driver.seats_left) {
-        const originObj = { lat: passenger[i].origin_coordinate.x, lng: passenger[i].origin_coordinate.y };
-        const destinationObj = { lat: passenger[i].destination_coordinate.x, lng: passenger[i].destination_coordinate.y };
+        const originObj = { lat: passenger[i].origin_latitude, lng: passenger[i].origin_longitude };
+        const destinationObj = { lat: passenger[i].destination_latitude, lng: passenger[i].destination_longitude };
         pickedWaypts.push(originObj);
         pickedWaypts.push(destinationObj);
         index[i] = i;

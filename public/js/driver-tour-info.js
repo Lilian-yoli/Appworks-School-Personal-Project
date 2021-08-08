@@ -146,8 +146,8 @@ function initMap (driverInfo, passengerInfo) {
   const destinationCoordinate = driverInfo.destination;
   const waypoints = [];
   for (const i in passengerInfo) {
-    waypoints.push({ location: { lat: passengerInfo[i].origin_coordinate.x, lng: passengerInfo[i].origin_coordinate.y }, stopover: true },
-      { location: { lat: passengerInfo[i].destination_coordinate.x, lng: passengerInfo[i].destination_coordinate.y }, stopover: true });
+    waypoints.push({ location: { lat: passengerInfo[i].origin_latitude, lng: passengerInfo[i].origin_longitude }, stopover: true },
+      { location: { lat: passengerInfo[i].destination_latitude, lng: passengerInfo[i].destination_longitude }, stopover: true });
   }
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: true });
@@ -175,7 +175,7 @@ function initMap (driverInfo, passengerInfo) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(response);
 
-      const origin = { lat: driverInfo.origin_coordinate.x, lng: driverInfo.origin_coordinate.y };
+      const origin = { lat: driverInfo.origin_latitude, lng: driverInfo.origin_longitude };
       let marker = new google.maps.Marker({
         map: map,
         title: "title",
@@ -183,7 +183,7 @@ function initMap (driverInfo, passengerInfo) {
         position: new google.maps.LatLng(origin)
       });
 
-      const destination = { lat: driverInfo.destination_coordinate.x, lng: driverInfo.destination_coordinate.y };
+      const destination = { lat: driverInfo.destination_latitude, lng: driverInfo.destination_longitude };
       marker = new google.maps.Marker({
         map: map,
         title: "title",

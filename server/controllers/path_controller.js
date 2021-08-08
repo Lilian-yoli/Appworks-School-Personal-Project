@@ -6,12 +6,14 @@ const Util = require("../../util/path");
 
 const offerSeatsInfo = async (req, res) => {
   try {
+    console.time(offerSeatsInfo);
     const { origin, destination, persons, date, time } = req.body;
     if (!origin || !destination || !persons || !date || !time) {
       res.status(400).send({ error: "Request Error: origin, destination, persons, time and date are required." });
       return;
     }
-    const [routeInfo] = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id);
+    const routeInfo = await Path.insertRouteInfo(origin, destination, persons, date, time, req.user.id);
+    console.log(routeInfo);
     if (routeInfo.error) {
       res.status(400).send({ error: routeInfo.error });
       return;
@@ -19,10 +21,12 @@ const offerSeatsInfo = async (req, res) => {
       res.status(500).send({ error: "Internal server error." });
       return;
     }
-    const waypoints = await Util.getDirection(routeInfo.origin_coordinate.x + "," + routeInfo.origin_coordinate.y,
-      routeInfo.destination_coordinate.x + "," + routeInfo.destination_coordinate.y);
-    const wayptsCity = await Util.getWayptsCity(waypoints);
-    const saveWaypts = await Path.saveWaypts(wayptsCity, routeInfo.id);
+    const waypoints = await Util.getDirection(routeInfo.origin_latitude + "," + routeInfo.origin_longitude,
+      routeInfo.destination_latitude + "," + routeInfo.destination_longitude);
+    // const wayptsCity = await Util.getWayptsCity(waypoints);
+    console.log("routeInfo[0].date", routeInfo.date);
+    const saveWaypts = await Path.saveWaypts(routeInfo.date, waypoints, routeInfo.id);
+    console.timeEnd(offerSeatsInfo);
     return res.status(200).send(routeInfo);
   } catch (err) {
     console.log(err);
@@ -38,12 +42,12 @@ const routeSuggestion = async (req, res) => {
       res.status(400).send(getDriverDetail.error);
     }
 
-    const { date, origin, destination } = getDriverDetail;
+    const { date, timestamp, origin, destination } = getDriverDetail;
     const availableSeats = getDriverDetail.seats_left;
-    const originLatLon = `${getDriverDetail.origin_coordinate.x}, ${getDriverDetail.origin_coordinate.y}`;
-    const destinationLatLon = `${getDriverDetail.destination_coordinate.x}, ${getDriverDetail.destination_coordinate.y}`;
+    const originLatLon = `${getDriverDetail.origin_latitude}, ${getDriverDetail.origin_longitude}`;
+    const destinationLatLon = `${getDriverDetail.destination_latitude}, ${getDriverDetail.destination_longitude}`;
 
-    const filterRoutesIn20km = await Util.filterRoutesIn20km(originLatLon, destinationLatLon, date, availableSeats);
+    const filterRoutesIn20km = await Util.filterRoutesIn20km(originLatLon, destinationLatLon, timestamp, availableSeats);
     const result = { passengerInfo: filterRoutesIn20km };
     result.driverInfo = {
       routeId,

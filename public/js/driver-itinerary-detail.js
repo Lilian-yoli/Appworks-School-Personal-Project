@@ -217,7 +217,7 @@ function initMap (data) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsRenderer.setDirections(response);
 
-      const origin = { lat: data.driverInfo[0].origin_coordinate.x, lng: data.driverInfo[0].origin_coordinate.y };
+      const origin = { lat: data.driverInfo[0].origin_latitude, lng: data.driverInfo[0].origin_longitude };
       let marker = new google.maps.Marker({
         map: map,
         title: "title",
@@ -225,7 +225,7 @@ function initMap (data) {
         position: new google.maps.LatLng(origin)
       });
 
-      const destination = { lat: data.driverInfo[0].destination_coordinate.x, lng: data.driverInfo[0].destination_coordinate.y };
+      const destination = { lat: data.driverInfo[0].destination_latitude, lng: data.driverInfo[0].destination_longitude };
       marker = new google.maps.Marker({
         map: map,
         title: "title",

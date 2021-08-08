@@ -56,7 +56,7 @@ next.onclick = function click () {
       if (!response.error) {
         localStorage.removeItem("origin");
         localStorage.removeItem("destination");
-        document.location.href = `./passenger-route-suggestion.html?routeid=${response.route[0].id}`;
+        document.location.href = `./passenger-route-suggestion.html?routeid=${response.id}`;
       } else {
         swal({
           text: response.error,

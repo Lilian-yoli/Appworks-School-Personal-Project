@@ -108,25 +108,32 @@ const suggestPassengerRoute = async (req, res) => {
     const routeId = req.query.routeid;
     const { id } = req.user;
     const getPassengerDetail = await Passenger.getPassengerDetail(routeId);
-
-    const { date, origin, destination, persons } = getPassengerDetail;
+    console.log("getPassengerDetail", getPassengerDetail);
+    const { timestamp, origin, destination, persons } = getPassengerDetail;
     // get the coordinte to do the distance calculation
-    const originLatLon = `${getPassengerDetail.origin_coordinate.x}, ${getPassengerDetail.origin_coordinate.y}`;
-    const destinationLatLon = `${getPassengerDetail.destination_coordinate.x}, ${getPassengerDetail.destination_coordinate.y}`;
+    const originLatLon = `${getPassengerDetail.origin_latitude}, ${getPassengerDetail.origin_longitude}`;
+    const destinationLatLon = `${getPassengerDetail.destination_latitude}, ${getPassengerDetail.destination_longitude}`;
 
-    const filterRoutes = await Passenger.filterRoutes(routeId, date, persons,
-      getPassengerDetail.origin_coordinate, getPassengerDetail.destination_coordinate);
-    if (filterRoutes.length < 1) {
-      return res.status(500).send({ error: "Internal server error" });
-    } else if (filterRoutes.msg) {
-      filterRoutes.origin = origin;
-      filterRoutes.destination = destination;
-      filterRoutes.destinationCoordinate = getPassengerDetail.destination_coordinate;
-      filterRoutes.originCoordinate = getPassengerDetail.origin_coordinate;
-      return res.status(200).send(filterRoutes);
+    // eslint-disable-next-line max-len
+    const filterRouteByRedis = await Passenger.requestRouteToRedis(routeId, timestamp, getPassengerDetail.origin_latitude, getPassengerDetail.origin_longitude, getPassengerDetail.destination_latitude, getPassengerDetail.destination_longitude);
+    console.log("filterRouteByRedis", filterRouteByRedis);
+    // const filterRoutes = await Passenger.filterRoutes(routeId, date, persons,
+    //   getPassengerDetail.origin_coordinate, getPassengerDetail.destination_coordinate);
+    // if (filterRoutes.length < 1) {
+    //   return res.status(500).send({ error: "Internal server error" });
+    // } else if (filterRoutes.msg) {
+    //   filterRoutes.origin = origin;
+    //   filterRoutes.destination = destination;
+    //   filterRoutes.destinationCoordinate = getPassengerDetail.destination_coordinate;
+    //   filterRoutes.originCoordinate = getPassengerDetail.origin_coordinate;
+    //   return res.status(200).send(filterRoutes);
+    // }
+    if (!filterRouteByRedis) {
+      return res.status(200).send({ passengerInfo: getPassengerDetail, msg: "No matched routes." });
     }
     getPassengerDetail.userId = id;
-    const result = { passengerInfo: getPassengerDetail, driverInfo: filterRoutes };
+    const result = { passengerInfo: getPassengerDetail, driverInfo: filterRouteByRedis };
+    console.log("result", result);
     res.status(200).send(result);
   } catch (err) {
     console.log(err);

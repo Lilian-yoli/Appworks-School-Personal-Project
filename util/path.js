@@ -2,7 +2,11 @@ require("dotenv").config();
 const axios = require("axios");
 const { GOOGLE_MAP } = process.env;
 const Path = require("../server/models/path_model.js");
+const Passenger = require("../server/models/passenger_model.js");
 const Util = require("./util.js");
+const { redisClient, getLocationsFromRedis, searchNearBy } = require("./redis");
+const geo = require("georedis").initialize(redisClient);
+const passengerLocations = geo.addSet("passengerLocations");
 
 // start and destination are pure string lat lng, ex. 25.0329694, 121.5654177
 const getDirection = async (start, destination) => {
@@ -25,21 +29,46 @@ const getDirection = async (start, destination) => {
   }
 };
 
-const filterRoutesIn20km = async (start, destination, date, seats) => {
+const filterRoutesIn20km = async (start, destination, timestamp, seats) => {
   try {
-    const waypoints = await getDirection(start, destination);
-    const passengerRoutes = await Path.getPassengerRoutesByDate(date);
+    const driverWaypoints = geo.addSet("driverWaypoints");
+    const waypoints = await getLocationsFromRedis(driverWaypoints, "wayptsLocationsName");
+    console.log("waypoints", waypoints);
+    const redisSet = await Passenger.savePassengerLocations(timestamp);
+    console.log("redisSet", redisSet);
+    const matchedHashTable = {};
+    const matchedRoutesId = [];
+    const location = {};
 
-    const filterByOrigins = await matchWaypoints(passengerRoutes, waypoints, "origin_coordinate");
+    for (const waypt of waypoints) {
+      const matchedPassenger = await searchNearBy(passengerLocations, waypt, 25000, {});
 
-    const filterByDestination = await matchWaypoints(filterByOrigins, waypoints, "destination_coordinate");
+      for (const id of matchedPassenger) {
+        const routeId = id.split("/")[1];
+        const locationType = id.split("/")[0];
+        location[locationType] = locationType;
+        matchedHashTable[routeId] = location;
+        if (matchedHashTable[routeId].origin && matchedHashTable[routeId].destination && !matchedRoutesId.includes(routeId)) {
+          matchedRoutesId.push(routeId);
+        }
+      }
+    }
+    console.log("matchedHashTable", matchedHashTable);
+    console.log("matchedRoutesId", matchedRoutesId);
+    const passengerInfo = await Path.getPassengerRoutes(timestamp, matchedRoutesId);
+    // const waypoints = await getDirection(start, destination);
+    // const passengerRoutes = await Path.getPassengerRoutesByDate(date);
 
-    const driverOrigin = start.split(",");
-    const filteredRoutes = [];
+    // const filterByOrigins = await matchWaypoints(passengerRoutes, waypoints, "origin_coordinate");
+
+    // const filterByDestination = await matchWaypoints(filterByOrigins, waypoints, "destination_coordinate");
+
+    // const driverOrigin = start.split(",");
+    // const filteredRoutes = [];
     // check if the direction is the same as driver
-    const fianlFilteredRoutes = checkSameDirection(filterByDestination, driverOrigin, filteredRoutes);
-
-    return fianlFilteredRoutes;
+    // const fianlFilteredRoutes = checkSameDirection(filterByDestination, driverOrigin, filteredRoutes);
+    console.log("passengerInfo", passengerInfo);
+    return passengerInfo;
   } catch (err) {
     console.log(err);
   }
