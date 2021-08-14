@@ -18,7 +18,7 @@ window.onload = async () => {
   }).then((data) => {
     console.log(data);
     if (data.error) {
-      window.location.href = "./404.html";
+      window.location.href = "./public/404.html";
     }
     if (data.empty) {
       const chatbox = document.getElementById("chatbox");

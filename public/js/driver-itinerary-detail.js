@@ -2,7 +2,7 @@
 const query = window.location.search;
 const verifyToken = localStorage.getItem("access_token");
 if (!query) {
-  window.location.href = "./404.html";
+  window.location.href = "./public/404.html";
 }
 
 if (!verifyToken) {

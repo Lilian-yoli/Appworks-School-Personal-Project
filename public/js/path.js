@@ -5,7 +5,7 @@ async function wrapper () {
   const verifyToken = localStorage.getItem("access_token");
 
   if (!query) {
-    window.location.href = "./404.html";
+    window.location.href = "./public/404.html";
   }
   const response = await fetch(`/api/1.0/route-suggestion${query}`, {
     method: "GET",

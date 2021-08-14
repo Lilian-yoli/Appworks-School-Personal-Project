@@ -7,7 +7,7 @@ if (!verifyToken) {
 }
 
 if (!query) {
-  window.location.href = "./404.html";
+  window.location.href = "./public/404.html";
 }
 
 async function wrapper () {
